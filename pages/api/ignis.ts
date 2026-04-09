@@ -1,9 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-// Shared message store (in-memory for Vercel serverless)
-// Messages persist only within the same Lambda container instance
-interface Msg { id: number; role: string; text: string; time: string; minds?: string[] }
+interface Msg {
+  id: number
+  role: 'user' | 'ignis' | 'council' | 'system'
+  text: string
+  time: string
+  minds?: string[]
+}
 
+// In-memory store — messages reset on cold start (Vercel free tier)
+// The relay worker on this server polls this and writes responses back
 const store: { messages: Msg[] } = { messages: [] }
 let counter = 0
 
@@ -13,19 +19,19 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
   if (req.method === 'OPTIONS') { res.status(200).end(); return }
 
-  // GET: poll for new messages
+  // GET: poll for new messages (used by relay + frontend)
   if (req.method === 'GET') {
     const since = parseInt(req.query.since as string) || 0
     const newMsgs = store.messages.slice(since)
     return res.status(200).json({ messages: newMsgs, timestamp: store.messages.length })
   }
 
-  // POST: either submit user message OR write ignis response
+  // POST: user message or ignis response write
   if (req.method === 'POST') {
-    const { role, text, minds } = req.body
+    const { role, text, minds } = req.body as { role?: string; text?: string; minds?: string[] }
 
-    // Ignis response write — bypass user checks
     if (role === 'ignis' && text) {
+      // Direct ignis response write (from relay worker)
       const msg: Msg = {
         id: ++counter,
         role: 'ignis',
@@ -37,8 +43,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(200).json({ ok: true, id: msg.id, timestamp: store.messages.length })
     }
 
-    // User message
     if (!text) return res.status(400).json({ error: 'No text' })
+
+    // User message — store it, relay will pick it up and call the gateway
     const msg: Msg = {
       id: ++counter,
       role: 'user',
