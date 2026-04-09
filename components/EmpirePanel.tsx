@@ -3,7 +3,7 @@ interface Empire {
   name: string
   domain: string
   tier: number
-  status: 'active' | 'planned' | 'building'
+  status: string
   icon: string
   color: string
 }
