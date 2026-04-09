@@ -1,21 +1,6 @@
-import type { Metadata } from 'next'
+import type { AppProps } from 'next/app'
 import '../styles/globals.css'
 
-export const metadata: Metadata = {
-  title: 'NoctVox — Command Center',
-  description: 'Ignis command interface for the Vox empire system',
-}
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <html lang="en">
-      <body className="bg-[#0a0a0a] text-gray-200 antialiased">
-        {children}
-      </body>
-    </html>
-  )
+export default function App({ Component, pageProps }: AppProps) {
+  return <Component {...pageProps} />
 }

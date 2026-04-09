@@ -19,37 +19,27 @@ module.exports = {
           800: '#9a3412',
           900: '#7c2d12',
         },
-        obsidian: {
-          50:  '#f8f8f8',
-          100: '#e8e8e8',
-          200: '#d1d1d1',
-          300: '#b0b0b0',
-          400: '#888888',
-          500: '#6d6d6d',
-          600: '#5d5d5d',
-          700: '#4f4f4f',
-          800: '#3d3d3d',
-          900: '#2a2a2a',
-          950: '#1a1a1a',
-        }
-      },
-      fontFamily: {
-        display: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        mono: ['ui-monospace', 'monospace'],
       },
       animation: {
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'ember-scan': 'ember-scan 4s linear infinite',
+        'character-pulse': 'character-pulse 2s ease-in-out infinite',
         'glow': 'glow 2s ease-in-out infinite alternate',
       },
       keyframes: {
-        glow: {
+        'ember-scan': {
+          '0%': { transform: 'translateY(-100%)', opacity: '0' },
+          '50%': { opacity: '0.05' },
+          '100%': { transform: 'translateY(100%)', opacity: '0' },
+        },
+        'character-pulse': {
+          '0%, 100%': { transform: 'scale(1)', opacity: '0.7' },
+          '50%': { transform: 'scale(1.05)', opacity: '1' },
+        },
+        'glow': {
           '0%': { opacity: '0.4', filter: 'blur(20px)' },
           '100%': { opacity: '0.8', filter: 'blur(30px)' },
-        }
+        },
       },
-      backgroundImage: {
-        'radial-glow': 'radial-gradient(ellipse at center, var(--tw-gradient-stops))',
-      }
     },
   },
   plugins: [],
