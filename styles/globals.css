@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ember: #f97316;
+  --ember-glow: rgba(249, 115, 22, 0.4);
+  --ignis: #fbbf24;
+  --ignis-glow: rgba(251, 191, 36, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #0a0a0a;
+  color: #e5e5e5;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* GPU acceleration for all animated elements */
+.will-change-transform {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3d3d3d;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #f97316;
+}
+
+/* Glow effects */
+.glow-ember {
+  box-shadow: 0 0 20px var(--ember-glow), 0 0 40px rgba(249, 115, 22, 0.15);
+}
+
+.glow-ignis {
+  box-shadow: 0 0 30px var(--ignis-glow), 0 0 60px rgba(251, 191, 36, 0.1);
+}
+
+.text-glow {
+  text-shadow: 0 0 20px var(--ember-glow);
+}
+
+/* Council ring glow */
+.council-glow {
+  filter: drop-shadow(0 0 8px var(--ember-glow));
+  transition: filter 0.3s ease, opacity 0.3s ease;
+}
+
+.council-glow:hover,
+.council-glow.active {
+  filter: drop-shadow(0 0 15px var(--ember-glow)) drop-shadow(0 0 30px rgba(249, 115, 22, 0.3));
+}
+
+/* Panel glass effect */
+.glass-panel {
+  background: rgba(20, 20, 20, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Noise texture overlay */
+.noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Grid pattern background */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Line trace animation */
+@keyframes lineTrace {
+  from { stroke-dashoffset: 1000; }
+  to { stroke-dashoffset: 0; }
+}
+
+.line-trace {
+  stroke-dasharray: 1000;
+  animation: lineTrace 1.5s ease-out forwards;
+}
+
+/* Character pulse */
+@keyframes characterPulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+.character-active {
+  animation: characterPulse 2s ease-in-out infinite;
+}
+
+/* Ember scan line */
+@keyframes emberScan {
+  0% { transform: translateY(-100%); opacity: 0; }
+  50% { opacity: 0.05; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+
+.ember-scan::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--ember), transparent);
+  animation: emberScan 4s linear infinite;
+}
+
+/* Mobile touch optimization */
+@media (hover: none) {
+  .touch-highlight:active {
+    background: rgba(249, 115, 22, 0.15);
+  }
+}

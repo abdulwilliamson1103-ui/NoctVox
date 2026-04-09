@@ -1,28 +1,31 @@
-# NoctVox
+# NoctVox Command Center
 
-NoctVox is the parent system above the Vox domain packs.
+Live monitoring interface for the NoctVox empire system. Ignis Core + Council Ring + Agent Panel + Empire Panel.
 
-It defines:
-- the cross-domain council architecture
-- the visual command model for Ignis
-- the empire map across all Vox brands
-- the shared governance, research, and infrastructure layers
+## Tech Stack
+- Next.js 15 (Static Export)
+- Tailwind CSS
+- GSAP-ready structure
+- TypeScript
 
-## Domain Packs
-- `LeVox` — Real Estate
-- `NeoVox` — AI, Tech, Robotics
-- `HPVox` — Healthcare & Perseverance
-- `DoctrinaVox` — Education
-- `XoVox` — Entertainment, Music, Sports, Gaming
-- `FinVox` — Finance
-- `StarVox` — Transportation & Energy
+## Development
+```bash
+npm install
+npm run dev
+```
 
-## Core Docs
-- `docs/VOXHIVE-BLUEPRINT.md`
-- `docs/VISUAL-VOXHIVE-ARCHITECTURE.md`
-- `docs/NOCTVOX-COUNCIL.md`
-- `docs/NOCTVOX-VISUAL-SPEC.md`
+## Build
+```bash
+npm run build
+```
 
-## Current State
-This repo is the architecture and command layer.
-`LeVox` remains its own domain repo and serves as the first concrete implementation path.
+Output goes to `out/` directory — deploy directly to Vercel or any static host.
+
+## Deployment to Vercel
+1. Push to GitHub
+2. Import project in Vercel
+3. Deploy — zero config needed
+
+## Note
+GSAP and Three.js are available for animation/3D enhancements.
+The current build is static and fast. Add WebGL effects as needed.
