@@ -129,6 +129,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const msgIdRef = useRef(0)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
@@ -249,4 +250,43 @@ export default function Home() {
                 {msg.role === 'ignis' && <div className="flex-shrink-0"><IgnisFlame size={28} /></div>}
                 {msg.role === 'council' && <div className="w-7 h-7 rounded flex items-center justify-center text-[10px] font-mono flex-shrink-0 mt-1" style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)', color: '#a78bfa' }}>C</div>}
                 {msg.role === 'user' && <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1" style={{ background: 'linear-gradient(135deg, #ff6b35, #d4380d)', color: '#fff' }}>K</div>}
-                {msg.role === 'system' && <div className="w-7 h-
+                {msg.role === 'system' && <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs flex-shrink-0 mt-1" style={{ background: 'rgba(255,200,50,0.1)', border: '1px solid rgba(255,200,50,0.2)', color: '#ffc832' }}>!</div>}
+                <div className={`px-3 py-2 text-sm rounded-xl ${msg.role === 'user' ? 'text-white rounded-br-sm' : msg.role === 'council' ? 'text-purple-300 rounded-bl-sm' : 'text-gray-200 rounded-bl-sm'} ${msg.role === 'user' ? '' : 'bg-black/40'}`}
+                  style={msg.role === 'user' ? { background: 'linear-gradient(135deg, #ff6b35, #d4380d)', maxWidth: '75%' } : {}}>
+                  {msg.text}
+                </div>
+              </div>
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
+        </div>
+
+        <div className="px-4 pb-4 pt-2" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0) 100%)' }}>
+          <div className="flex items-end gap-2 max-w-2xl mx-auto">
+            <div className="flex-1 flex items-end gap-2 bg-white/5 backdrop-blur-sm rounded-2xl px-4 py-2 border" style={{ borderColor: 'rgba(212,168,67,0.2)' }}>
+              <input
+                ref={inputRef}
+                type="text"
+                className="flex-1 bg-transparent text-white text-sm outline-none placeholder-gray-600"
+                placeholder="Message Ignis..."
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
+                disabled={loading}
+              />
+              {input.trim() && (
+                <button onClick={() => handleSend()} disabled={loading} className="text-d4a843 flex-shrink-0">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d4a843" strokeWidth="2">
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            <HoldToSpeak onTranscript={handleVoiceTranscript} />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
