@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { routeThroughCouncil, generateCouncilResponse, COUNCIL_CHARACTERS } from '../lib/council'
+import { routeThroughCouncil, COUNCIL_CHARACTERS } from '../lib/council'
 
 const EMPIRES = [
   { id: 'lexov', name: 'LeVox', domain: 'Real Estate', tier: 1, status: 'active', icon: '🏰', color: '#f97316' },
@@ -126,11 +126,9 @@ export default function Home() {
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [activeMinds, setActiveMinds] = useState<string[]>(['optimus'])
   const [showEmpire, setShowEmpire] = useState(false)
-  const [sending, setSending] = useState(false)
+  const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const msgIdRef = useRef(0)
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const pollStartRef = useRef<number>(0)
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
@@ -155,54 +153,34 @@ export default function Home() {
     setMessages(prev => [...prev, { id: ++msgIdRef.current, role, text, time, minds }])
   }, [])
 
-  // Poll for AI response
-  const startPolling = useCallback((startIndex: number) => {
-    if (pollRef.current) clearInterval(pollRef.current)
-    pollStartRef.current = startIndex
-    pollRef.current = setInterval(async () => {
-      try {
-        const res = await fetch(`/api/ignis?since=${pollStartRef.current}`)
-        const data = await res.json()
-        if (data.messages && data.messages.length > 0) {
-          for (const msg of data.messages) {
-            if (msg.role === 'ignis') {
-              addMsg('ignis', msg.text, msg.minds)
-              speak(msg.text)
-            }
-          }
-          pollStartRef.current = data.timestamp
-        }
-      } catch {}
-    }, 2000)
-    setTimeout(() => { if (pollRef.current) clearInterval(pollRef.current) }, 60000)
-  }, [addMsg, speak])
-
   const handleSend = useCallback(async (textOverride?: string) => {
     const text = (textOverride || input).trim()
-    if (!text || sending) return
+    if (!text || loading) return
     stopSpeaking()
-    if (pollRef.current) clearInterval(pollRef.current)
     addMsg('user', text)
     setInput('')
-    setSending(true)
+    setLoading(true)
 
-    const { active, results } = routeThroughCouncil(text)
+    // Route through council — internal, not shown to user
+    const { active } = routeThroughCouncil(text)
     setActiveMinds(active)
-    addMsg('council', generateCouncilResponse(text, results), active)
 
     try {
+      // Call API — returns AI response directly (synchronous)
       const res = await fetch('/api/ignis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, minds: active })
       })
       const data = await res.json()
-      setTimeout(() => { addMsg('ignis', 'Processing your request...', active); startPolling(data.total || 1) }, 600)
-    } catch {
-      addMsg('system', 'Connection error — retrying...')
-      setSending(false)
+      addMsg('ignis', data.text || data.response || '[No response]', active)
+      if (data.text) speak(data.text)
+    } catch (err) {
+      addMsg('system', 'Connection error — check your network.')
+    } finally {
+      setLoading(false)
     }
-  }, [input, sending, addMsg, speak, stopSpeaking, startPolling])
+  }, [input, loading, addMsg, speak, stopSpeaking])
 
   const handleVoiceTranscript = useCallback((transcript: string) => {
     if (transcript.startsWith('[')) { addMsg('system', transcript); return }
@@ -257,7 +235,7 @@ export default function Home() {
             <div className="flex flex-col items-center justify-center h-full text-center pt-12">
               <IgnisFlame size={72} />
               <h2 className="text-white font-semibold text-lg mt-4" style={{ fontFamily: 'Space Grotesk' }}>Ignis Online</h2>
-              <p className="text-gray-500 text-xs mt-2 max-w-xs" style={{ color: '#666' }}>Hold the mic to speak, or type below.</p>
+              <p className="text-gray-500 text-xs mt-2 max-w-xs" style={{ color: '#666' }}>Hold the mic to speak, or type below. Council minds are standing by.</p>
               <div className="flex items-center gap-2 mt-4 text-[10px]" style={{ color: '#d4a84360' }}>
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span>Live</span>
@@ -271,53 +249,4 @@ export default function Home() {
                 {msg.role === 'ignis' && <div className="flex-shrink-0"><IgnisFlame size={28} /></div>}
                 {msg.role === 'council' && <div className="w-7 h-7 rounded flex items-center justify-center text-[10px] font-mono flex-shrink-0 mt-1" style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)', color: '#a78bfa' }}>C</div>}
                 {msg.role === 'user' && <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1" style={{ background: 'linear-gradient(135deg, #ff6b35, #d4380d)', color: '#fff' }}>K</div>}
-                {msg.role === 'system' && <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs flex-shrink-0 mt-1" style={{ background: 'rgba(255,200,50,0.1)', border: '1px solid rgba(255,200,50,0.2)', color: '#ffc832' }}>!</div>}
-                <div>
-                  <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-                    msg.role === 'user' ? 'msg-bubble-user rounded-br-sm' :
-                    msg.role === 'ignis' ? 'msg-bubble-ignis rounded-bl-sm' :
-                    msg.role === 'council' ? 'msg-bubble-council rounded-bl-sm' :
-                    'msg-bubble-system rounded-bl-sm'
-                  }`}>{msg.text}</div>
-                  {msg.minds && msg.minds.length > 0 && <div className="flex flex-wrap mt-1 ml-1">{msg.minds.map((m: string) => <MindTag key={m} mindId={m} />)}</div>}
-                  <p className="text-[9px] mt-1 px-1" style={{ color: '#444' }}>{msg.time}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {sending && (
-          <div className="mx-4 mb-2 flex items-center gap-3 px-4 py-3 rounded-xl" style={{ background: 'rgba(212,168,67,0.06)', border: '1px solid rgba(212,168,67,0.15)' }}>
-            <div className="flex gap-1"><div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce" /><div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: '0.15s' }} /><div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: '0.3s' }} /></div>
-            <span className="text-amber-400 text-xs">Routing through council...</span>
-          </div>
-        )}
-
-        <div className="px-4 pb-4 pt-2" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0) 100%)' }}>
-          <div className="flex items-end gap-3">
-            <div className="flex-1">
-              <textarea
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
-                placeholder="Command Ignis..."
-                rows={1}
-                className="w-full rounded-2xl px-4 py-3 text-sm resize-none focus:outline-none"
-                style={{ background: 'rgba(20,20,20,0.95)', border: '1px solid rgba(212,168,67,0.2)', color: '#e0e0e0', fontFamily: 'Space Grotesk, sans-serif', minHeight: '48px', maxHeight: '120px' }}
-              />
-            </div>
-            <HoldToSpeak onTranscript={handleVoiceTranscript} />
-            <button onClick={() => handleSend()} disabled={!input.trim()}
-              className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
-              style={{ background: input.trim() ? 'linear-gradient(135deg, #ff6b35, #d4380d)' : 'rgba(50,50,50,0.5)', color: input.trim() ? '#fff' : '#555', border: input.trim() ? 'none' : '1px solid rgba(255,255,255,0.05)' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            </button>
-          </div>
-          <p className="text-center text-[9px] mt-2" style={{ color: '#333' }}>Hold mic to speak · Tap send or press Enter</p>
-        </div>
-      </div>
-    </div>
-  )
-}
+                {msg.role === 'system' && <div className="w-7 h-
