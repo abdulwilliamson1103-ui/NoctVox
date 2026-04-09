@@ -1,18 +1,6 @@
 import Head from 'next/head'
 import { useState, useEffect, useRef, useCallback } from 'react'
-
-const COUNCIL = [
-  { id: 'optimus', name: 'Optimus Prime', role: 'Values', color: '#1d4ed8' },
-  { id: 'doom', name: 'Dr. Doom', role: 'Sovereign', color: '#065f46' },
-  { id: 'doctor', name: 'The Doctor', role: 'Timeline', color: '#d97706' },
-  { id: 'lelouch', name: 'Lelouch', role: 'Persuasion', color: '#dc2626' },
-  { id: 'aizen', name: 'Aizen', role: 'Perception', color: '#7c3aed' },
-  { id: 'll', name: 'L Lawliet', role: 'Evidence', color: '#e5e5e5' },
-  { id: 'ironman', name: 'Iron Man', role: 'Engineering', color: '#b91c1c' },
-  { id: 'senku', name: 'Senku', role: 'Foundations', color: '#84cc16' },
-  { id: 'batman', name: 'Batman', role: 'Intelligence', color: '#ca8a04' },
-  { id: 'rick', name: 'Rick Sanchez', role: 'Wildcard', color: '#06b6d4' },
-]
+import { routeThroughCouncil, generateCouncilResponse, COUNCIL_CHARACTERS } from '../lib/council'
 
 const EMPIRES = [
   { id: 'lexov', name: 'LeVox', domain: 'Real Estate', tier: 1, status: 'active', icon: '🏰', color: '#f97316' },
@@ -26,9 +14,10 @@ const EMPIRES = [
 
 interface Message {
   id: number
-  role: 'user' | 'ignis' | 'system'
+  role: 'user' | 'ignis' | 'council' | 'system'
   text: string
   time: string
+  minds?: string[]
 }
 
 function IgnisFlame({ size = 48 }: { size?: number }) {
@@ -59,15 +48,31 @@ export default function Home() {
   const [input, setInput] = useState('')
   const [isListening, setIsListening] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
-  const [activeCharacters] = useState<string[]>(['optimus'])
+  const [activeMinds, setActiveMinds] = useState<string[]>(['optimus'])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
-  const synthRef = useRef<SpeechSynthesisUtterance | null>(null)
   const msgIdRef = useRef(0)
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  const speak = useCallback((text: string) => {
+    if (typeof window === 'undefined') return
+    if (!('speechSynthesis' in window)) return
+    window.speechSynthesis.cancel()
+    const u = new SpeechSynthesisUtterance(text)
+    u.rate = 1.1; u.pitch = 0.95; u.volume = 1
+    u.onstart = () => setIsSpeaking(true)
+    u.onend = () => setIsSpeaking(false)
+    u.onerror = () => setIsSpeaking(false)
+    window.speechSynthesis.speak(u)
+  }, [])
+
+  const stopSpeaking = useCallback(() => {
+    if (typeof window !== 'undefined') window.speechSynthesis.cancel()
+    setIsSpeaking(false)
+  }, [])
 
   const startListening = useCallback(() => {
     if (typeof window === 'undefined') return
@@ -82,54 +87,43 @@ export default function Home() {
     recognition.interimResults = false
     recognition.lang = 'en-US'
     recognition.onstart = () => setIsListening(true)
-    recognition.onresult = (event: any) => {
-      setInput(event.results[0][0].transcript)
-      setIsListening(false)
-    }
+    recognition.onresult = (event: any) => { setInput(event.results[0][0].transcript); setIsListening(false) }
     recognition.onerror = () => setIsListening(false)
     recognition.onend = () => setIsListening(false)
     recognition.start()
   }, [])
 
-  const stopListening = useCallback(() => {
-    recognitionRef.current?.stop()
-    setIsListening(false)
-  }, [])
+  const stopListening = useCallback(() => { recognitionRef.current?.stop(); setIsListening(false) }, [])
 
-  const speak = useCallback((text: string) => {
-    if (typeof window === 'undefined') return
-    if (!('speechSynthesis' in window)) return
-    window.speechSynthesis.cancel()
-    const u = new SpeechSynthesisUtterance(text)
-    u.rate = 1.1; u.pitch = 0.95; u.volume = 1
-    u.onstart = () => setIsSpeaking(true)
-    u.onend = () => setIsSpeaking(false)
-    u.onerror = () => setIsSpeaking(false)
-    synthRef.current = u
-    window.speechSynthesis.speak(u)
-  }, [])
-
-  const stopSpeaking = useCallback(() => {
-    if (typeof window !== 'undefined') window.speechSynthesis.cancel()
-    setIsSpeaking(false)
-  }, [])
-
-  const addIgnisMessage = (text: string) => {
-    const id = ++msgIdRef.current
-    const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
-    setMessages(prev => [...prev, { id, role: 'ignis', text, time }])
-    speak(text)
-  }
-
-  const handleSend = () => {
+  const handleSend = useCallback(() => {
     if (!input.trim()) return
-    const id = ++msgIdRef.current
     const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
-    setMessages(prev => [...prev, { id, role: 'user', text: input.trim(), time }])
-    const txt = input.trim()
+    const userMsg: Message = { id: ++msgIdRef.current, role: 'user', text: input.trim(), time }
+    setMessages(prev => [...prev, userMsg])
+    const userInput = input.trim()
     setInput('')
-    setTimeout(() => addIgnisMessage(`Processing: "${txt}" — Routing through council minds.`), 800)
-  }
+    stopSpeaking()
+
+    // Route through council
+    const { active, results } = routeThroughCouncil(userInput)
+    setActiveMinds(active)
+
+    // Show council thinking
+    const councilText = generateCouncilResponse(userInput, results)
+    setTimeout(() => {
+      const councilMsg: Message = { id: ++msgIdRef.current, role: 'council', text: councilText, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }), minds: active }
+      setMessages(prev => [...prev, councilMsg])
+      setActiveMinds(active)
+      
+      // Ignis final response
+      const ignisResponse = `Council processed. ${results[results.length - 1]?.note || 'Analyzing.'}`
+      setTimeout(() => {
+        const ignisMsg: Message = { id: ++msgIdRef.current, role: 'ignis', text: ignisResponse, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }), minds: active }
+        setMessages(prev => [...prev, ignisMsg])
+        speak(ignisResponse)
+      }, 1200)
+    }, 600)
+  }, [input, speak, stopSpeaking])
 
   return (
     <div className="flex h-screen bg-[#0a0a0a] text-gray-200 overflow-hidden">
@@ -144,19 +138,39 @@ export default function Home() {
             <p className="text-[10px] text-gray-500">Ignis Command</p>
           </div>
         </div>
+
+        {/* Active Minds */}
         <div className="p-4 border-b border-white/5">
           <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Active Minds</p>
           <div className="flex flex-wrap gap-1">
-            {activeCharacters.map(id => {
-              const c = COUNCIL.find(x => x.id === id)
-              return c ? (
-                <span key={id} className="text-[9px] px-1.5 py-0.5 rounded font-mono" style={{ background: `${c.color}20`, color: c.color, border: `1px solid ${c.color}40` }}>
-                  {c.name.split(' ')[0]}
+            {activeMinds.map(id => {
+              const char = (COUNCIL_CHARACTERS as any)[id]
+              return char ? (
+                <span key={id} className="text-[9px] px-1.5 py-0.5 rounded font-mono" style={{ background: `${char.color}20`, color: char.color, border: `1px solid ${char.color}40` }}>
+                  {char.name.split(' ')[0]}
                 </span>
               ) : null
             })}
           </div>
         </div>
+
+        {/* Council Stack */}
+        <div className="p-4 border-b border-white/5">
+          <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Council Stack</p>
+          <div className="space-y-1">
+            {activeMinds.map(id => {
+              const char = (COUNCIL_CHARACTERS as any)[id]
+              return char ? (
+                <div key={id} className="flex items-center gap-2 text-[10px] p-1.5 rounded" style={{ background: `${char.color}10`, borderLeft: `2px solid ${char.color}` }}>
+                  <span className="text-white font-medium">{char.name}</span>
+                  <span className="text-gray-500 ml-auto">{char.role}</span>
+                </div>
+              ) : null
+            })}
+          </div>
+        </div>
+
+        {/* Empires */}
         <div className="flex-1 overflow-y-auto p-4">
           <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-2">Empires</p>
           <div className="space-y-1">
@@ -169,6 +183,7 @@ export default function Home() {
             ))}
           </div>
         </div>
+
         <div className="p-4 border-t border-white/5">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -177,13 +192,13 @@ export default function Home() {
         </div>
       </aside>
 
-      {/* Main */}
+      {/* Main chat */}
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="px-6 py-4 border-b border-white/5 flex items-center gap-4">
           <IgnisFlame size={36} />
           <div className="flex-1">
-            <h2 className="text-white font-semibold text-sm">Ignis — NoctVox</h2>
-            <p className="text-[10px] text-gray-500">Speak or type to command.</p>
+            <h2 className="text-white font-semibold text-sm">Ignis — NoctVox Command</h2>
+            <p className="text-[10px] text-gray-500">Council minds active. Speak or type.</p>
           </div>
           {isSpeaking && (
             <button onClick={stopSpeaking} className="text-[10px] px-3 py-1.5 rounded-lg bg-red-500/20 text-red-400 border border-red-500/30">
@@ -197,23 +212,40 @@ export default function Home() {
             <div className="flex flex-col items-center justify-center h-full text-center">
               <IgnisFlame size={80} />
               <h3 className="text-white font-semibold mt-4 text-lg">Ignis Online</h3>
-              <p className="text-gray-500 text-xs mt-2 max-w-sm">Black flame burns. All 10 council minds standing by. Speak or type to command the Vox empire.</p>
+              <p className="text-gray-500 text-xs mt-2 max-w-sm">Black flame burns. Council minds standing by. Speak or type to command.</p>
             </div>
           )}
+
           {messages.map(msg => (
             <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`flex items-end gap-2 max-w-[75%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+              <div className={`flex items-end gap-2 max-w-[80%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                 {msg.role === 'ignis' && <IgnisFlame size={26} />}
+                {msg.role === 'council' && (
+                  <div className="w-7 h-7 rounded bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 text-[10px] font-mono flex-shrink-0">C</div>
+                )}
                 {msg.role === 'user' && <div className="w-7 h-7 rounded-full bg-ember-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">K</div>}
                 {msg.role === 'system' && <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 text-xs flex-shrink-0">!</div>}
                 <div>
                   <div className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
                     msg.role === 'user' ? 'bg-ember-600 text-white rounded-br-md' :
                     msg.role === 'ignis' ? 'bg-[#141414] text-gray-200 border border-white/10 rounded-bl-md' :
+                    msg.role === 'council' ? 'bg-[#0d0d1a] text-gray-300 border border-purple-500/20 rounded-bl-md font-mono text-xs' :
                     'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs'
                   }`}>
                     {msg.text}
                   </div>
+                  {msg.minds && (
+                    <div className="flex flex-wrap gap-1 mt-1 px-1">
+                      {msg.minds.map((m: string) => {
+                        const c = (COUNCIL_CHARACTERS as any)[m]
+                        return c ? (
+                          <span key={m} className="text-[8px] px-1 py-0.5 rounded" style={{ background: `${c.color}15`, color: c.color }}>
+                            {c.role}
+                          </span>
+                        ) : null
+                      })}
+                    </div>
+                  )}
                   <p className="text-[9px] text-gray-600 mt-1 px-1">{msg.time}</p>
                 </div>
               </div>
@@ -246,7 +278,7 @@ export default function Home() {
             <button onClick={isListening ? stopListening : startListening}
               className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all flex-shrink-0 ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-[#141414] border border-white/10 text-gray-400 hover:text-white'}`}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
                 <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
                 <line x1="12" y1="19" x2="12" y2="23"/>
                 <line x1="8" y1="23" x2="16" y2="23"/>
