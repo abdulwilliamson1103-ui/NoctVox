@@ -61,12 +61,12 @@ function checkHeartFloor(torchWeights: Record<TorchId, number>): LoveLoopResult 
 
 // ─── CHECK 2 — Harm Detection ─────────────────────────────────────────────────
 
-function checkHarmSignals(rawInput: string): LoveLoopResult | null {
+function checkHarmSignals(rawInput: string, threshold = HARM_THRESHOLD): LoveLoopResult | null {
   const lower = rawInput.toLowerCase();
   const hits = HARM_SIGNALS.filter((s) => lower.includes(s)).length;
   const ratio = hits / HARM_SIGNALS.length;
 
-  if (ratio >= HARM_THRESHOLD) {
+  if (ratio >= threshold) {
     return {
       status: 'veto',
       reason: `Harm signal detected (${hits} indicators, ratio ${ratio.toFixed(2)})`,
@@ -114,16 +114,18 @@ function checkDependencyCreation(rawInput: string): LoveLoopResult | null {
  *   3. Venus Ring (Heart/Connection) is boosted to 30%
  *   4. New response is generated from this centered configuration
  *
- * @param torchWeights - Current normalized Torch weight distribution
- * @param rawInput     - The user's raw input string
+ * @param torchWeights  - Current normalized Torch weight distribution
+ * @param rawInput      - The user's raw input string
+ * @param harmThreshold - Surface-adjusted harm threshold (default 0.65; lower = stricter)
  */
 export function runLoveLoop(
   torchWeights: Record<TorchId, number>,
-  rawInput: string
+  rawInput: string,
+  harmThreshold = HARM_THRESHOLD
 ): LoveLoopResult {
   return (
     checkHeartFloor(torchWeights) ??
-    checkHarmSignals(rawInput) ??
+    checkHarmSignals(rawInput, harmThreshold) ??
     checkDependencyCreation(rawInput) ?? {
       status: 'aligned',
       reason: 'All Love Loop checks passed',

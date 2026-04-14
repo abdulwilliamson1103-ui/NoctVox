@@ -1,5 +1,20 @@
 // Aum Routing Engine — Supabase Persistence Layer
 //
+// ⚠️  SERVER-SIDE ONLY — DO NOT IMPORT IN BROWSER CODE ⚠️
+//
+// This module uses SUPABASE_SERVICE_KEY, which is a privileged service role key
+// that bypasses Row Level Security entirely. Exposing it in the browser would
+// allow any user to read or overwrite any other user's data.
+//
+// This file must only be imported from:
+//   - Next.js API routes  (pages/api/*)
+//   - Supabase Edge Functions
+//   - Server-side scripts (ts-node, CI, etc.)
+//
+// For client-side Supabase access use the anon key with the public client:
+//   import { createClient } from '@supabase/supabase-js'
+//   const db = createClient(NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY)
+//
 // Three memory tiers:
 //   Tier 1 — Session Memory    (ephemeral, local context — not stored here)
 //   Tier 2 — Episodic Memory   (persistent, house-classified → aum_memories)
@@ -10,8 +25,18 @@
 import { createClient } from '@supabase/supabase-js';
 import type { AumRoutingResponse, HouseId, TorchId, SurfaceType } from './types';
 
+// ─── Browser Guard ────────────────────────────────────────────────────────────
+// Hard fail if this module is ever accidentally bundled into a browser context.
+// The service key must never be exposed client-side.
+if (typeof window !== 'undefined') {
+  throw new Error(
+    '[Aum] supabase.ts must not run in the browser — it uses the service role key ' +
+    'which bypasses RLS. Import the anon client instead for browser usage.'
+  );
+}
+
 // ─── Client ───────────────────────────────────────────────────────────────────
-// SUPABASE_URL must be set in .env.local (e.g. https://xyz.supabase.co)
+// SUPABASE_URL must be set in .env.local (e.g. https://pykaamzuxfljdvkmltnm.supabase.co)
 // SUPABASE_SERVICE_KEY is the secret service role key — server-side only
 
 const SUPABASE_URL = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';

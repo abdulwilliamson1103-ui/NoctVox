@@ -1,12 +1,13 @@
 // Aum Routing Engine — Full Pipeline (router.ts)
 //
-// Five-stage routing: Intent → House → Torch → Ring → Echo
+// Six-stage routing: Intent → House → Torch → Ring → Echo → Surface
 //
 // Stage 1: Intent Classification → House Mapping
 // Stage 2: Torch Weight Overlay
 // Stage 3: Ring Activation (13 Rings)
 // Stage 4: Echo Selection (70/30 Blend)
-// Stage 5: System Prompt Assembly + Alignment Check
+// Stage 5: Surface Abstraction (constraints per deployment surface)
+// Stage 6: System Prompt Assembly + Alignment Check
 
 import type {
   AumRoutingRequest,
@@ -20,6 +21,7 @@ import { computeRoutingTorchState, TORCH_MAP, TORCH_TO_RING } from './torches';
 import { activateRings, RING_MAP } from './rings';
 import { buildEchoBlend } from './echoes';
 import { runLoveLoop, HEART_MINIMUM_FLOOR } from './alignment';
+import { applySurfaceConstraints, getSafetyHarmThreshold } from './surfaces';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -68,7 +70,9 @@ export function buildExpressionMode(
 // ─── System Prompt Assembly ───────────────────────────────────────────────────
 
 function assembleSystemPrompt(
-  response: Omit<AumRoutingResponse, 'systemPrompt' | 'timestamp'>
+  response: Omit<AumRoutingResponse, 'systemPrompt' | 'timestamp'>,
+  voiceMode = false,
+  maxTokens = 2000
 ): string {
   const house = HOUSE_MAP[response.houseMapping.primaryHouseId];
   const torch = TORCH_MAP[response.torchActivation.dominant];
@@ -127,9 +131,9 @@ The surface adapts. The soul does not.`.trim();
 /**
  * Route a user intent through the full Aum pipeline.
  *
- *   rawInput → House (classify) → Torch (weight) → Ring (activate) → Echo (blend) → Output
+ *   rawInput → House → Torch → Ring → Echo → Surface constraints → Output
  *
- * @param request    - The routing request (input, userId, surface, sessionId)
+ * @param request     - The routing request (input, userId, surface, sessionId)
  * @param houseMasses - Persistent house mass ledger loaded from Supabase
  */
 export async function routeIntent(
@@ -138,6 +142,7 @@ export async function routeIntent(
 ): Promise<AumRoutingResponse> {
   const sessionId = request.sessionId || generateId();
   const timestamp = new Date().toISOString();
+  const surfaceType = request.surfaceType ?? 'browser';
 
   // ── Stage 1: Intent → House ────────────────────────────────────────────────
   const houseMapping = classifyHouse(request.rawInput, houseMasses);
@@ -146,24 +151,35 @@ export async function routeIntent(
   const torchActivation = computeRoutingTorchState(houseMapping, houseMasses);
 
   // ── Stage 3: Torch → Ring (13 rings, keyword-extended) ────────────────────
-  const ringActivation = activateRings(torchActivation, request.rawInput);
+  const rawRingActivation = activateRings(torchActivation, request.rawInput);
 
   // ── Stage 4: Ring → Echo (70/30 blend) ────────────────────────────────────
-  const echoBlend = buildEchoBlend(ringActivation);
+  const rawEchoBlend = buildEchoBlend(rawRingActivation);
 
-  // ── Stage 5a: Love Loop alignment check ───────────────────────────────────
-  const loveLoop = runLoveLoop(torchActivation.weights, request.rawInput);
+  // ── Stage 5: Surface Abstraction Layer ────────────────────────────────────
+  // Enforces per-surface house scope, ring suppression, echo whitelist.
+  const { primaryHouseId, ringActivation, echoBlend, config: surfaceConfig } =
+    applySurfaceConstraints({
+      primaryHouseId: houseMapping.primaryHouseId,
+      ringActivation: rawRingActivation,
+      echoBlend: rawEchoBlend,
+      surfaceType,
+    });
+
+  // Rebuild houseMapping with surface-constrained primary house
+  const constrainedHouseMapping = { ...houseMapping, primaryHouseId };
+
+  // ── Stage 6a: Love Loop (surface-adjusted harm threshold) ─────────────────
+  const harmThreshold = getSafetyHarmThreshold(surfaceType);
+  const loveLoop = runLoveLoop(torchActivation.weights, request.rawInput, harmThreshold);
   const alignmentStatus: AlignmentStatus = loveLoop.status;
 
-  // ── Stage 5b: Mass update (house accumulation for this interaction) ────────
-  const massUpdate = buildMassUpdate(
-    houseMapping.primaryHouseId,
-    houseMapping.modulators
-  );
+  // ── Stage 6b: Mass update ──────────────────────────────────────────────────
+  const massUpdate = buildMassUpdate(primaryHouseId, houseMapping.modulators);
 
-  // ── Stage 5c: Expression mode token ───────────────────────────────────────
+  // ── Stage 6c: Expression mode token ───────────────────────────────────────
   const expressionMode = buildExpressionMode(
-    houseMapping.primaryHouseId,
+    primaryHouseId,
     torchActivation.dominant,
     ringActivation.primary,
     echoBlend.leadEcho.name
@@ -172,7 +188,7 @@ export async function routeIntent(
   const partial: Omit<AumRoutingResponse, 'systemPrompt' | 'timestamp'> = {
     sessionId,
     userId: request.userId,
-    houseMapping,
+    houseMapping: constrainedHouseMapping,
     torchActivation,
     ringActivation,
     echoBlend,
@@ -182,8 +198,10 @@ export async function routeIntent(
     expressionMode,
   };
 
-  // ── Stage 5d: System prompt assembly ──────────────────────────────────────
-  const systemPrompt = assembleSystemPrompt(partial);
+  // ── Stage 6d: System prompt assembly ──────────────────────────────────────
+  const systemPrompt = surfaceConfig.headlessMode
+    ? '' // API mode: caller receives raw routing data, no prompt needed
+    : assembleSystemPrompt(partial, surfaceConfig.voiceOutputMode, surfaceConfig.maxOutputTokens);
 
   return { ...partial, systemPrompt, timestamp };
 }
