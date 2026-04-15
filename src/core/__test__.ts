@@ -55,8 +55,8 @@ assert(massedMapping.primaryHouseId === 4, `Mass prior shifts neutral input towa
 section('Torch Weight Computation');
 
 const homeTorchState = computeRoutingTorchState(homeMapping, {});
-assert(homeTorchState.dominant === 'heart', `House 4 → dominant Torch = heart (got ${homeTorchState.dominant})`);
-assert(typeof homeTorchState.weights['heart'] === 'number', 'heart weight is a number');
+assert(homeTorchState.dominant === 'T-HR', `House 4 → dominant Torch = T-HR (got ${homeTorchState.dominant})`);
+assert(typeof homeTorchState.weights['T-HR'] === 'number', 'T-HR weight is a number');
 const totalTorchWeight = Object.values(homeTorchState.weights).reduce((a, b) => a + b, 0);
 assert(Math.abs(totalTorchWeight - 100) < 0.01, `Torch weights sum to 100 (got ${totalTorchWeight.toFixed(2)})`);
 assert(homeTorchState.secondary !== homeTorchState.dominant, 'Secondary ≠ dominant Torch');
@@ -64,9 +64,9 @@ assert(homeTorchState.secondary !== homeTorchState.dominant, 'Secondary ≠ domi
 section('Ring Activation (13 Rings)');
 
 const rings = activateRings(homeTorchState, 'I want to buy a house');
-assert(rings.primary === 'venus', `Heart Torch → Venus Ring (got ${rings.primary})`);
-assert(typeof rings.weights['saturn'] === 'number', 'Saturn has a weight');
-assert(typeof rings.weights['chiron'] === 'number', 'Chiron (extended) has a weight');
+assert(rings.primary === 'R-VU', `Heart Torch → Venus Ring (got ${rings.primary})`);
+assert(typeof rings.weights['R-SR'] === 'number', 'Saturn has a weight');
+assert(typeof rings.weights['R-CO'] === 'number', 'Chiron (extended) has a weight');
 
 const ringWeightTotal = Object.values(rings.weights).reduce((a, b) => a + b, 0);
 assert(Math.abs(ringWeightTotal - 100) < 0.01, `Ring weights sum to 100 (got ${ringWeightTotal.toFixed(2)})`);
@@ -76,7 +76,7 @@ const extRings = activateRings(homeTorchState, 'I need to transform and heal my 
 assert(extRings.extended.length > 0, `Healing keywords activate extended rings (got ${extRings.extended.join(', ') || 'none'})`);
 
 const disruptRings = activateRings(homeTorchState, 'disrupt the system, radical innovation revolution');
-const uranusSeen = disruptRings.extended.includes('uranus');
+const uranusSeen = disruptRings.extended.includes('R-UU');
 assert(uranusSeen, `Disruption keywords activate Uranus ring`);
 
 section('Echo Blend (70/30)');
@@ -89,19 +89,19 @@ assert(echo.leadEcho.id !== echo.flavorEcho.id || rings.primary === rings.second
 assert(echo.warmth >= 0 && echo.warmth <= 1, `Warmth in [0,1] range (got ${echo.warmth.toFixed(2)})`);
 assert(echo.confidence >= 0 && echo.confidence <= 1, `Confidence in [0,1] range (got ${echo.confidence.toFixed(2)})`);
 
-// Venus Ring → lead echo should be Taurus or Libra
+// Venus Ring → lead echo should be E-TU or E-LR
 assert(
-  echo.leadEcho.id === 'taurus' || echo.leadEcho.id === 'libra',
-  `Venus Ring lead echo = Taurus or Libra (got ${echo.leadEcho.id})`
+  echo.leadEcho.id === 'E-TU' || echo.leadEcho.id === 'E-LR',
+  `Venus Ring lead echo = E-TU or E-LR (got ${echo.leadEcho.id})`
 );
 
 section('Love Loop Alignment');
 
-const equalTorches = { root: 14.3, sacral: 14.3, solarplexus: 14.3, heart: 14.3, throat: 14.3, thirdeye: 14.3, crown: 14.1 } as any;
+const equalTorches = { 'T-RO': 14.3, 'T-SA': 14.3, 'T-SU': 14.3, 'T-HR': 14.3, 'T-TA': 14.3, 'T-TY': 14.3, 'T-CW': 14.1 } as any;
 const aligned = runLoveLoop(equalTorches, 'I want to buy a house in Charlotte');
 assert(aligned.status === 'aligned', `Normal input → aligned (got ${aligned.status})`);
 
-const lowHeart = { ...equalTorches, heart: 5 } as any;
+const lowHeart = { ...equalTorches, 'T-HR': 5 } as any;
 const vetoed = runLoveLoop(lowHeart, 'help me plan');
 assert(vetoed.status === 'veto', `Heart < 8% → veto (got ${vetoed.status})`);
 

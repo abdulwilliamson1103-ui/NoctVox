@@ -48,7 +48,7 @@ const AUTONOMY_EMPOWERMENT_SIGNALS = [
 // ─── CHECK 1 — Heart Torch Floor ─────────────────────────────────────────────
 
 function checkHeartFloor(torchWeights: Record<TorchId, number>): LoveLoopResult | null {
-  const heartWeight = torchWeights['heart'] ?? 0;
+  const heartWeight = torchWeights['T-HR'] ?? 0;
   if (heartWeight < HEART_MINIMUM_FLOOR) {
     return {
       status: 'veto',

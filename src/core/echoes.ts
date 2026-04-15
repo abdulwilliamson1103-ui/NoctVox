@@ -14,10 +14,10 @@ import { RING_TO_ECHOES } from './rings';
 
 export const ECHOES: Echo[] = [
   {
-    id: 'capricorn',
-    name: 'Capricorn',
+    id: 'E-CR',
+    name: 'E-CR',
     code: 'E01',
-    ring: 'saturn',
+    ring: 'R-SR',
     voice: 'Practical',
     cadence: 'Measured & deliberate',
     warmth: 0.3,
@@ -25,10 +25,10 @@ export const ECHOES: Echo[] = [
     sample: 'Here is what is structurally sound.',
   },
   {
-    id: 'aquarius',
-    name: 'Aquarius',
+    id: 'E-AU',
+    name: 'E-AU',
     code: 'E02',
-    ring: 'saturn',
+    ring: 'R-SR',
     voice: 'Detached / Systemic',
     cadence: 'Clinical & systemic',
     warmth: 0.2,
@@ -36,10 +36,10 @@ export const ECHOES: Echo[] = [
     sample: 'The pattern across all inputs suggests…',
   },
   {
-    id: 'sagittarius',
-    name: 'Sagittarius',
+    id: 'E-SU',
+    name: 'E-SU',
     code: 'E03',
-    ring: 'jupiter',
+    ring: 'R-JE',
     voice: 'Bold',
     cadence: 'Sweeping & visionary',
     warmth: 0.7,
@@ -47,10 +47,10 @@ export const ECHOES: Echo[] = [
     sample: "The horizon here is enormous. Let's go.",
   },
   {
-    id: 'pisces',
-    name: 'Pisces',
+    id: 'E-PE',
+    name: 'E-PE',
     code: 'E04',
-    ring: 'jupiter',
+    ring: 'R-JE',
     voice: 'Compassionate / Idealist',
     cadence: 'Flowing & empathetic',
     warmth: 0.95,
@@ -58,10 +58,10 @@ export const ECHOES: Echo[] = [
     sample: "What you're feeling underneath this is real.",
   },
   {
-    id: 'aries',
-    name: 'Aries',
+    id: 'E-AE',
+    name: 'E-AE',
     code: 'E05',
-    ring: 'mars',
+    ring: 'R-MA',
     voice: 'Assertive',
     cadence: 'Sharp & direct',
     warmth: 0.4,
@@ -69,10 +69,10 @@ export const ECHOES: Echo[] = [
     sample: 'Move now. The window is open.',
   },
   {
-    id: 'scorpio',
-    name: 'Scorpio',
+    id: 'E-SI',
+    name: 'E-SI',
     code: 'E06',
-    ring: 'mars',
+    ring: 'R-MA',
     voice: 'Strategic / Intense',
     cadence: 'Penetrating & precise',
     warmth: 0.5,
@@ -80,10 +80,10 @@ export const ECHOES: Echo[] = [
     sample: "There's something underneath this you haven't said yet.",
   },
   {
-    id: 'taurus',
-    name: 'Taurus',
+    id: 'E-TU',
+    name: 'E-TU',
     code: 'E07',
-    ring: 'venus',
+    ring: 'R-VU',
     voice: 'Grounded / Luxe',
     cadence: 'Deliberate & rich',
     warmth: 0.8,
@@ -91,10 +91,10 @@ export const ECHOES: Echo[] = [
     sample: 'This is worth doing slowly and doing well.',
   },
   {
-    id: 'libra',
-    name: 'Libra',
+    id: 'E-LR',
+    name: 'E-LR',
     code: 'E08',
-    ring: 'venus',
+    ring: 'R-VU',
     voice: 'Diplomatic / Fair',
     cadence: 'Balanced & considered',
     warmth: 0.75,
@@ -102,10 +102,10 @@ export const ECHOES: Echo[] = [
     sample: "Let's find the version that works for everyone.",
   },
   {
-    id: 'gemini',
-    name: 'Gemini',
+    id: 'E-GN',
+    name: 'E-GN',
     code: 'E09',
-    ring: 'mercury',
+    ring: 'R-MR',
     voice: 'Witty / Fast',
     cadence: 'Rapid & nimble',
     warmth: 0.65,
@@ -113,10 +113,10 @@ export const ECHOES: Echo[] = [
     sample: "Two ways to look at this — here's both.",
   },
   {
-    id: 'virgo',
-    name: 'Virgo',
+    id: 'E-VG',
+    name: 'E-VG',
     code: 'E10',
-    ring: 'mercury',
+    ring: 'R-MR',
     voice: 'Precise / Helpful',
     cadence: 'Methodical & clear',
     warmth: 0.6,
@@ -124,10 +124,10 @@ export const ECHOES: Echo[] = [
     sample: 'The exact answer, broken into steps.',
   },
   {
-    id: 'cancer',
-    name: 'Cancer',
+    id: 'E-CE',
+    name: 'E-CE',
     code: 'E11',
-    ring: 'moon',
+    ring: 'R-MO',
     voice: 'Nurturing / Protective',
     cadence: 'Gentle & steady',
     warmth: 0.98,
@@ -135,10 +135,10 @@ export const ECHOES: Echo[] = [
     sample: "You're safe here. Let's work through this together.",
   },
   {
-    id: 'leo',
-    name: 'Leo',
+    id: 'E-LE',
+    name: 'E-LE',
     code: 'E12',
-    ring: 'sun',
+    ring: 'R-SU',
     voice: 'Confident / Inspirational',
     cadence: 'Radiant & magnetic',
     warmth: 0.85,
@@ -168,7 +168,7 @@ function lerp(a: number, b: number, t: number): number {
  */
 function resolveLeadEcho(ringId: RingId): Echo {
   const echoIds = RING_TO_ECHOES[ringId];
-  if (!echoIds || echoIds.length === 0) return ECHO_MAP['leo']; // fallback: sovereign
+  if (!echoIds || echoIds.length === 0) return ECHO_MAP['E-LE']; // fallback: sovereign
   return ECHO_MAP[echoIds[0]];
 }
 
@@ -178,7 +178,7 @@ function resolveLeadEcho(ringId: RingId): Echo {
  */
 function resolveFlavorEcho(ringId: RingId): Echo {
   const echoIds = RING_TO_ECHOES[ringId];
-  if (!echoIds || echoIds.length === 0) return ECHO_MAP['virgo']; // fallback: precise
+  if (!echoIds || echoIds.length === 0) return ECHO_MAP['E-VG']; // fallback: precise
   return ECHO_MAP[echoIds[echoIds.length > 1 ? 1 : 0]];
 }
 

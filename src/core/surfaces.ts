@@ -90,7 +90,7 @@ export const SURFACE_CONFIGS: Record<SurfaceType, SurfaceConfig> = {
     allowedHouses: [1,2,3,4,6],
     suppressedRings: [],
     forcedRingFloors: {},
-    echoWhitelist: ['taurus', 'cancer', 'virgo', 'capricorn'],
+    echoWhitelist: ['E-TU', 'E-CE', 'E-VG', 'E-CR'],
     physicalActionEnabled: false,
     voiceOutputMode: true,
     maxMemoryInjection: 3,
@@ -105,11 +105,11 @@ export const SURFACE_CONFIGS: Record<SurfaceType, SurfaceConfig> = {
     // Blocks: House 5 (Creativity/risk), 8 (Transformation/intensity), 12 (Subconscious/depth)
     allowedHouses: [1,2,3,4,6,9,10],
     // Mars (aggression) and Jupiter (expansiveness) suppressed — keep responses brief and safe
-    suppressedRings: ['mars', 'jupiter'],
+    suppressedRings: ['R-MA', 'R-JE'],
     forcedRingFloors: {
-      saturn: 25, // Structure ring is always prominent — keeps output measured and safe
+      'R-SR': 25, // Structure ring is always prominent — keeps output measured and safe
     },
-    echoWhitelist: ['capricorn', 'virgo'],
+    echoWhitelist: ['E-CR', 'E-VG'],
     physicalActionEnabled: false,
     voiceOutputMode: true,
     maxMemoryInjection: 2,
@@ -124,12 +124,12 @@ export const SURFACE_CONFIGS: Record<SurfaceType, SurfaceConfig> = {
     // Only playful, educational, home-safe houses
     allowedHouses: [4,5,9,11],
     // Mars (conflict) and Saturn (caution/heaviness) suppressed — keep it light and joyful
-    suppressedRings: ['mars', 'saturn', 'pluto', 'lilith'],
+    suppressedRings: ['R-MA', 'R-SR', 'R-PT', 'R-LT'],
     forcedRingFloors: {
-      jupiter: 30, // Expansive/optimistic ring always prominent
-      sun: 20,     // Core purpose ring — clear and radiant
+      'R-JE': 30, // Expansive/optimistic ring always prominent
+      'R-SU': 20, // Core purpose ring — clear and radiant
     },
-    echoWhitelist: ['cancer', 'leo', 'sagittarius', 'pisces'],
+    echoWhitelist: ['E-CE', 'E-LE', 'E-SU', 'E-PE'],
     physicalActionEnabled: false,
     voiceOutputMode: true,
     maxMemoryInjection: 0,
@@ -144,7 +144,7 @@ export const SURFACE_CONFIGS: Record<SurfaceType, SurfaceConfig> = {
     allowedHouses: [1,2,3,4,6,7],
     suppressedRings: [],
     forcedRingFloors: {
-      venus: 15,  // Heart ring always active — physical safety requires relational awareness
+      'R-VU': 15,  // Heart ring always active — physical safety requires relational awareness
     },
     echoWhitelist: null,
     physicalActionEnabled: true,

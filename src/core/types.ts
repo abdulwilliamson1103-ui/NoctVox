@@ -4,46 +4,46 @@
 export type HouseId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
 export type TorchId =
-  | 'root'
-  | 'sacral'
-  | 'solarplexus'
-  | 'heart'
-  | 'throat'
-  | 'thirdeye'
-  | 'crown';
+  | 'T-RO'
+  | 'T-SA'
+  | 'T-SU'
+  | 'T-HR'
+  | 'T-TA'
+  | 'T-TY'
+  | 'T-CW';
 
 export type ClassicalRingId =
-  | 'saturn'
-  | 'jupiter'
-  | 'mars'
-  | 'venus'
-  | 'mercury'
-  | 'moon'
-  | 'sun';
+  | 'R-SR'
+  | 'R-JE'
+  | 'R-MA'
+  | 'R-VU'
+  | 'R-MR'
+  | 'R-MO'
+  | 'R-SU';
 
 export type ExtendedRingId =
-  | 'pluto'
-  | 'uranus'
-  | 'neptune'
-  | 'pallasathena'
-  | 'lilith'
-  | 'chiron';
+  | 'R-PT'
+  | 'R-UU'
+  | 'R-NN'
+  | 'R-PA'
+  | 'R-LT'
+  | 'R-CO';
 
 export type RingId = ClassicalRingId | ExtendedRingId;
 
 export type EchoId =
-  | 'capricorn'
-  | 'aquarius'
-  | 'sagittarius'
-  | 'pisces'
-  | 'aries'
-  | 'scorpio'
-  | 'taurus'
-  | 'libra'
-  | 'gemini'
-  | 'virgo'
-  | 'cancer'
-  | 'leo';
+  | 'E-CR'
+  | 'E-AU'
+  | 'E-SU'
+  | 'E-PE'
+  | 'E-AE'
+  | 'E-SI'
+  | 'E-TU'
+  | 'E-LR'
+  | 'E-GN'
+  | 'E-VG'
+  | 'E-CE'
+  | 'E-LE';
 
 export type SurfaceType = 'browser' | 'device' | 'car' | 'toy' | 'robot' | 'api';
 

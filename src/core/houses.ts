@@ -10,7 +10,7 @@ export const HOUSES: House[] = [
     name: 'Identity',
     domain: 'Identity & Presence',
     industries: 'Biometrics, Digital ID, Wearables, Branding, Personal Security',
-    torchRoot: 'root',
+    torchRoot: 'T-RO',
     triggerKeywords: [
       'body', 'persona', 'vitality', 'identity', 'self', 'brand',
       'who am i', 'presence', 'appearance', 'myself', 'image', 'name',
@@ -22,7 +22,7 @@ export const HOUSES: House[] = [
     name: 'Values',
     domain: 'Values & Assets',
     industries: 'Banking, Crypto, Fintech, Personal Finance, Physical Goods',
-    torchRoot: 'root',
+    torchRoot: 'T-RO',
     triggerKeywords: [
       'money', 'skills', 'security', 'finance', 'crypto', 'assets',
       'wealth', 'invest', 'savings', 'income', 'budget', 'worth',
@@ -34,7 +34,7 @@ export const HOUSES: House[] = [
     name: 'Communication',
     domain: 'Communication',
     industries: 'Telecom, Social Media, Messaging APIs, Short-form Content, Transit',
-    torchRoot: 'solarplexus',
+    torchRoot: 'T-SU',
     triggerKeywords: [
       'ideas', 'logic', 'messaging', 'social', 'content', 'media',
       'write', 'speak', 'communicate', 'message', 'post', 'email',
@@ -46,7 +46,7 @@ export const HOUSES: House[] = [
     name: 'Home',
     domain: 'Home & Foundation',
     industries: 'Real Estate, Smart Home IoT, Interior Design, Ancestry, Agriculture',
-    torchRoot: 'heart',
+    torchRoot: 'T-HR',
     triggerKeywords: [
       'family', 'emotions', 'roots', 'home', 'property', 'foundation',
       'house', 'apartment', 'real estate', 'domestic', 'land',
@@ -58,7 +58,7 @@ export const HOUSES: House[] = [
     name: 'Creativity',
     domain: 'Creativity & Play',
     industries: 'Gaming, Entertainment, Arts, Romance Apps, Sports',
-    torchRoot: 'sacral',
+    torchRoot: 'T-SA',
     triggerKeywords: [
       'play', 'romance', 'risk', 'gaming', 'entertainment', 'arts',
       'create', 'fun', 'game', 'sport', 'date', 'joy', 'perform',
@@ -70,7 +70,7 @@ export const HOUSES: House[] = [
     name: 'Health',
     domain: 'Health & Service',
     industries: 'HealthTech, Pharma, Fitness, Daily Operations, HR/Staffing',
-    torchRoot: 'solarplexus',
+    torchRoot: 'T-SU',
     triggerKeywords: [
       'work', 'service', 'routine', 'health', 'fitness', 'pharma',
       'wellness', 'exercise', 'diet', 'doctor', 'medicine', 'habit',
@@ -82,7 +82,7 @@ export const HOUSES: House[] = [
     name: 'Partnerships',
     domain: 'Partnerships',
     industries: 'Legal Contracts, M&A, MarTech, B2B Relations, Marriage',
-    torchRoot: 'heart',
+    torchRoot: 'T-HR',
     triggerKeywords: [
       'contracts', 'balance', 'trust', 'legal', 'partnership', 'business',
       'relationship', 'collaborate', 'agreement', 'marry', 'team',
@@ -94,7 +94,7 @@ export const HOUSES: House[] = [
     name: 'Transformation',
     domain: 'Transformation',
     industries: 'Insurance, Cybersecurity, Tax, Inheritance, Deep Psychology',
-    torchRoot: 'sacral',
+    torchRoot: 'T-SA',
     triggerKeywords: [
       'debt', 'power', 'secrets', 'insurance', 'tax', 'inheritance',
       'transform', 'deep', 'death', 'change', 'psychology', 'hidden',
@@ -106,7 +106,7 @@ export const HOUSES: House[] = [
     name: 'Philosophy',
     domain: 'Philosophy & Travel',
     industries: 'Higher Ed, EdTech, Global Logistics, Tourism, Law, Religion',
-    torchRoot: 'throat',
+    torchRoot: 'T-TA',
     triggerKeywords: [
       'travel', 'beliefs', 'wisdom', 'education', 'law', 'religion',
       'philosophy', 'learn', 'teach', 'explore', 'truth', 'meaning',
@@ -118,7 +118,7 @@ export const HOUSES: House[] = [
     name: 'Legacy',
     domain: 'Legacy & Career',
     industries: 'Corporate Governance, Government, Executive Strategy, Reputation',
-    torchRoot: 'throat',
+    torchRoot: 'T-TA',
     triggerKeywords: [
       'authority', 'legacy', 'goals', 'career', 'corporate', 'government',
       'reputation', 'ambition', 'leadership', 'strategy', 'success',
@@ -130,7 +130,7 @@ export const HOUSES: House[] = [
     name: 'Community',
     domain: 'Community',
     industries: 'Non-profits, Crowdfunding, Collaborative SaaS, Web3, Humanitarian Aid',
-    torchRoot: 'thirdeye',
+    torchRoot: 'T-TY',
     triggerKeywords: [
       'groups', 'tech', 'innovation', 'community', 'nonprofit', 'web3',
       'network', 'humanitarian', 'collective', 'ai', 'future', 'society',
@@ -142,7 +142,7 @@ export const HOUSES: House[] = [
     name: 'Subconscious',
     domain: 'Subconscious',
     industries: 'Mental Health, SleepTech, Prison Reform, Spiritual Apps, Secret Data',
-    torchRoot: 'crown',
+    torchRoot: 'T-CW',
     triggerKeywords: [
       'dreams', 'karma', 'solitude', 'mental health', 'sleep', 'unconscious',
       'spiritual', 'meditation', 'intuition', 'subconscious', 'psyche',
