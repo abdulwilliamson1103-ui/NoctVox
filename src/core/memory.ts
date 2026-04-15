@@ -1,0 +1,239 @@
+// Aum Routing Engine — #3: Memory Encoding Service
+//
+// Memory is NOT raw chat history.
+// It is structured, house-classified, torch-weighted, and semantically compressed.
+//
+// Three tiers:
+//   Tier 1 — Session Memory    (ephemeral — per-request context window)
+//   Tier 2 — Episodic Memory   (persistent semantic summaries in aum_memories)
+//   Tier 3 — House Mass Ledger (long-term personality accumulator in aum_house_mass)
+//
+// Mass accumulation rules (from blueprint):
+//   QUERY_ONLY         → +1
+//   EXPRESSED_EMOTION  → +2
+//   REPEATED_DOMAIN    → +3
+//   DECISION_MADE      → +4
+//   LIFE_EVENT         → +5
+
+import type { HouseId, TorchId, SurfaceType, MemoryBlock, EpisodicMemory } from './types';
+
+// ─── Mass Weight Constants ────────────────────────────────────────────────────
+
+export const MASS_WEIGHTS = {
+  QUERY_ONLY:         1, // User asked a question, no strong signal
+  EXPRESSED_EMOTION:  2, // User expressed emotion around the topic
+  REPEATED_DOMAIN:    3, // Same house 3+ times in a session
+  DECISION_MADE:      4, // User made a real-world decision in this domain
+  LIFE_EVENT:         5, // Major event detected
+} as const;
+
+export type MassEventType = keyof typeof MASS_WEIGHTS;
+
+// ─── Signal Detectors ─────────────────────────────────────────────────────────
+
+const EMOTION_SIGNALS = [
+  'feel', 'felt', 'feeling', 'scared', 'excited', 'worried', 'anxious',
+  'happy', 'sad', 'angry', 'frustrated', 'love', 'hate', 'nervous',
+  'overwhelmed', 'grateful', 'afraid', 'hope', 'scared', 'proud',
+];
+
+const DECISION_SIGNALS = [
+  'decided', 'going to', "i'm going to", 'will do', 'just signed',
+  'just bought', 'just hired', 'accepted', 'committed', 'agreed',
+  'chose', 'picked', 'selected', 'finalized',
+];
+
+const LIFE_EVENT_SIGNALS = [
+  'just bought a house', 'just got married', 'just had a baby',
+  'just got divorced', 'just lost my job', 'just got promoted',
+  'starting a company', 'just moved', 'just retired', 'just died',
+  'just diagnosed', 'getting married', 'expecting a baby',
+];
+
+/**
+ * Classify the type of mass contribution this interaction represents.
+ * Higher-weight events accumulate more domain mass.
+ */
+export function classifyMassEvent(rawInput: string): MassEventType {
+  const lower = rawInput.toLowerCase();
+
+  if (LIFE_EVENT_SIGNALS.some((s) => lower.includes(s))) return 'LIFE_EVENT';
+  if (DECISION_SIGNALS.some((s) => lower.includes(s))) return 'DECISION_MADE';
+  if (EMOTION_SIGNALS.some((s) => lower.includes(s))) return 'EXPRESSED_EMOTION';
+  return 'QUERY_ONLY';
+}
+
+/**
+ * Compute mass contribution for this interaction.
+ * Can be boosted if it is a repeated domain (same house multiple times in session).
+ */
+export function computeMassContribution(
+  rawInput: string,
+  isRepeatedDomain = false
+): number {
+  if (isRepeatedDomain) return MASS_WEIGHTS.REPEATED_DOMAIN;
+  const eventType = classifyMassEvent(rawInput);
+  return MASS_WEIGHTS[eventType];
+}
+
+// ─── Semantic Compression ─────────────────────────────────────────────────────
+
+// Keywords that indicate high-value content worth preserving in memory
+const HIGH_VALUE_SIGNALS = [
+  'important', 'critical', 'remember', 'note', 'key', 'must', 'need',
+  'goal', 'plan', 'decision', 'always', 'never', 'prefer', 'avoid',
+];
+
+/**
+ * Lightweight semantic compression of raw user input.
+ *
+ * In production, this should be replaced with an LLM compression call
+ * (e.g., Claude Haiku with a "summarize as a 1-sentence memory" prompt).
+ * This implementation provides a deterministic fallback that extracts
+ * signal-heavy fragments for storage.
+ *
+ * @param rawInput     - The user's original input
+ * @param houseContext - House name for contextual framing
+ * @param torchContext - Dominant Torch for emotional framing
+ */
+export function compressToMemory(
+  rawInput: string,
+  houseContext: string,
+  torchContext: string
+): string {
+  const lower = rawInput.toLowerCase();
+  const sentences = rawInput
+    .split(/[.!?]+/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 10);
+
+  // Score each sentence by high-value signal density
+  const scored = sentences.map((sentence) => {
+    const sentLower = sentence.toLowerCase();
+    const score = HIGH_VALUE_SIGNALS.filter((sig) => sentLower.includes(sig)).length;
+    return { sentence, score };
+  });
+
+  // Pick the highest-scoring sentence, or first if all equal
+  scored.sort((a, b) => b.score - a.score);
+  const core = scored[0]?.sentence ?? rawInput.slice(0, 120);
+
+  // Frame with house and torch context
+  return `[${houseContext}/${torchContext}] ${core}`.slice(0, 280);
+}
+
+// ─── Memory Block Builder ─────────────────────────────────────────────────────
+
+function generateId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+/**
+ * Build a structured MemoryBlock from a routing interaction.
+ * MemoryBlocks are the in-memory representation before Supabase persistence.
+ */
+export function buildMemoryBlock(params: {
+  houseId: HouseId;
+  houseName: string;
+  torchId: TorchId;
+  torchName: string;
+  torchWeightSnapshot: Record<TorchId, number>;
+  rawInput: string;
+  surfaceType: SurfaceType;
+  isRepeatedDomain?: boolean;
+  tags?: string[];
+}): MemoryBlock {
+  const massContribution = computeMassContribution(
+    params.rawInput,
+    params.isRepeatedDomain ?? false
+  );
+
+  const content = compressToMemory(
+    params.rawInput,
+    params.houseName,
+    params.torchName
+  );
+
+  return {
+    id: generateId(),
+    houseId: params.houseId,
+    torchWeightSnapshot: params.torchWeightSnapshot,
+    content,
+    massContribution,
+    emotionalSignature: params.torchId,
+    surfaceType: params.surfaceType,
+    timestamp: new Date().toISOString(),
+    tags: params.tags ?? [],
+  };
+}
+
+// ─── Mass Decay ───────────────────────────────────────────────────────────────
+
+const DEFAULT_DECAY_RATE = 0.02; // 2% per day
+
+/**
+ * Apply time-based decay to a house mass value.
+ * Prevents stale mass from permanently dominating routing.
+ *
+ * Formula: mass × (1 - decayRate)^daysSinceActivity
+ */
+export function applyMassDecay(
+  totalMass: number,
+  lastActivityISO: string,
+  decayRate = DEFAULT_DECAY_RATE
+): number {
+  const lastActivity = new Date(lastActivityISO).getTime();
+  const now = Date.now();
+  const daysSince = Math.max(0, (now - lastActivity) / (1000 * 60 * 60 * 24));
+  const decayed = totalMass * Math.pow(1 - decayRate, daysSince);
+  return Math.max(0, decayed);
+}
+
+/**
+ * Apply decay to all house masses in a ledger.
+ * Returns a new map with decayed values — does NOT mutate the original.
+ */
+export function applyDecayToLedger(
+  houseMasses: Record<number, number>,
+  lastActivities: Record<number, string>
+): Record<number, number> {
+  const decayed: Record<number, number> = {};
+  for (const [houseIdStr, mass] of Object.entries(houseMasses)) {
+    const houseId = Number(houseIdStr);
+    const lastActivity = lastActivities[houseId];
+    decayed[houseId] = lastActivity
+      ? applyMassDecay(mass, lastActivity)
+      : mass;
+  }
+  return decayed;
+}
+
+// ─── Personalization Tiers ────────────────────────────────────────────────────
+
+/**
+ * Get the personalization tier for a house based on its accumulated mass.
+ *
+ * LOW  (0–20):   Generic responses, no personal context injected
+ * MED  (21–60):  Pattern-aware responses, light context injection
+ * HIGH (61–120): Deep personalization, full emotional history available
+ * PEAK (120+):   Specialist-grade responses with predictive anticipation
+ */
+export function getPersonalizationTier(
+  mass: number
+): 'LOW' | 'MED' | 'HIGH' | 'PEAK' {
+  if (mass <= 20) return 'LOW';
+  if (mass <= 60) return 'MED';
+  if (mass <= 120) return 'HIGH';
+  return 'PEAK';
+}
+
+/**
+ * Determine how many memory blocks to inject into context based on mass tier.
+ */
+export function getMemoryInjectionLimit(mass: number): number {
+  const tier = getPersonalizationTier(mass);
+  return { LOW: 0, MED: 2, HIGH: 5, PEAK: 10 }[tier];
+}
