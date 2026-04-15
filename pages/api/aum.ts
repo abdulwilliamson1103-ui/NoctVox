@@ -2,7 +2,7 @@
 // POST /api/aum
 //
 // Runs the full routing pipeline: Intent → House → Torch → Ring → Echo
-// Loads house mass from Supabase, routes, persists result, returns AumRoutingResponse.
+// Loads house mass from Upstash Redis, routes, persists result, returns AumRoutingResponse.
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { routeIntent } from '@/src/core/router';
@@ -10,7 +10,7 @@ import {
   loadHouseMasses,
   persistRoutingSession,
   updateHouseMasses,
-} from '@/src/core/supabase';
+} from '@/src/core/upstash';
 import type { AumRoutingRequest, AumRoutingResponse } from '@/src/core/types';
 
 function setCors(res: NextApiResponse) {
