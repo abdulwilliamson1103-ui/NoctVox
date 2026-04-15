@@ -31,11 +31,11 @@ async function run() {
   console.log('   ✓ Masses:', masses);
 
   console.log('\n[4] Write session...');
-  await redis.lpush('aum:sessions:test-user', JSON.stringify({ id: 'test-001', expression_mode: 'H4:HEART:VENUS:TAURUS' }));
+  await redis.lpush('aum:sessions:test-user', JSON.stringify({ id: 'test-001', expression_mode: 'H4:T-HR:R-VU:E-TU' }));
   console.log('   ✓ Written');
 
   console.log('\n[5] Write memory...');
-  await redis.zadd('aum:mem:test-user:4', { score: 3, member: JSON.stringify({ content: 'User wants to buy a house', emotionalSignature: 'heart', massContribution: 3 }) });
+  await redis.zadd('aum:mem:test-user:4', { score: 3, member: JSON.stringify({ content: 'User wants to buy a house', emotionalSignature: 'T-HR', massContribution: 3 }) });
   console.log('   ✓ Written');
 
   console.log('\n[6] Cleanup...');
