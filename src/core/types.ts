@@ -202,6 +202,8 @@ export interface AumRoutingResponse {
   massUpdate: Record<number, number>; // house mass contributions from this request
   confidenceScore: number;
   expressionMode: string;             // e.g. "H4:HEART:VENUS:TAURUS" (1 of 13,104)
+  fractalChecksum: string;            // identity fingerprint for drift detection
+  internalMirror: InternalMirrorReport; // Aum's self-assessment this session
   timestamp: string;                  // ISO8601
 }
 

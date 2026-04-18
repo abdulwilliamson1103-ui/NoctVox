@@ -18,6 +18,7 @@
 //   aum:mass:{userId}           → Hash  { houseId: totalMass }
 //   aum:sessions:{userId}       → List  [ ...JSON session strings ] (newest first)
 //   aum:mem:{userId}:{houseId}  → ZSet  scored by massContribution, member = JSON
+//   aum:fractal:{userId}        → String (baseline fractal checksum — set on first session)
 
 import { Redis } from '@upstash/redis';
 import type { AumRoutingResponse, HouseId, TorchId, SurfaceType } from './types';
@@ -89,6 +90,7 @@ export async function persistRoutingSession(
       primary_house:    response.houseMapping.primaryHouseId,
       dominant_torch:   response.torchActivation.dominant,
       active_ring:      response.ringActivation.primary,
+      lead_echo:        response.echoBlend.leadEcho.id,
       expression_mode:  response.expressionMode,
       alignment_status: response.alignmentStatus,
       created_at:       response.timestamp,
@@ -116,6 +118,29 @@ export async function getRecentSessions(
   } catch (err) {
     console.error('[Aum] getRecentSessions error:', err);
     return [];
+  }
+}
+
+// ─── Fractal Checksum ─────────────────────────────────────────────────────────
+
+export async function loadFractalChecksum(userId: string): Promise<string | null> {
+  const redis = getClient();
+  if (!redis) return null;
+  try {
+    return await redis.get<string>(`aum:fractal:${userId}`);
+  } catch (err) {
+    console.error('[Aum] loadFractalChecksum error:', err);
+    return null;
+  }
+}
+
+export async function saveFractalChecksum(userId: string, checksum: string): Promise<void> {
+  const redis = getClient();
+  if (!redis) return;
+  try {
+    await redis.set(`aum:fractal:${userId}`, checksum);
+  } catch (err) {
+    console.error('[Aum] saveFractalChecksum error:', err);
   }
 }
 

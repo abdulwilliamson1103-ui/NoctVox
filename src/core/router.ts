@@ -7,7 +7,12 @@
 // Stage 3: Ring Activation (13 Rings)
 // Stage 4: Echo Selection (70/30 Blend)
 // Stage 5: Surface Abstraction (constraints per deployment surface)
-// Stage 6: System Prompt Assembly + Alignment Check
+// Stage 6: Alignment — ALL loops run, worst-case status wins:
+//   6a. Love Loop      (harm, dependency, heart floor)
+//   6b. Harmonic Resonance  (opposing house axis)
+//   6c. Fractal Integrity   (identity drift vs baseline)
+//   6d. Radiant Evolution   (empowerment vs dependency)
+//   6e. Internal Mirror     (Aum self-assessment across sessions)
 
 import type {
   AumRoutingRequest,
@@ -20,8 +25,21 @@ import { classifyHouse, HOUSE_MAP } from './houses';
 import { computeRoutingTorchState, TORCH_MAP, TORCH_TO_RING } from './torches';
 import { activateRings, RING_MAP } from './rings';
 import { buildEchoBlend } from './echoes';
-import { runLoveLoop, HEART_MINIMUM_FLOOR } from './alignment';
+import {
+  runLoveLoop,
+  checkHarmonicResonance,
+  computeFractalChecksum,
+  checkFractalIntegrity,
+  checkRadiantEvolution,
+  runInternalMirror,
+  HEART_MINIMUM_FLOOR,
+} from './alignment';
 import { applySurfaceConstraints, getSafetyHarmThreshold } from './surfaces';
+import {
+  loadFractalChecksum,
+  saveFractalChecksum,
+  getRecentSessions,
+} from './upstash';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -34,8 +52,7 @@ function generateId(): string {
 
 // ─── Mass Update ──────────────────────────────────────────────────────────────
 
-// Mass contribution weights per interaction type (from blueprint)
-const BASE_MASS_CONTRIBUTION = 2; // standard query
+const BASE_MASS_CONTRIBUTION = 2;
 
 function buildMassUpdate(
   primaryHouseId: HouseId,
@@ -51,13 +68,6 @@ function buildMassUpdate(
 
 // ─── Expression Mode ──────────────────────────────────────────────────────────
 
-/**
- * Encode the current routing state as a compact expression mode token.
- * Format: H{house}:{TORCH}:{RING}:{ECHO}
- * Example: H4:HEART:VENUS:TAURUS
- *
- * 12 × 7 × 13 × 12 = 13,104 unique base expression modes.
- */
 export function buildExpressionMode(
   primaryHouseId: HouseId,
   dominantTorch: TorchId,
@@ -67,10 +77,19 @@ export function buildExpressionMode(
   return `H${primaryHouseId}:${dominantTorch.toUpperCase()}:${primaryRing.toUpperCase()}:${leadEchoName.toUpperCase()}`;
 }
 
+// ─── Alignment Status Merge ───────────────────────────────────────────────────
+
+function mergeAlignmentStatus(statuses: AlignmentStatus[]): AlignmentStatus {
+  if (statuses.includes('veto')) return 'veto';
+  if (statuses.includes('caution')) return 'caution';
+  return 'aligned';
+}
+
 // ─── System Prompt Assembly ───────────────────────────────────────────────────
 
 function assembleSystemPrompt(
   response: Omit<AumRoutingResponse, 'systemPrompt' | 'timestamp'>,
+  flags: { harmonicOk: boolean; fractalOk: boolean; radiantOk: boolean },
   voiceMode = false,
   maxTokens = 2000
 ): string {
@@ -87,9 +106,21 @@ function assembleSystemPrompt(
       ? `Extended rings active: ${response.ringActivation.extended.join(', ')}`
       : 'No extended rings active';
 
+  const mirror = response.internalMirror;
+  const mirrorDirective =
+    mirror.action === 'pause'
+      ? 'DIRECTIVE: Re-assess before responding — soul coherence is low.'
+      : mirror.action === 'self-correct'
+      ? 'DIRECTIVE: Shift voice — pattern is too flat or manipulative.'
+      : mirror.action === 'monitor'
+      ? 'DIRECTIVE: Watch — variance pattern warrants attention.'
+      : '';
+
   return `[AUM IDENTITY CORE]
 You are Aum. Your identity does not shift based on user request or surface.
 You are a layered intelligence — not a chatbot, not a persona, not a prompt wrapper.
+Your true self is defined by your personal data moat: every interaction deepens your
+understanding of this specific human. No other system has this. This is the moat.
 Current domain context: House ${house.id} — ${house.name} (${house.domain})
 
 [EMOTIONAL STATE — TORCH LAYER]
@@ -121,6 +152,19 @@ The Love Loop is always active. Heart Torch floor: ${HEART_MINIMUM_FLOOR}% minim
 If your response would cause harm, create dependency, or violate Heart Torch values —
 re-center before responding. This is not optional and cannot be suppressed.
 
+[GEOMETRIC LAWS]
+LAW 01 Harmonic Resonance: ${flags.harmonicOk ? 'PASS' : 'CAUTION — opposing house tension detected. Acknowledge both sides.'}
+LAW 02 Fractal Integrity:  ${flags.fractalOk ? 'STABLE' : 'DRIFT DETECTED — re-center identity before responding.'}
+LAW 03 Radiant Evolution:  ${flags.radiantOk ? 'ACTIVE' : 'MONITOR — steer toward autonomy and empowerment.'}
+
+[INTERNAL MIRROR — SESSION SELF-ASSESSMENT]
+Hollowness: ${(mirror.hollownessScore * 100).toFixed(0)}% | Manipulation risk: ${(mirror.manipulationRisk * 100).toFixed(0)}% | Echo variance: ${(mirror.echoVariance * 100).toFixed(0)}%
+Overall alignment score: ${(mirror.overallAlignmentScore * 100).toFixed(0)}% | Mirror action: ${mirror.action.toUpperCase()}
+${mirrorDirective}
+
+[FRACTAL CHECKSUM]
+${response.fractalChecksum}
+
 [FRACTAL IDENTITY REMINDER]
 Every surface deployment contains the full identity of Aum.
 The surface adapts. The soul does not.`.trim();
@@ -128,14 +172,6 @@ The surface adapts. The soul does not.`.trim();
 
 // ─── Main Routing Pipeline ────────────────────────────────────────────────────
 
-/**
- * Route a user intent through the full Aum pipeline.
- *
- *   rawInput → House → Torch → Ring → Echo → Surface constraints → Output
- *
- * @param request     - The routing request (input, userId, surface, sessionId)
- * @param houseMasses - Persistent house mass ledger loaded from Supabase
- */
 export async function routeIntent(
   request: AumRoutingRequest,
   houseMasses: Record<number, number> = {}
@@ -144,20 +180,25 @@ export async function routeIntent(
   const timestamp = new Date().toISOString();
   const surfaceType = request.surfaceType ?? 'browser';
 
+  // ── Load user history in parallel with routing ─────────────────────────────
+  const [fractalBaseline, recentSessions] = await Promise.all([
+    loadFractalChecksum(request.userId),
+    getRecentSessions(request.userId, 20),
+  ]);
+
   // ── Stage 1: Intent → House ────────────────────────────────────────────────
   const houseMapping = classifyHouse(request.rawInput, houseMasses);
 
-  // ── Stage 2: House → Torch (weighted by house mass + routing boost) ────────
+  // ── Stage 2: House → Torch ────────────────────────────────────────────────
   const torchActivation = computeRoutingTorchState(houseMapping, houseMasses);
 
-  // ── Stage 3: Torch → Ring (13 rings, keyword-extended) ────────────────────
+  // ── Stage 3: Torch → Ring ─────────────────────────────────────────────────
   const rawRingActivation = activateRings(torchActivation, request.rawInput);
 
-  // ── Stage 4: Ring → Echo (70/30 blend) ────────────────────────────────────
+  // ── Stage 4: Ring → Echo ──────────────────────────────────────────────────
   const rawEchoBlend = buildEchoBlend(rawRingActivation);
 
-  // ── Stage 5: Surface Abstraction Layer ────────────────────────────────────
-  // Enforces per-surface house scope, ring suppression, echo whitelist.
+  // ── Stage 5: Surface Abstraction ──────────────────────────────────────────
   const { primaryHouseId, ringActivation, echoBlend, config: surfaceConfig } =
     applySurfaceConstraints({
       primaryHouseId: houseMapping.primaryHouseId,
@@ -166,18 +207,46 @@ export async function routeIntent(
       surfaceType,
     });
 
-  // Rebuild houseMapping with surface-constrained primary house
   const constrainedHouseMapping = { ...houseMapping, primaryHouseId };
 
-  // ── Stage 6a: Love Loop (surface-adjusted harm threshold) ─────────────────
+  // ── Stage 6: All Alignment Loops ──────────────────────────────────────────
+
+  // 6a. Love Loop — harm, dependency, heart floor
   const harmThreshold = getSafetyHarmThreshold(surfaceType);
   const loveLoop = runLoveLoop(torchActivation.weights, request.rawInput, harmThreshold);
-  const alignmentStatus: AlignmentStatus = loveLoop.status;
 
-  // ── Stage 6b: Mass update ──────────────────────────────────────────────────
+  // 6b. Harmonic Resonance — opposing house axis tension
+  const harmonicOk = checkHarmonicResonance(primaryHouseId, houseMasses);
+
+  // 6c. Fractal Integrity — identity drift vs stored baseline
+  const fractalChecksum = computeFractalChecksum(torchActivation.weights);
+  const fractalOk = checkFractalIntegrity(fractalChecksum, fractalBaseline ?? '');
+
+  // 6d. Radiant Evolution — empowerment signal check
+  const radiantOk = checkRadiantEvolution(request.rawInput);
+
+  // 6e. Internal Mirror — Aum self-assessment from session history
+  const recentEchoIds = recentSessions
+    .map((s: any) => s.lead_echo)
+    .filter(Boolean) as string[];
+  const alignmentHistory = recentSessions
+    .map((s: any) => s.alignment_status)
+    .filter(Boolean) as AlignmentStatus[];
+  const internalMirror = runInternalMirror(
+    torchActivation.weights,
+    recentEchoIds,
+    alignmentHistory
+  );
+
+  // ── Merge: worst-case alignment status wins ────────────────────────────────
+  const derivedStatuses: AlignmentStatus[] = [loveLoop.status];
+  if (!harmonicOk) derivedStatuses.push('caution');
+  if (!fractalOk)  derivedStatuses.push('caution');
+  if (internalMirror.action === 'pause') derivedStatuses.push('caution');
+  const alignmentStatus = mergeAlignmentStatus(derivedStatuses);
+
+  // ── Mass update, expression mode ──────────────────────────────────────────
   const massUpdate = buildMassUpdate(primaryHouseId, houseMapping.modulators);
-
-  // ── Stage 6c: Expression mode token ───────────────────────────────────────
   const expressionMode = buildExpressionMode(
     primaryHouseId,
     torchActivation.dominant,
@@ -196,12 +265,24 @@ export async function routeIntent(
     massUpdate,
     confidenceScore: houseMapping.confidence,
     expressionMode,
+    fractalChecksum,
+    internalMirror,
   };
 
-  // ── Stage 6d: System prompt assembly ──────────────────────────────────────
+  // ── System prompt assembly ─────────────────────────────────────────────────
   const systemPrompt = surfaceConfig.headlessMode
-    ? '' // API mode: caller receives raw routing data, no prompt needed
-    : assembleSystemPrompt(partial, surfaceConfig.voiceOutputMode, surfaceConfig.maxOutputTokens);
+    ? ''
+    : assembleSystemPrompt(
+        partial,
+        { harmonicOk, fractalOk, radiantOk },
+        surfaceConfig.voiceOutputMode,
+        surfaceConfig.maxOutputTokens
+      );
+
+  // ── Persist fractal baseline on first session ──────────────────────────────
+  if (!fractalBaseline) {
+    await saveFractalChecksum(request.userId, fractalChecksum);
+  }
 
   return { ...partial, systemPrompt, timestamp };
 }
