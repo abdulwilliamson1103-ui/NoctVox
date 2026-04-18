@@ -1,15 +1,15 @@
 import Head from 'next/head'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { routeThroughCouncil, COUNCIL_CHARACTERS } from '../lib/council'
 
 const EMPIRES = [
-  { id: 'lexov', name: 'LeVox', domain: 'Real Estate', tier: 1, status: 'active', icon: '🏰', color: '#f97316' },
-  { id: 'neovox', name: 'NeoVox', domain: 'AI & Robotics', tier: 0, status: 'planned', icon: '⚡', color: '#8b5cf6' },
-  { id: 'hpvox', name: 'HPVox', domain: 'Healthcare', tier: 0, status: 'planned', icon: '🛡️', color: '#10b981' },
-  { id: 'doctrinavox', name: 'DoctrinaVox', domain: 'Education', tier: 0, status: 'planned', icon: '📚', color: '#3b82f6' },
-  { id: 'xovox', name: 'XoVox', domain: 'Entertainment', tier: 0, status: 'planned', icon: '🎭', color: '#ec4899' },
-  { id: 'finvox', name: 'FinVox', domain: 'Finance', tier: 0, status: 'planned', icon: '💰', color: '#eab308' },
-  { id: 'starvox', name: 'StarVox', domain: 'Transport & Energy', tier: 0, status: 'planned', icon: '🌟', color: '#06b6d4' },
+  { id: 'lexov',       name: 'LeVox',        domain: 'Real Estate',        tier: 1, status: 'active',  icon: '🏰', color: '#f97316' },
+  { id: 'neovox',      name: 'NeoVox',       domain: 'AI & Robotics',      tier: 0, status: 'planned', icon: '⚡', color: '#8b5cf6' },
+  { id: 'hpvox',       name: 'HPVox',        domain: 'Healthcare',         tier: 0, status: 'planned', icon: '🛡️', color: '#10b981' },
+  { id: 'doctrinavox', name: 'DoctrinaVox',  domain: 'Education',          tier: 0, status: 'planned', icon: '📚', color: '#3b82f6' },
+  { id: 'xovox',       name: 'XoVox',        domain: 'Entertainment',      tier: 0, status: 'planned', icon: '🎭', color: '#ec4899' },
+  { id: 'finvox',      name: 'FinVox',       domain: 'Finance',            tier: 0, status: 'planned', icon: '💰', color: '#eab308' },
+  { id: 'starvox',     name: 'StarVox',      domain: 'Transport & Energy', tier: 0, status: 'planned', icon: '🌟', color: '#06b6d4' },
 ]
 
 interface Message {
@@ -30,7 +30,7 @@ function IgnisFlame({ size = 64 }: { size?: number }) {
         <ellipse cx="32" cy="60" rx="6" ry="8" fill="white" opacity="0.7" className="flame-spiral" />
         <defs>
           <radialGradient id="outerGrad" cx="50%" cy="80%" r="70%"><stop offset="0%" stopColor="#1a0a00" /><stop offset="50%" stopColor="#8B2500" /><stop offset="100%" stopColor="#ff6b3500" stopOpacity="0" /></radialGradient>
-          <radialGradient id="midGrad" cx="50%" cy="75%" r="65%"><stop offset="0%" stopColor="#ff6b35" /><stop offset="40%" stopColor="#d4380d" /><stop offset="100%" stopColor="#ff6b3500" stopOpacity="0" /></radialGradient>
+          <radialGradient id="midGrad"  cx="50%" cy="75%" r="65%"><stop offset="0%" stopColor="#ff6b35" /><stop offset="40%" stopColor="#d4380d" /><stop offset="100%" stopColor="#ff6b3500" stopOpacity="0" /></radialGradient>
           <radialGradient id="coreGrad" cx="50%" cy="70%" r="60%"><stop offset="0%" stopColor="#ffffff" /><stop offset="30%" stopColor="#ffd700" /><stop offset="100%" stopColor="#ff6b35" /></radialGradient>
         </defs>
       </svg>
@@ -103,35 +103,31 @@ function HoldToSpeak({ onTranscript }: { onTranscript: (t: string) => void }) {
   return (
     <button
       className={`hold-btn ${listening ? 'listening' : ''}`}
-      onMouseDown={startListening}
-      onMouseUp={stopListening}
-      onMouseLeave={stopListening}
+      onMouseDown={startListening} onMouseUp={stopListening} onMouseLeave={stopListening}
       onTouchStart={(e) => { e.preventDefault(); startListening() }}
-      onTouchEnd={(e) => { e.preventDefault(); stopListening() }}
+      onTouchEnd={(e)   => { e.preventDefault(); stopListening()  }}
     >
       <div className="hold-ring" />
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={listening ? '#d4a843' : '#d4a84399'} strokeWidth="2">
         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
         <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
         <line x1="12" y1="19" x2="12" y2="23"/>
-        <line x1="8" y1="23" x2="16" y2="23"/>
+        <line x1="8"  y1="23" x2="16" y2="23"/>
       </svg>
     </button>
   )
 }
 
 export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState('')
-  const [isSpeaking, setIsSpeaking] = useState(false)
+  const [messages,    setMessages]    = useState<Message[]>([])
+  const [input,       setInput]       = useState('')
+  const [isSpeaking,  setIsSpeaking]  = useState(false)
   const [activeMinds, setActiveMinds] = useState<string[]>(['optimus'])
-  const [showEmpire, setShowEmpire] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [showEmpire,  setShowEmpire]  = useState(false)
+  const [loading,     setLoading]     = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const msgIdRef = useRef(0)
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
+  const msgIdRef       = useRef(0)
+  const inputRef       = useRef<HTMLInputElement>(null)
 
   const speak = useCallback((text: string) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
@@ -139,7 +135,7 @@ export default function Home() {
     const u = new SpeechSynthesisUtterance(text)
     u.rate = 1.1; u.pitch = 0.95; u.volume = 1
     u.onstart = () => setIsSpeaking(true)
-    u.onend = () => setIsSpeaking(false)
+    u.onend   = () => setIsSpeaking(false)
     u.onerror = () => setIsSpeaking(false)
     window.speechSynthesis.speak(u)
   }, [])
@@ -152,6 +148,7 @@ export default function Home() {
   const addMsg = useCallback((role: Message['role'], text: string, minds?: string[]) => {
     const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
     setMessages(prev => [...prev, { id: ++msgIdRef.current, role, text, time, minds }])
+    setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   }, [])
 
   const handleSend = useCallback(async (textOverride?: string) => {
@@ -162,21 +159,30 @@ export default function Home() {
     setInput('')
     setLoading(true)
 
-    // Route through council — internal, not shown to user
     const { active } = routeThroughCouncil(text)
     setActiveMinds(active)
 
+    // Aum routes silently first — weights the context before Ignis speaks
+    let aumContext = null
     try {
-      // Call API — returns AI response directly (synchronous)
+      const aumRes = await fetch('/api/aum', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rawInput: text, userId: 'noctvox_user', surfaceType: 'ignis' }),
+      })
+      if (aumRes.ok) aumContext = await aumRes.json()
+    } catch { /* Aum offline — Ignis continues unrouted */ }
+
+    try {
       const res = await fetch('/api/ignis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, minds: active })
+        body: JSON.stringify({ text, minds: active, aumContext }),
       })
       const data = await res.json()
       addMsg('ignis', data.text || data.response || '[No response]', active)
       if (data.text) speak(data.text)
-    } catch (err) {
+    } catch {
       addMsg('system', 'Connection error — check your network.')
     } finally {
       setLoading(false)
@@ -236,22 +242,21 @@ export default function Home() {
             <div className="flex flex-col items-center justify-center h-full text-center pt-12">
               <IgnisFlame size={72} />
               <h2 className="text-white font-semibold text-lg mt-4" style={{ fontFamily: 'Space Grotesk' }}>Ignis Online</h2>
-              <p className="text-gray-500 text-xs mt-2 max-w-xs" style={{ color: '#666' }}>Hold the mic to speak, or type below. Council minds are standing by.</p>
+              <p className="text-gray-500 text-xs mt-2 max-w-xs" style={{ color: '#666' }}>Hold the mic to speak, or type below. Aum routes. Ignis responds.</p>
               <div className="flex items-center gap-2 mt-4 text-[10px]" style={{ color: '#d4a84360' }}>
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Live</span>
+                <span>Aum · Ignis · Live</span>
               </div>
             </div>
           )}
-
           {messages.map(msg => (
             <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`flex items-end gap-2 max-w-[88%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                {msg.role === 'ignis' && <div className="flex-shrink-0"><IgnisFlame size={28} /></div>}
+                {msg.role === 'ignis'  && <div className="flex-shrink-0"><IgnisFlame size={28} /></div>}
                 {msg.role === 'council' && <div className="w-7 h-7 rounded flex items-center justify-center text-[10px] font-mono flex-shrink-0 mt-1" style={{ background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.3)', color: '#a78bfa' }}>C</div>}
-                {msg.role === 'user' && <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1" style={{ background: 'linear-gradient(135deg, #ff6b35, #d4380d)', color: '#fff' }}>K</div>}
+                {msg.role === 'user'   && <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 mt-1" style={{ background: 'linear-gradient(135deg, #ff6b35, #d4380d)', color: '#fff' }}>K</div>}
                 {msg.role === 'system' && <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs flex-shrink-0 mt-1" style={{ background: 'rgba(255,200,50,0.1)', border: '1px solid rgba(255,200,50,0.2)', color: '#ffc832' }}>!</div>}
-                <div className={`px-3 py-2 text-sm rounded-xl ${msg.role === 'user' ? 'text-white rounded-br-sm' : msg.role === 'council' ? 'text-purple-300 rounded-bl-sm' : 'text-gray-200 rounded-bl-sm'} ${msg.role === 'user' ? '' : 'bg-black/40'}`}
+                <div className={`px-3 py-2 text-sm rounded-xl ${msg.role === 'user' ? 'text-white rounded-br-sm' : 'text-gray-200 rounded-bl-sm bg-black/40'}`}
                   style={msg.role === 'user' ? { background: 'linear-gradient(135deg, #ff6b35, #d4380d)', maxWidth: '75%' } : {}}>
                   {msg.text}
                 </div>
@@ -275,7 +280,7 @@ export default function Home() {
                 disabled={loading}
               />
               {input.trim() && (
-                <button onClick={() => handleSend()} disabled={loading} className="text-d4a843 flex-shrink-0">
+                <button onClick={() => handleSend()} disabled={loading}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d4a843" strokeWidth="2">
                     <line x1="22" y1="2" x2="11" y2="13" />
                     <polygon points="22 2 15 22 11 13 2 9 22 2" />
