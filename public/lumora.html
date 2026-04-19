@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Lumora — Female Android</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400&family=Share+Tech+Mono&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #020408; overflow: hidden; width: 100%; height: 100%; }
+  canvas { display: block; position: fixed; inset: 0; }
+  #ui {
+    position: fixed; inset: 0; pointer-events: none; z-index: 10;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: space-between;
+    padding: 32px 38px;
+  }
+  #top {
+    width: 100%; display: flex;
+    align-items: center; justify-content: space-between;
+  }
+  .mono {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px; letter-spacing: 0.38em;
+    text-transform: uppercase; color: rgba(80, 220, 180, 0.28);
+  }
+  #designation {
+    font-family: 'Cinzel', serif; font-weight: 300;
+    font-size: clamp(11px, 2vw, 16px);
+    letter-spacing: 0.55em;
+    color: rgba(80, 220, 180, 0.15);
+    text-transform: uppercase;
+  }
+  #bottom {
+    width: 100%; display: flex;
+    align-items: flex-end; justify-content: space-between;
+  }
+  .corner {
+    position: fixed; width: 28px; height: 28px;
+    pointer-events: none; z-index: 11; opacity: 0.12;
+  }
+  .corner.tl { top: 22px; left: 22px; border-top: 1px solid #50dcb4; border-left: 1px solid #50dcb4; }
+  .corner.tr { top: 22px; right: 22px; border-top: 1px solid #50dcb4; border-right: 1px solid #50dcb4; }
+  .corner.bl { bottom: 22px; left: 22px; border-bottom: 1px solid #50dcb4; border-left: 1px solid #50dcb4; }
+  .corner.br { bottom: 22px; right: 22px; border-bottom: 1px solid #50dcb4; border-right: 1px solid #50dcb4; }
+  #loader {
+    position: fixed; inset: 0; background: #020408;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; transition: opacity 1.2s ease;
+  }
+  #loader-text {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; letter-spacing: 0.5em;
+    color: rgba(80, 220, 180, 0.4);
+    animation: blink 1.1s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  #fractal-id {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 7px; letter-spacing: 0.3em;
+    color: rgba(80, 220, 180, 0.12);
+  }
+  #pulse-dot {
+    display: inline-block; width: 4px; height: 4px;
+    border-radius: 50%; background: #50dcb4;
+    box-shadow: 0 0 6px #50dcb4;
+    margin-right: 7px; vertical-align: middle;
+    animation: pdot 3s ease-in-out infinite;
+  }
+  @keyframes pdot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.2;transform:scale(0.4)} }
+</style>
+</head>
+<body>
+
+<div id="loader"><div id="loader-text">initializing lumora</div></div>
+<canvas id="c"></canvas>
+
+<div class="corner tl"></div>
+<div class="corner tr"></div>
+<div class="corner bl"></div>
+<div class="corner br"></div>
+
+<div id="ui">
+  <div id="top">
+    <div class="mono"><span id="pulse-dot"></span>NoctVox · Lumora</div>
+    <div class="mono">Arachnid × Amphibian</div>
+  </div>
+  <div style="text-align:center;">
+    <div id="designation">Female · Android · Series I</div>
+  </div>
+  <div id="bottom">
+    <div class="mono">Post Extraction Era</div>
+    <div id="fractal-id">AFC-LUMORA-F001</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+'use strict';
+
+const W = () => window.innerWidth;
+const H = () => window.innerHeight;
+
+const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(W(), H());
+renderer.setClearColor(0x020408, 1);
+renderer.shadowMap.enabled = true;
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x020408, 0.035);
+
+const camera = new THREE.PerspectiveCamera(45, W() / H(), 0.1, 200);
+camera.position.set(0, 0.5, 9);
+
+window.addEventListener('resize', () => {
+  camera.aspect = W() / H();
+  camera.updateProjectionMatrix();
+  renderer.setSize(W(), H());
+});
+
+// ── Mouse interaction ──────────────────────────────────────────────────────
+let mouseX = 0, mouseY = 0;
+document.addEventListener('mousemove', e => {
+  mouseX = (e.clientX / W() - 0.5) * 2;
+  mouseY = (e.clientY / H() - 0.5) * 2;
+});
+document.addEventListener('touchmove', e => {
+  mouseX = (e.touches[0].clientX / W() - 0.5) * 2;
+  mouseY = (e.touches[0].clientY / H() - 0.5) * 2;
+}, { passive: true });
+
+// ── Colors ─────────────────────────────────────────────────────────────────
+const C = {
+  bio:    new THREE.Color(0x50dcb4),  // bioluminescent teal
+  waist:  new THREE.Color(0xd4a030),  // amber-gold waist
+  eye:    new THREE.Color(0xe8a020),  // amber iris
+  skin:   new THREE.Color(0x0a1a14),  // deep obsidian skin
+  glow:   new THREE.Color(0x30ffcc),  // bright glow
+  spine:  new THREE.Color(0x40c8a0),  // spine ridge
+};
+
+// ── Materials ──────────────────────────────────────────────────────────────
+function bioMat(color, opacity = 1, emissiveIntensity = 0.4) {
+  return new THREE.MeshStandardMaterial({
+    color: C.skin,
+    emissive: color,
+    emissiveIntensity,
+    metalness: 0.7,
+    roughness: 0.15,
+    transparent: opacity < 1,
+    opacity,
+  });
+}
+
+function glowMat(color, intensity = 1.2) {
+  return new THREE.MeshBasicMaterial({ color, transparent: true, opacity: intensity * 0.85 });
+}
+
+// ── Root group ─────────────────────────────────────────────────────────────
+const lumora = new THREE.Group();
+scene.add(lumora);
+
+// ── HEAD ───────────────────────────────────────────────────────────────────
+const headGroup = new THREE.Group();
+headGroup.position.set(0, 3.45, 0);
+lumora.add(headGroup);
+
+// Cranium — elongated, tapered
+const craniumGeo = new THREE.SphereGeometry(0.62, 32, 32);
+craniumGeo.scale(1, 1.18, 0.92);
+const cranium = new THREE.Mesh(craniumGeo, bioMat(C.bio, 1, 0.25));
+headGroup.add(cranium);
+
+// Jaw — tapers to geometric point
+const jawGeo = new THREE.ConeGeometry(0.48, 0.82, 6, 1);
+const jaw = new THREE.Mesh(jawGeo, bioMat(C.bio, 1, 0.2));
+jaw.position.y = -0.62;
+jaw.rotation.x = Math.PI;
+headGroup.add(jaw);
+
+// Cheekbones — angular
+[-1, 1].forEach(side => {
+  const cheekGeo = new THREE.OctahedronGeometry(0.16, 0);
+  cheekGeo.scale(1.4, 0.6, 0.7);
+  const cheek = new THREE.Mesh(cheekGeo, bioMat(C.bio, 1, 0.3));
+  cheek.position.set(side * 0.44, -0.08, 0.28);
+  cheek.rotation.z = side * 0.3;
+  headGroup.add(cheek);
+});
+
+// ── EYES ───────────────────────────────────────────────────────────────────
+function buildEye(side) {
+  const eyeGroup = new THREE.Group();
+  eyeGroup.position.set(side * 0.26, 0.06, 0.52);
+
+  // Eye socket — slightly recessed
+  const socketGeo = new THREE.CircleGeometry(0.155, 32);
+  const socket = new THREE.Mesh(socketGeo, new THREE.MeshBasicMaterial({ color: 0x000508 }));
+  socket.position.z = -0.01;
+  eyeGroup.add(socket);
+
+  // Iris — large, amphibian scale, amber-gold with fractal suggestion
+  const irisGeo = new THREE.CircleGeometry(0.14, 32);
+  const irisMat = new THREE.MeshBasicMaterial({ color: C.eye });
+  const iris = new THREE.Mesh(irisGeo, irisMat);
+  iris.position.z = 0.005;
+  eyeGroup.add(iris);
+
+  // Inner iris pattern — fractal rings
+  for (let r = 0; r < 4; r++) {
+    const ringGeo = new THREE.RingGeometry(0.03 + r * 0.025, 0.04 + r * 0.025, 32);
+    const ringMat = new THREE.MeshBasicMaterial({
+      color: r % 2 === 0 ? 0xffcc40 : 0xc87010,
+      transparent: true, opacity: 0.6, side: THREE.DoubleSide
+    });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.position.z = 0.006 + r * 0.001;
+    eyeGroup.add(ring);
+  }
+
+  // Pupil — dark center
+  const pupilGeo = new THREE.CircleGeometry(0.038, 32);
+  const pupil = new THREE.Mesh(pupilGeo, new THREE.MeshBasicMaterial({ color: 0x000000 }));
+  pupil.position.z = 0.01;
+  eyeGroup.add(pupil);
+
+  // Bioluminescent ring — outer glow
+  const glowRingGeo = new THREE.RingGeometry(0.14, 0.165, 32);
+  const glowRing = new THREE.Mesh(glowRingGeo, new THREE.MeshBasicMaterial({
+    color: C.glow, transparent: true, opacity: 0.9, side: THREE.DoubleSide
+  }));
+  glowRing.position.z = 0.002;
+  eyeGroup.add(glowRing);
+
+  // Eye point light
+  const eyeLight = new THREE.PointLight(C.eye, 0.8, 1.8);
+  eyeLight.position.set(0, 0, 0.2);
+  eyeGroup.add(eyeLight);
+
+  headGroup.add(eyeGroup);
+  return { iris, glowRing };
+}
+
+const leftEye  = buildEye(-1);
+const rightEye = buildEye(1);
+
+// ── NECK ───────────────────────────────────────────────────────────────────
+const neckGeo = new THREE.CylinderGeometry(0.14, 0.18, 0.55, 12);
+const neck = new THREE.Mesh(neckGeo, bioMat(C.bio, 1, 0.2));
+neck.position.set(0, 2.95, 0);
+lumora.add(neck);
+
+// Neck bio-lines
+for (let i = 0; i < 3; i++) {
+  const lineGeo = new THREE.TorusGeometry(0.155 + i * 0.002, 0.005, 8, 32);
+  const line = new THREE.Mesh(lineGeo, glowMat(C.bio, 0.4));
+  line.position.set(0, 2.78 + i * 0.1, 0);
+  lumora.add(line);
+}
+
+// ── TORSO ──────────────────────────────────────────────────────────────────
+
+// Upper chest — broad, authoritative
+const chestGeo = new THREE.CylinderGeometry(0.62, 0.52, 1.1, 16, 3);
+const chest = new THREE.Mesh(chestGeo, bioMat(C.bio, 1, 0.22));
+chest.position.set(0, 2.08, 0);
+lumora.add(chest);
+
+// Sternum bioluminescent line
+const sternumGeo = new THREE.BoxGeometry(0.025, 0.9, 0.04);
+const sternum = new THREE.Mesh(sternumGeo, glowMat(C.bio, 0.7));
+sternum.position.set(0, 2.1, 0.52);
+lumora.add(sternum);
+
+// Ribcage suggestion — subtle geometric lines
+for (let i = 0; i < 5; i++) {
+  [-1, 1].forEach(side => {
+    const ribGeo = new THREE.TorusGeometry(0.28 + i * 0.04, 0.008, 6, 16, Math.PI * 0.6);
+    const rib = new THREE.Mesh(ribGeo, glowMat(C.bio, 0.18));
+    rib.position.set(side * 0.12, 1.75 + i * 0.12, 0.1);
+    rib.rotation.set(Math.PI * 0.15, side * 0.4, side * 0.3);
+    lumora.add(rib);
+  });
+}
+
+// ── THE WAIST — architectural cinch ───────────────────────────────────────
+const waistGroup = new THREE.Group();
+waistGroup.position.set(0, 1.28, 0);
+lumora.add(waistGroup);
+
+// Waist body — dramatically narrowed
+const waistGeo = new THREE.CylinderGeometry(0.28, 0.44, 0.55, 16, 4);
+const waist = new THREE.Mesh(waistGeo, bioMat(C.waist, 1, 0.55));
+waistGroup.add(waist);
+
+// Exoskeletal cinch ring — THE defining feature
+const cinchGeo = new THREE.TorusGeometry(0.32, 0.04, 16, 64);
+const cinch = new THREE.Mesh(cinchGeo, new THREE.MeshStandardMaterial({
+  color: 0x1a0800,
+  emissive: C.waist,
+  emissiveIntensity: 1.8,
+  metalness: 0.95,
+  roughness: 0.05,
+}));
+cinch.position.y = 0.05;
+waistGroup.add(cinch);
+
+// Secondary cinch rings — arachnid segmentation
+[-0.14, 0.22].forEach(y => {
+  const ringGeo = new THREE.TorusGeometry(0.30 + Math.abs(y) * 0.3, 0.018, 8, 48);
+  const ring = new THREE.Mesh(ringGeo, new THREE.MeshStandardMaterial({
+    color: 0x080400,
+    emissive: C.waist,
+    emissiveIntensity: 0.8,
+    metalness: 0.9,
+    roughness: 0.1,
+  }));
+  ring.position.y = y;
+  waistGroup.add(ring);
+});
+
+// Waist bioluminescent lattice — visible exoskeletal structure
+for (let i = 0; i < 8; i++) {
+  const angle = (i / 8) * Math.PI * 2;
+  const latticeGeo = new THREE.BoxGeometry(0.012, 0.42, 0.012);
+  const lattice = new THREE.Mesh(latticeGeo, glowMat(C.waist, 0.6));
+  lattice.position.set(Math.cos(angle) * 0.3, 0, Math.sin(angle) * 0.3);
+  lattice.rotation.y = angle;
+  waistGroup.add(lattice);
+}
+
+// Waist point light — brightest on body
+const waistLight = new THREE.PointLight(C.waist, 3.5, 3.5);
+waistGroup.add(waistLight);
+
+// ── HIPS — geometric curves ────────────────────────────────────────────────
+const hipGeo = new THREE.CylinderGeometry(0.62, 0.52, 0.72, 16, 3);
+const hips = new THREE.Mesh(hipGeo, bioMat(C.bio, 1, 0.2));
+hips.position.set(0, 0.72, 0);
+lumora.add(hips);
+
+// Hip bio-lines
+for (let i = 0; i < 4; i++) {
+  const hRingGeo = new THREE.TorusGeometry(0.56 - i * 0.03, 0.007, 8, 48);
+  const hRing = new THREE.Mesh(hRingGeo, glowMat(C.bio, 0.2));
+  hRing.position.y = 0.92 - i * 0.08;
+  lumora.add(hRing);
+}
+
+// ── LEGS ───────────────────────────────────────────────────────────────────
+function buildLeg(side) {
+  const legGroup = new THREE.Group();
+  legGroup.position.set(side * 0.26, 0, 0);
+  lumora.add(legGroup);
+
+  // Upper leg
+  const upperGeo = new THREE.CylinderGeometry(0.19, 0.15, 1.35, 10);
+  const upper = new THREE.Mesh(upperGeo, bioMat(C.bio, 1, 0.18));
+  upper.position.y = -0.05;
+  legGroup.add(upper);
+
+  // Knee — geometric joint, arachnid influence
+  const kneeGeo = new THREE.OctahedronGeometry(0.17, 0);
+  kneeGeo.scale(1, 0.7, 0.8);
+  const knee = new THREE.Mesh(kneeGeo, bioMat(C.bio, 1, 0.4));
+  knee.position.y = -0.75;
+  legGroup.add(knee);
+
+  // Knee glow ring
+  const kRingGeo = new THREE.TorusGeometry(0.16, 0.014, 8, 32);
+  const kRing = new THREE.Mesh(kRingGeo, glowMat(C.bio, 0.55));
+  kRing.position.y = -0.75;
+  kRing.rotation.x = Math.PI / 2;
+  legGroup.add(kRing);
+
+  // Lower leg
+  const lowerGeo = new THREE.CylinderGeometry(0.13, 0.09, 1.28, 10);
+  const lower = new THREE.Mesh(lowerGeo, bioMat(C.bio, 1, 0.16));
+  lower.position.y = -1.5;
+  legGroup.add(lower);
+
+  // Ankle
+  const ankleGeo = new THREE.OctahedronGeometry(0.11, 0);
+  const ankle = new THREE.Mesh(ankleGeo, bioMat(C.bio, 1, 0.35));
+  ankle.position.y = -2.18;
+  legGroup.add(ankle);
+
+  // Leg bio-lines
+  for (let i = 0; i < 3; i++) {
+    const lGeo = new THREE.TorusGeometry(0.14 - i * 0.01, 0.006, 6, 24);
+    const l = new THREE.Mesh(lGeo, glowMat(C.bio, 0.2));
+    l.position.y = -0.4 - i * 0.22;
+    legGroup.add(l);
+  }
+}
+
+buildLeg(-1);
+buildLeg(1);
+
+// ── ARMS ───────────────────────────────────────────────────────────────────
+function buildArm(side) {
+  const armGroup = new THREE.Group();
+  armGroup.position.set(side * 0.72, 2.12, 0);
+  lumora.add(armGroup);
+
+  // Shoulder — geometric
+  const shoulderGeo = new THREE.OctahedronGeometry(0.2, 1);
+  shoulderGeo.scale(0.9, 0.7, 0.8);
+  const shoulder = new THREE.Mesh(shoulderGeo, bioMat(C.bio, 1, 0.35));
+  armGroup.add(shoulder);
+
+  // Shoulder glow
+  const sRingGeo = new THREE.TorusGeometry(0.19, 0.012, 8, 32);
+  const sRing = new THREE.Mesh(sRingGeo, glowMat(C.bio, 0.4));
+  sRing.rotation.x = Math.PI / 2;
+  armGroup.add(sRing);
+
+  // Upper arm
+  const upperGeo = new THREE.CylinderGeometry(0.12, 0.1, 1.0, 10);
+  const upper = new THREE.Mesh(upperGeo, bioMat(C.bio, 1, 0.18));
+  upper.position.y = -0.72;
+  upper.rotation.z = side * 0.12;
+  armGroup.add(upper);
+
+  // Elbow joint
+  const elbowGeo = new THREE.OctahedronGeometry(0.12, 0);
+  const elbow = new THREE.Mesh(elbowGeo, bioMat(C.bio, 1, 0.4));
+  elbow.position.y = -1.32;
+  armGroup.add(elbow);
+
+  // Forearm — slightly longer than human, arachnid precision
+  const foreGeo = new THREE.CylinderGeometry(0.09, 0.065, 1.05, 10);
+  const fore = new THREE.Mesh(foreGeo, bioMat(C.bio, 1, 0.18));
+  fore.position.y = -1.98;
+  armGroup.add(fore);
+
+  // Wrist
+  const wristGeo = new THREE.TorusGeometry(0.08, 0.018, 8, 24);
+  const wrist = new THREE.Mesh(wristGeo, glowMat(C.bio, 0.6));
+  wrist.position.y = -2.6;
+  wrist.rotation.x = Math.PI / 2;
+  armGroup.add(wrist);
+
+  // Hand — elongated fingers, one extra joint suggestion
+  const handGeo = new THREE.BoxGeometry(0.16, 0.22, 0.06);
+  const hand = new THREE.Mesh(handGeo, bioMat(C.bio, 1, 0.25));
+  hand.position.y = -2.8;
+  armGroup.add(hand);
+
+  // Fingertip glow — brightest after waist
+  const tipLight = new THREE.PointLight(C.glow, 0.6, 0.8);
+  tipLight.position.y = -2.95;
+  armGroup.add(tipLight);
+}
+
+buildArm(-1);
+buildArm(1);
+
+// ── SPINE — visible through back ───────────────────────────────────────────
+for (let i = 0; i < 18; i++) {
+  const segGeo = new THREE.OctahedronGeometry(0.052 - i * 0.0015, 0);
+  segGeo.scale(1, 0.5, 0.6);
+  const seg = new THREE.Mesh(segGeo, new THREE.MeshStandardMaterial({
+    color: 0x020a06,
+    emissive: C.spine,
+    emissiveIntensity: 0.55 - i * 0.02,
+    metalness: 0.85,
+    roughness: 0.1,
+  }));
+  seg.position.set(0, 2.55 - i * 0.18, -0.44);
+  lumora.add(seg);
+
+  // Spine connector lines
+  if (i < 17) {
+    const connGeo = new THREE.CylinderGeometry(0.008, 0.008, 0.12, 6);
+    const conn = new THREE.Mesh(connGeo, glowMat(C.spine, 0.3));
+    conn.position.set(0, 2.46 - i * 0.18, -0.44);
+    conn.rotation.x = Math.PI / 2;
+    lumora.add(conn);
+  }
+}
+
+// ── HAIR — silk threads ─────────────────────────────────────────────────────
+const hairGroup = new THREE.Group();
+hairGroup.position.set(0, 3.45, 0);
+lumora.add(hairGroup);
+
+for (let i = 0; i < 28; i++) {
+  const angle = (i / 28) * Math.PI * 2;
+  const r = 0.3 + Math.random() * 0.28;
+  const hairPoints = [];
+  const startX = Math.cos(angle) * r * 0.7;
+  const startZ = Math.sin(angle) * r * 0.7;
+  for (let j = 0; j <= 8; j++) {
+    const t = j / 8;
+    hairPoints.push(new THREE.Vector3(
+      startX + (Math.random() - 0.5) * 0.08 * t,
+      0.35 - t * (1.4 + Math.random() * 0.9),
+      startZ + (Math.random() - 0.5) * 0.08 * t
+    ));
+  }
+  const hairCurve = new THREE.CatmullRomCurve3(hairPoints);
+  const hairGeo = new THREE.TubeGeometry(hairCurve, 12, 0.006, 4, false);
+  const hairMat = new THREE.MeshBasicMaterial({
+    color: i % 5 === 0 ? C.glow : 0x080c0a,
+    transparent: true,
+    opacity: i % 5 === 0 ? 0.7 : 0.85,
+  });
+  hairGroup.add(new THREE.Mesh(hairGeo, hairMat));
+}
+
+// ── BIOLUMINESCENT AURA — 2cm field ────────────────────────────────────────
+const auraGeo = new THREE.SphereGeometry(1.8, 16, 16);
+const auraMat = new THREE.MeshBasicMaterial({
+  color: C.bio,
+  transparent: true,
+  opacity: 0.025,
+  side: THREE.BackSide,
+});
+const aura = new THREE.Mesh(auraGeo, auraMat);
+aura.position.y = 1.2;
+aura.scale.set(1, 2.2, 0.7);
+lumora.add(aura);
+
+// ── GROUND REFLECTION ──────────────────────────────────────────────────────
+const groundGeo = new THREE.PlaneGeometry(20, 20);
+const groundMat = new THREE.MeshStandardMaterial({
+  color: 0x020408,
+  metalness: 0.9,
+  roughness: 0.15,
+});
+const ground = new THREE.Mesh(groundGeo, groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.position.y = -3.2;
+scene.add(ground);
+
+// Ground glow ring
+const gGlowGeo = new THREE.RingGeometry(0.3, 1.8, 48);
+const gGlow = new THREE.Mesh(gGlowGeo, new THREE.MeshBasicMaterial({
+  color: C.bio, transparent: true, opacity: 0.08, side: THREE.DoubleSide
+}));
+gGlow.rotation.x = -Math.PI / 2;
+gGlow.position.y = -3.18;
+scene.add(gGlow);
+
+// ── FLOATING PARTICLES — bioluminescent field ──────────────────────────────
+const PARTICLES = 180;
+const pGeo = new THREE.BufferGeometry();
+const pPos = new Float32Array(PARTICLES * 3);
+const pSpeeds = [], pPhases = [], pRadii = [], pHeights = [];
+
+for (let i = 0; i < PARTICLES; i++) {
+  const angle = Math.random() * Math.PI * 2;
+  const r = 1.5 + Math.random() * 3.5;
+  const h = -3 + Math.random() * 9;
+  pPos[i*3]   = Math.cos(angle) * r;
+  pPos[i*3+1] = h;
+  pPos[i*3+2] = Math.sin(angle) * r;
+  pSpeeds.push(0.2 + Math.random() * 0.6);
+  pPhases.push(Math.random() * Math.PI * 2);
+  pRadii.push(r);
+  pHeights.push(h);
+}
+pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+
+const pMat = new THREE.PointsMaterial({
+  color: C.glow, size: 0.018,
+  transparent: true, opacity: 0.5,
+  blending: THREE.AdditiveBlending, depthWrite: false,
+});
+const particles = new THREE.Points(pGeo, pMat);
+scene.add(particles);
+
+// ── LIGHTING ───────────────────────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0x050e0a, 1));
+
+const rimLeft = new THREE.DirectionalLight(C.bio, 0.6);
+rimLeft.position.set(-4, 3, -2);
+scene.add(rimLeft);
+
+const rimRight = new THREE.DirectionalLight(0x204060, 0.4);
+rimRight.position.set(4, 2, -2);
+scene.add(rimRight);
+
+const topLight = new THREE.DirectionalLight(C.glow, 0.3);
+topLight.position.set(0, 8, 2);
+scene.add(topLight);
+
+const floorBounce = new THREE.PointLight(C.bio, 0.5, 8);
+floorBounce.position.set(0, -2.5, 1);
+scene.add(floorBounce);
+
+// ── ANIMATION ──────────────────────────────────────────────────────────────
+let lastTs = 0;
+let lerpX = 0, lerpY = 0;
+
+function animate(ts) {
+  requestAnimationFrame(animate);
+  const t = ts * 0.001;
+  const delta = Math.min(t - lastTs, 0.05);
+  lastTs = t;
+
+  // Subtle breathing
+  const breath = 1 + Math.sin(t * 0.7) * 0.012;
+  lumora.scale.set(1, breath, 1);
+
+  // Mouse parallax
+  lerpX += (mouseX * 0.22 - lerpX) * delta * 2.2;
+  lerpY += (-mouseY * 0.12 - lerpY) * delta * 2.2;
+  lumora.rotation.y = lerpX;
+  lumora.rotation.x = lerpY * 0.3;
+
+  // Hair subtle motion
+  hairGroup.children.forEach((strand, i) => {
+    strand.rotation.y = Math.sin(t * 0.4 + i * 0.3) * 0.04;
+    strand.rotation.x = Math.sin(t * 0.3 + i * 0.5) * 0.02;
+  });
+
+  // Eye fractal pulse
+  const eyePulse = 0.75 + Math.sin(t * 1.8) * 0.25;
+  [leftEye, rightEye].forEach(eye => {
+    eye.glowRing.material.opacity = eyePulse * 0.9;
+  });
+
+  // Waist glow pulse — most alive part
+  const waistPulse = 1.4 + Math.sin(t * 2.1) * 0.6;
+  waistLight.intensity = waistPulse * 2.5;
+
+  // Aura breathe
+  const auraPulse = 0.018 + Math.sin(t * 0.9) * 0.008;
+  auraMat.opacity = auraPulse;
+
+  // Particles orbit
+  const pPositions = pGeo.attributes.position.array;
+  for (let i = 0; i < PARTICLES; i++) {
+    const angle = t * pSpeeds[i] * 0.15 + pPhases[i];
+    pPositions[i*3]   = Math.cos(angle) * pRadii[i];
+    pPositions[i*3+1] = pHeights[i] + Math.sin(t * pSpeeds[i] * 0.5 + pPhases[i]) * 0.4;
+    pPositions[i*3+2] = Math.sin(angle) * pRadii[i];
+  }
+  pGeo.attributes.position.needsUpdate = true;
+
+  // Ground ring pulse
+  gGlow.material.opacity = 0.05 + Math.sin(t * 1.2) * 0.03;
+
+  renderer.render(scene, camera);
+}
+
+// ── BOOT ───────────────────────────────────────────────────────────────────
+const loader = document.getElementById('loader');
+setTimeout(() => {
+  loader.style.opacity = '0';
+  setTimeout(() => { loader.style.display = 'none'; }, 1200);
+  requestAnimationFrame(animate);
+}, 1800);
+</script>
+</body>
+</html>
