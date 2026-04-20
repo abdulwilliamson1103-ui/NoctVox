@@ -8,6 +8,14 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   distDir: '.next',
+  async rewrites() {
+    return [
+      {
+        source: '/',
+        destination: '/ignis-portal.html',
+      },
+    ]
+  },
 }
 
 export default nextConfig
