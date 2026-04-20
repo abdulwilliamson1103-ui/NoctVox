@@ -240,6 +240,84 @@ html, body {
   50%      { opacity: 0.2; transform: scale(0.5); }
 }
 
+/* ── Aum Panel Overlays ────────────────────────────── */
+#aum-ui {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px 28px max(28px, env(safe-area-inset-bottom, 28px));
+  pointer-events: none;
+}
+#aum-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+#aum-wordmark {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: rgba(212,85,0,0.30);
+}
+#aum-mode-token {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.30em;
+  text-transform: uppercase;
+  color: rgba(212,85,0,0.22);
+  transition: opacity 0.4s ease;
+  text-align: right;
+}
+#aum-center-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+#aum-glyph {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(64px, 11vw, 110px);
+  letter-spacing: 0.28em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(200,80,10,0.10);
+  line-height: 1;
+  animation: aumBreathe 5s ease-in-out infinite;
+}
+@keyframes aumBreathe {
+  0%,100% { -webkit-text-stroke-color: rgba(200,80,10,0.10); }
+  50%      { -webkit-text-stroke-color: rgba(230,120,20,0.18); }
+}
+#aum-tagline {
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 7.5px;
+  letter-spacing: 0.55em;
+  color: rgba(200,80,10,0.12);
+  text-transform: uppercase;
+}
+#aum-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+}
+/* Aum corner brackets */
+.aum-corner {
+  position: absolute;
+  width: 22px; height: 22px;
+  pointer-events: none;
+  opacity: 0.18;
+}
+.aum-corner.tl { top:16px; left:16px; border-top:1px solid var(--orange); border-left:1px solid var(--orange); }
+.aum-corner.tr { top:16px; right:16px; border-top:1px solid var(--orange); border-right:1px solid var(--orange); }
+.aum-corner.bl { bottom:16px; left:16px; border-bottom:1px solid var(--orange); border-left:1px solid var(--orange); }
+.aum-corner.br { bottom:16px; right:16px; border-bottom:1px solid var(--orange); border-right:1px solid var(--orange); }
+
 /* ── Ignis Header ──────────────────────────────────── */
 #ignis-header {
   display: flex;
@@ -776,8 +854,27 @@ html, body {
   <!-- ── Panel 2: Aum ── -->
   <div class="panel" id="panel-aum">
     <canvas id="aum-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
-    <!-- Aum UI overlays injected by Part 3 -->
-    <div id="aum-ui" style="position:absolute;inset:0;z-index:10;pointer-events:none;"></div>
+    <div id="aum-ui" style="position:absolute;inset:0;z-index:10;pointer-events:none;">
+      <div class="aum-corner tl"></div>
+      <div class="aum-corner tr"></div>
+      <div class="aum-corner bl"></div>
+      <div class="aum-corner br"></div>
+      <div id="aum-top">
+        <div id="aum-wordmark"><span class="pulse-dot"></span>NoctVox · ACS</div>
+        <div id="aum-mode-token">H4 · HOME · T-HR · R-VU</div>
+      </div>
+      <div id="aum-center-label">
+        <div id="aum-glyph">AUM</div>
+        <div id="aum-tagline">Conscience System · Always Active</div>
+      </div>
+      <div id="aum-bottom">
+        <div class="mono" style="font-family:var(--mono);font-size:8px;letter-spacing:0.38em;text-transform:uppercase;color:rgba(212,85,0,0.28);">Love Loop · Active</div>
+        <div class="mono" style="font-family:var(--mono);font-size:8px;letter-spacing:0.38em;text-transform:uppercase;color:rgba(212,85,0,0.18);">Aum · Soul Engine</div>
+      </div>
+    </div>
+    <!-- Aum scanlines -->
+    <div style="position:absolute;inset:0;pointer-events:none;z-index:5;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.018) 2px,rgba(0,0,0,0.018) 4px);"></div>
+    <div style="position:absolute;inset:0;pointer-events:none;z-index:4;background:radial-gradient(ellipse 65% 65% at 50% 50%,transparent 30%,rgba(11,15,20,0.92) 100%);"></div>
   </div>
 
 </div>
@@ -790,6 +887,7 @@ html, body {
   <button class="tab-label"        id="tab-aum"   onclick="switchPanel('aum')">Aum</button>
 </nav>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 // ── Panel Switch Logic ───────────────────────────────
 let currentPanel = 'ignis';
@@ -1004,6 +1102,309 @@ async function sendMessage(textOverride) {
     setTyping(false);
   }
 }
+
+// ── Aum Sphere ───────────────────────────────────────
+// Mode tokens from actual Aum code: House · Name · Torch · Ring
+const AUM_MODES = [
+  'H1 · IDENTITY · T-RO · R-SR',
+  'H2 · VALUES · T-RO · R-SR',
+  'H3 · VOICE · T-SU · R-MA',
+  'H4 · HOME · T-HR · R-VU',
+  'H5 · CREATION · T-SA · R-JE',
+  'H6 · SERVICE · T-SU · R-MA',
+  'H7 · PARTNERSHIP · T-HR · R-VU',
+  'H8 · TRANSFORMATION · T-SA · R-JE',
+  'H9 · PHILOSOPHY · T-TA · R-MR',
+  'H10 · LEGACY · T-TA · R-MR',
+  'H11 · COMMUNITY · T-TY · R-MO',
+  'H12 · SUBCONSCIOUS · T-CW · R-SU',
+];
+
+const modeEl  = document.getElementById('aum-mode-token');
+const modeMini = document.getElementById('aum-mode-mini');
+let modeIdx   = 3; // start at H4 HOME
+
+function cycleAumMode() {
+  modeIdx = (modeIdx + 1) % AUM_MODES.length;
+  const token = AUM_MODES[modeIdx];
+  // Main token
+  modeEl.style.opacity = '0';
+  setTimeout(() => { modeEl.textContent = token; modeEl.style.opacity = '1'; }, 400);
+  // Mini token on Ignis header
+  if (modeMini) modeMini.textContent = token.split(' · ').slice(0,3).join(' · ');
+}
+modeEl.style.transition = 'opacity 0.4s ease';
+setInterval(cycleAumMode, 3500);
+
+// expose so Part 4 can update it from live Aum routing data
+window.setAumMode = function(houseId, torch, ring) {
+  const token = `H${houseId} · ${AUM_MODES.find(m=>m.startsWith('H'+houseId))?.split(' · ')[1] || '?'} · ${torch} · ${ring}`;
+  modeEl.style.opacity = '0';
+  setTimeout(() => { modeEl.textContent = token; modeEl.style.opacity = '1'; }, 400);
+  if (modeMini) modeMini.textContent = `H${houseId} · ${torch}`;
+};
+
+// ── Three.js Sphere ──────────────────────────────────
+(function initSphere() {
+  const canvas   = document.getElementById('aum-canvas');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x0B0F14, 1);
+
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.position.set(0, 0, 7);
+  let targetZ = 7;
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  let mouseX = 0, mouseY = 0;
+  let isDragging = false, lastDX = 0, lastDY = 0;
+  let manualRotY = 0, manualRotX = 0;
+
+  // Only respond to touches/mouse on the Aum panel
+  const aumPanel = document.getElementById('panel-aum');
+  aumPanel.addEventListener('mousemove', e => {
+    mouseX = (e.clientX / window.innerWidth  - 0.5) * 2;
+    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    if (isDragging) {
+      manualRotY += (e.clientX - lastDX) * 0.005;
+      manualRotX += (e.clientY - lastDY) * 0.003;
+      manualRotX = Math.max(-0.8, Math.min(0.8, manualRotX));
+      lastDX = e.clientX; lastDY = e.clientY;
+    }
+  });
+  aumPanel.addEventListener('mousedown', e => { isDragging = true; lastDX = e.clientX; lastDY = e.clientY; });
+  aumPanel.addEventListener('mouseup',   () => { isDragging = false; });
+
+  aumPanel.addEventListener('touchstart', e => {
+    if (e.touches.length === 1) { lastDX = e.touches[0].clientX; lastDY = e.touches[0].clientY; }
+  }, { passive: true });
+  aumPanel.addEventListener('touchmove', e => {
+    if (e.touches.length === 1) {
+      const t = e.touches[0];
+      mouseX = (t.clientX / window.innerWidth  - 0.5) * 2;
+      mouseY = (t.clientY / window.innerHeight - 0.5) * 2;
+      manualRotY += (t.clientX - lastDX) * 0.005;
+      manualRotX += (t.clientY - lastDY) * 0.003;
+      manualRotX = Math.max(-0.8, Math.min(0.8, manualRotX));
+      lastDX = t.clientX; lastDY = t.clientY;
+    }
+  }, { passive: true });
+
+  aumPanel.addEventListener('wheel', e => {
+    targetZ = Math.max(1.5, Math.min(12, targetZ + e.deltaY * 0.01));
+  }, { passive: true });
+
+  let lastPinch = 0;
+  aumPanel.addEventListener('touchstart', e => {
+    if (e.touches.length === 2)
+      lastPinch = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+  }, { passive: true });
+  aumPanel.addEventListener('touchmove', e => {
+    if (e.touches.length === 2) {
+      const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      targetZ = Math.max(1.5, Math.min(12, targetZ - (d - lastPinch) * 0.02));
+      lastPinch = d;
+    }
+  }, { passive: true });
+
+  const STRANDS = 110, ORBS = 350, WISPS = 120, SPITS = 25;
+  const RADIUS  = 2.5, SEG = 64;
+
+  function lerpV(a, b, t) { return a + (b - a) * t; }
+
+  function randomOnSphere(r) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi   = Math.acos(2 * Math.random() - 1);
+    return new THREE.Vector3(r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta));
+  }
+
+  function sphereArc(a, b, n, r) {
+    const pts = [];
+    for (let i = 0; i <= n; i++) {
+      const t = i / n;
+      const p = new THREE.Vector3().copy(a).lerp(b, t).normalize();
+      pts.push(p.multiplyScalar(r * (1 + Math.sin(t * Math.PI) * 0.22)));
+    }
+    return pts;
+  }
+
+  const VERT = `
+    uniform float uTime; uniform float uSpeed; uniform float uWarp;
+    varying vec2 vUv; varying vec3 vWorldPos; varying float vDisplace;
+    float hash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
+    float noise3(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
+      return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),
+                 mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);}
+    void main(){vUv=uv;vec3 pos=position;
+      float n=noise3(pos*2.0+uTime*uSpeed*0.8);float n2=noise3(pos*4.0-uTime*uSpeed*1.2);
+      vec3 dir=normal*(n*0.12+n2*0.06)*uWarp;
+      dir+=cross(normal,vec3(0,1,0))*sin(uTime*uSpeed+pos.y*3.0)*0.04*uWarp;
+      pos+=dir;vDisplace=n;vWorldPos=(modelMatrix*vec4(pos,1.0)).xyz;
+      gl_Position=projectionMatrix*modelViewMatrix*vec4(pos,1.0);}`;
+
+  const FRAG = `
+    uniform float uTime; uniform float uSpeed; uniform vec3 uA,uB,uC,uD;
+    varying vec2 vUv; varying vec3 vWorldPos; varying float vDisplace;
+    float hash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
+    float noise(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);
+      return mix(mix(mix(hash(i),hash(i+vec3(1,0,0)),f.x),mix(hash(i+vec3(0,1,0)),hash(i+vec3(1,1,0)),f.x),f.y),
+                 mix(mix(hash(i+vec3(0,0,1)),hash(i+vec3(1,0,1)),f.x),mix(hash(i+vec3(0,1,1)),hash(i+vec3(1,1,1)),f.x),f.y),f.z);}
+    float fbm(vec3 p){float v=0.0,a=0.5;vec3 s=vec3(100);
+      for(int i=0;i<5;i++){v+=a*noise(p);p=p*2.0+s;a*=0.5;}return v;}
+    void main(){
+      float t1=fbm(vWorldPos*3.0+vec3(uTime*uSpeed*0.4,uTime*uSpeed*-0.3,uTime*uSpeed*0.2));
+      float t2=fbm(vWorldPos*5.0-vec3(uTime*uSpeed*0.5,uTime*uSpeed*0.6,uTime*uSpeed*-0.4));
+      float t3=noise(vWorldPos*8.0+uTime*uSpeed*1.5);
+      float p1=sin(vUv.x*12.566+uTime*uSpeed*3.0)*0.5+0.5;
+      float p2=sin(vUv.x*8.0-uTime*uSpeed*2.2+t1*6.0)*0.5+0.5;
+      float t=clamp(t1*0.35+t2*0.25+p1*0.2+p2*0.1+t3*0.1,0.0,1.0);
+      vec3 col;
+      if(t<0.33)col=mix(uA,uB,t*3.0);
+      else if(t<0.66)col=mix(uB,uC,(t-0.33)*3.0);
+      else col=mix(uC,uD,(t-0.66)*3.0);
+      float flare=smoothstep(0.75,0.92,t3*p1);col+=uD*flare*0.25;
+      float ef=smoothstep(0.0,0.1,vUv.x)*smoothstep(1.0,0.9,vUv.x);
+      float op=(0.45+t1*0.3)*(0.2+ef*0.8);
+      op*=0.85+sin(uTime*uSpeed*5.0+vUv.x*20.0)*0.15;
+      gl_FragColor=vec4(col,op);}`;
+
+  // NoctVox palettes — black, orange, gold, purple-red hues
+  const PALETTES = [
+    { a:'#3A0500', b:'#8B2000', c:'#D45500', d:'#FFB300' },
+    { a:'#2A0018', b:'#7A1030', c:'#C44020', d:'#FF8C00' },
+    { a:'#0F0600', b:'#5C2D00', c:'#A05A00', d:'#E8A020' },
+    { a:'#1A003A', b:'#5500A0', c:'#AA3000', d:'#FF7030' },
+    { a:'#080400', b:'#6B1010', c:'#B03820', d:'#E8804A' },
+  ];
+
+  const aumGroup = new THREE.Group();
+  scene.add(aumGroup);
+
+  const strandMats = [];
+  for (let i = 0; i < STRANDS; i++) {
+    const pts  = sphereArc(randomOnSphere(RADIUS), randomOnSphere(RADIUS), SEG, RADIUS);
+    const rad  = 0.008 + Math.random() * 0.028;
+    const rSeg = Math.random() > 0.5 ? 5 : 3;
+    const geo  = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), SEG, rad, rSeg, false);
+    const pal  = PALETTES[Math.floor(Math.random() * PALETTES.length)];
+    const mat  = new THREE.ShaderMaterial({
+      vertexShader: VERT, fragmentShader: FRAG,
+      transparent: true, side: THREE.DoubleSide,
+      depthWrite: false, blending: THREE.AdditiveBlending,
+      uniforms: {
+        uTime:  { value: 0 }, uSpeed: { value: 0.7 + Math.random() * 0.8 },
+        uWarp:  { value: 0.6 + Math.random() * 0.8 },
+        uA: { value: new THREE.Color(pal.a) }, uB: { value: new THREE.Color(pal.b) },
+        uC: { value: new THREE.Color(pal.c) }, uD: { value: new THREE.Color(pal.d) },
+      }
+    });
+    strandMats.push(mat);
+    aumGroup.add(new THREE.Mesh(geo, mat));
+  }
+
+  const orbGeo  = new THREE.SphereGeometry(1, 6, 6);
+  const orbMat  = new THREE.MeshBasicMaterial({ transparent:true, opacity:0.7, depthWrite:false, blending:THREE.AdditiveBlending, vertexColors:true });
+  const orbMesh = new THREE.InstancedMesh(orbGeo, orbMat, ORBS);
+  orbMesh.frustumCulled = false;
+  aumGroup.add(orbMesh);
+
+  const orbColors  = [0xCC5500,0xDD8800,0xBB3300,0xDDAA00,0xCC6600];
+  const orbOrigins = Array.from({length:ORBS}, () => randomOnSphere(RADIUS*(0.85+Math.random()*0.35)));
+  const orbScales  = Array.from({length:ORBS}, () => 0.006+Math.random()*0.022);
+  const orbSpeeds  = Array.from({length:ORBS}, () => 0.3+Math.random()*1.5);
+  const orbAxes    = Array.from({length:ORBS}, () => new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize());
+  const colAttr    = new Float32Array(ORBS*3);
+  for (let i=0;i<ORBS;i++){const c=new THREE.Color(orbColors[Math.floor(Math.random()*orbColors.length)]);colAttr[i*3]=c.r;colAttr[i*3+1]=c.g;colAttr[i*3+2]=c.b;}
+  orbGeo.setAttribute('color', new THREE.InstancedBufferAttribute(colAttr,3));
+
+  const wispGeo  = new THREE.SphereGeometry(1,4,4);
+  const wispMat  = new THREE.MeshBasicMaterial({color:0xDD8800,transparent:true,opacity:0.6,depthWrite:false,blending:THREE.AdditiveBlending});
+  const wispMesh = new THREE.InstancedMesh(wispGeo,wispMat,WISPS);
+  wispMesh.frustumCulled = false;
+  aumGroup.add(wispMesh);
+
+  const wispStarts  = Array.from({length:WISPS}, ()=>randomOnSphere(RADIUS*(0.9+Math.random()*0.2)));
+  const wispDrifts  = Array.from({length:WISPS}, ()=>{const f=Math.random()>0.7;return new THREE.Vector3((Math.random()-.5)*(f?.6:.15),f?.6+Math.random():.1+Math.random()*.25,(Math.random()-.5)*(f?.6:.15));});
+  const wispLives   = Array.from({length:WISPS}, ()=>0.8+Math.random()*2.5);
+  const wispSpeeds  = Array.from({length:WISPS}, ()=>0.5+Math.random()*1.5);
+  const wispJitter  = Array.from({length:WISPS}, ()=>({freq:2+Math.random()*6,amp:0.015+Math.random()*0.06,phase:Math.random()*Math.PI*2}));
+
+  const spitGeo  = new THREE.SphereGeometry(1,5,5);
+  const spitMat  = new THREE.MeshBasicMaterial({color:0xFFB300,transparent:true,opacity:0.9,depthWrite:false,blending:THREE.AdditiveBlending});
+  const spitMesh = new THREE.InstancedMesh(spitGeo,spitMat,SPITS);
+  spitMesh.frustumCulled = false;
+  aumGroup.add(spitMesh);
+
+  const spitStarts  = Array.from({length:SPITS}, ()=>randomOnSphere(RADIUS*0.95));
+  const spitEnds    = Array.from({length:SPITS}, ()=>randomOnSphere(RADIUS*1.15));
+  const spitOffsets = Array.from({length:SPITS}, ()=>Math.random()*20);
+  const spitCycles  = Array.from({length:SPITS}, ()=>4+Math.random()*6);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.02));
+  [[0,3,4,.6,0xFF6B00,15],[-3,-2,2,.35,0xCC6600,12],[2,1,-3,.25,0xBB4400,10],[0,-3,0,.15,0x882020,8]]
+    .forEach(([x,y,z,i,c,d])=>{const l=new THREE.PointLight(c,i,d);l.position.set(x,y,z);scene.add(l);});
+
+  const dummy   = new THREE.Object3D();
+  const tmpVec  = new THREE.Vector3();
+  let lerpTX=0, lerpTY=0, autoRotY=0, lastTs=0;
+
+  function animateSphere(ts) {
+    requestAnimationFrame(animateSphere);
+    const t     = ts * 0.001;
+    const delta = Math.min(t - lastTs, 0.05);
+    lastTs = t;
+
+    strandMats.forEach((m,i) => { m.uniforms.uTime.value = t + i*0.09; });
+
+    for (let i=0;i<ORBS;i++){
+      const angle=t*orbSpeeds[i];const r=0.06+Math.sin(t*0.5+i)*0.03;
+      tmpVec.set(Math.cos(angle)*r,Math.sin(angle*1.3)*r,Math.sin(angle)*r);
+      tmpVec.applyAxisAngle(orbAxes[i],angle*0.5);
+      dummy.position.copy(orbOrigins[i]).add(tmpVec);
+      dummy.scale.setScalar(orbScales[i]*(1+Math.sin(t*3.5+i*0.61)*0.3)*(0.85+Math.random()*0.3));
+      dummy.updateMatrix();orbMesh.setMatrixAt(i,dummy.matrix);
+    }
+    orbMesh.instanceMatrix.needsUpdate=true;
+
+    for (let i=0;i<WISPS;i++){
+      const life=wispLives[i];const phase=((t*wispSpeeds[i]+i*0.37)%life)/life;
+      const jit=wispJitter[i];
+      dummy.position.copy(wispStarts[i]).addScaledVector(wispDrifts[i],phase);
+      dummy.position.x+=Math.sin(t*jit.freq+jit.phase)*jit.amp*(1-phase);
+      dummy.position.z+=Math.cos(t*jit.freq*0.7+jit.phase)*jit.amp*(1-phase);
+      const fade=phase<0.15?phase/0.15:phase>0.7?(1-phase)/0.3:1;
+      dummy.scale.setScalar(0.012*fade*(0.6+Math.random()*0.4));
+      dummy.updateMatrix();wispMesh.setMatrixAt(i,dummy.matrix);
+    }
+    wispMesh.instanceMatrix.needsUpdate=true;
+
+    for (let i=0;i<SPITS;i++){
+      const cp=((t+spitOffsets[i])%spitCycles[i])/spitCycles[i];
+      if(cp>0.85){const ap=(cp-0.85)/0.15;dummy.position.lerpVectors(spitStarts[i],spitEnds[i],ap);dummy.scale.setScalar(0.025*Math.sin(ap*Math.PI));}
+      else{dummy.position.set(0,-100,0);dummy.scale.setScalar(0);}
+      dummy.updateMatrix();spitMesh.setMatrixAt(i,dummy.matrix);
+    }
+    spitMesh.instanceMatrix.needsUpdate=true;
+
+    autoRotY+=delta*0.09;
+    lerpTX=lerpV(lerpTX,mouseY*0.25,delta*2.5);
+    lerpTY=lerpV(lerpTY,mouseX*0.25,delta*2.5);
+    aumGroup.rotation.y=autoRotY+manualRotY+lerpTY;
+    aumGroup.rotation.x=manualRotX+lerpTX;
+    aumGroup.scale.setScalar(1+Math.sin(t*0.5)*0.03);
+    camera.position.z=lerpV(camera.position.z,targetZ,delta*4);
+    renderer.render(scene,camera);
+  }
+
+  requestAnimationFrame(animateSphere);
+})();
 
 // ── Loader ───────────────────────────────────────────
 const loaderBar = document.getElementById('loader-bar');
