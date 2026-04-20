@@ -1105,19 +1105,22 @@ async function sendMessage(textOverride) {
 
 // ── Aum Sphere ───────────────────────────────────────
 // Mode tokens from actual Aum code: House · Name · Torch · Ring
+// Mode tokens: House · Name · Torch (chakra) · Ring (planet) · Echo (zodiac sign)
+// All codes = first letter + second-to-last letter of source word
+// T-HR = Heart (H·r·t) | R-VU = Venus (V·u·s) | E-TU = Taurus (T·u·s)
 const AUM_MODES = [
-  'H1 · IDENTITY · T-RO · R-SR',
-  'H2 · VALUES · T-RO · R-SR',
-  'H3 · VOICE · T-SU · R-MA',
-  'H4 · HOME · T-HR · R-VU',
-  'H5 · CREATION · T-SA · R-JE',
-  'H6 · SERVICE · T-SU · R-MA',
-  'H7 · PARTNERSHIP · T-HR · R-VU',
-  'H8 · TRANSFORMATION · T-SA · R-JE',
-  'H9 · PHILOSOPHY · T-TA · R-MR',
-  'H10 · LEGACY · T-TA · R-MR',
-  'H11 · COMMUNITY · T-TY · R-MO',
-  'H12 · SUBCONSCIOUS · T-CW · R-SU',
+  'H1 · IDENTITY · T-RO · R-SR · E-CR',
+  'H2 · VALUES · T-RO · R-SR · E-AU',
+  'H3 · VOICE · T-SU · R-MA · E-AE',
+  'H4 · HOME · T-HR · R-VU · E-TU',
+  'H5 · CREATION · T-SA · R-JE · E-SU',
+  'H6 · SERVICE · T-SU · R-MA · E-SI',
+  'H7 · PARTNERSHIP · T-HR · R-VU · E-LR',
+  'H8 · TRANSFORMATION · T-SA · R-JE · E-PE',
+  'H9 · PHILOSOPHY · T-TA · R-MR · E-GN',
+  'H10 · LEGACY · T-TA · R-MR · E-VG',
+  'H11 · COMMUNITY · T-TY · R-MO · E-CE',
+  'H12 · SUBCONSCIOUS · T-CW · R-SU · E-LE',
 ];
 
 const modeEl  = document.getElementById('aum-mode-token');

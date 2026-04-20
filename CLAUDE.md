@@ -304,6 +304,74 @@ One soul. Seven domains. The human carries their identity across all of it.
 
 ---
 
+## AUM CODE NAMING CONVENTION
+
+Every code in the Aum architecture follows one rule:
+**First letter + second-to-last letter of the source word.**
+
+This is not arbitrary shorthand. The codes are encoded derivations of their origin.
+
+### Torches (T-) — sourced from Chakra names
+| Code | Chakra | Derivation |
+|------|--------|-----------|
+| T-RO | Root | R·o·o·**t** → R + O |
+| T-SA | Sacral | S·a·c·r·a·**l** → S + A |
+| T-SU | Solar Plexus | **S**·o·l·a·r → S + U (Sun energy) |
+| T-HR | Heart | H·e·a·**r**·t → H + R |
+| T-TA | Throat | T·h·r·o·a·**t** → T + A |
+| T-TY | Third Eye | **T**hird E·**y**·e → T + Y |
+| T-CW | Crown | C·r·o·**w**·n → C + W |
+
+### Rings (R-) — sourced from Classical & Extended planet names
+| Code | Planet | Derivation |
+|------|--------|-----------|
+| R-SR | Saturn | S·a·t·u·**r**·n → S + R |
+| R-JE | Jupiter | J·u·p·i·t·**e**·r → J + E |
+| R-MA | Mars | **M**·**a**·r·s → M + A |
+| R-VU | Venus | V·e·n·**u**·s → V + U |
+| R-MR | Mercury | M·e·r·c·u·**r**·y → M + R |
+| R-MO | Moon | M·**o**·o·n → M + O |
+| R-SU | Sun | S·**u**·n → S + U |
+| R-PT | Pluto | P·l·u·**t**·o → P + T |
+| R-UU | Uranus | U·r·a·n·**u**·s → U + U |
+| R-NN | Neptune | N·e·p·t·u·**n**·e → N + N |
+| R-PA | Pallas Athena | **P**·**a**·l·l·a·s → P + A |
+
+### Echoes (E-) — sourced from Zodiac sign names
+| Code | Sign | Derivation | Ring | House |
+|------|------|-----------|------|-------|
+| E-CR | Capricorn | C·a·p·r·i·c·o·**r**·n → C + R | R-SR | H1 |
+| E-AU | Aquarius | A·q·u·a·r·i·**u**·s → A + U | R-SR | H2 |
+| E-AE | Aries | A·r·i·**e**·s → A + E | R-MA | H3 |
+| E-SI | Scorpio | S·c·o·r·p·**i**·o → S + I | R-MA | H6 |
+| E-TU | Taurus | T·a·u·r·**u**·s → T + U | R-VU | H4 |
+| E-LR | Libra | L·i·b·**r**·a → L + R | R-VU | H7 |
+| E-SU | Sagittarius | S·a·g·i·t·t·a·r·i·**u**·s → S + U | R-JE | H5 |
+| E-PE | Pisces | P·i·s·c·**e**·s → P + E | R-JE | H8 |
+| E-GN | Gemini | G·e·m·i·**n**·i → G + N | R-MR | H9 |
+| E-VG | Virgo | V·i·r·**g**·o → V + G | R-MR | H10 |
+| E-CE | Cancer | C·a·n·c·**e**·r → C + E | R-MO | H11 |
+| E-LE | Leo | L·**e**·o → L + E | R-SU | H12 |
+
+### The Full Expression Mode Format
+Every Aum response generates one expression mode string:
+```
+H{n} · {HOUSE NAME} · T-XX · R-XX · E-XX
+```
+Example: `H4 · HOME · T-HR · R-VU · E-TU`
+
+The two houses sharing a Torch/Ring are differentiated by their Echo —
+and those Echo pairs follow traditional planetary rulers:
+- Venus rules Taurus (H4/E-TU) and Libra (H7/E-LR)
+- Mars rules Aries (H3/E-AE) and Scorpio (H6/E-SI)
+- Mercury rules Gemini (H9/E-GN) and Virgo (H10/E-VG)
+- Jupiter rules Sagittarius (H5/E-SU) and Pisces (H8/E-PE)
+- Saturn rules Capricorn (H1/E-CR) and Aquarius (H2/E-AU)
+
+The astrology is not decoration. It is the encoding logic of the architecture.
+
+---
+
 ## TECHNICAL CONTEXT FOR NEW SESSIONS
 
 - **Framework:** Next.js 14, Pages Router, TypeScript
