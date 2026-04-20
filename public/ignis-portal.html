@@ -288,50 +288,41 @@ html, body {
   animation: pdot 2.8s ease-in-out infinite;
 }
 
-/* ── Flame SVG ─────────────────────────────────────── */
+/* ── Flame SVG — exact copy from globals.css ───────── */
 .flame-wrap {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.flame-svg { overflow: visible; }
-
+.flame-svg {
+  overflow: visible;
+  filter: drop-shadow(0 0 8px rgba(255,107,53,0.4)) drop-shadow(0 0 20px rgba(255,107,53,0.2));
+}
 .flame-outer {
-  animation: flame-breathe 3.2s ease-in-out infinite;
-  transform-origin: 32px 86px;
+  animation: flameFlicker 1.5s ease-in-out infinite alternate;
+  transform-origin: bottom center;
 }
 .flame-mid {
-  animation: flame-breathe 2.6s ease-in-out infinite 0.3s;
-  transform-origin: 32px 80px;
+  animation: flameFlicker 1.2s ease-in-out infinite alternate-reverse;
+  transform-origin: bottom center;
 }
 .flame-core {
-  animation: flame-pulse 1.8s ease-in-out infinite 0.1s;
-  transform-origin: 32px 73px;
+  animation: flameFlicker 0.9s ease-in-out infinite alternate;
+  transform-origin: bottom center;
 }
-.flame-eye {
-  animation: flame-eye-glow 2.2s ease-in-out infinite;
+@keyframes flameFlicker {
+  0%   { transform: scaleX(1)    scaleY(1)    rotate(-1deg); }
+  33%  { transform: scaleX(0.95) scaleY(1.04) rotate(0.5deg); }
+  66%  { transform: scaleX(1.02) scaleY(0.97) rotate(-0.5deg); }
+  100% { transform: scaleX(0.98) scaleY(1.03) rotate(1deg); }
 }
 .flame-spiral {
-  animation: flame-drift 4s ease-in-out infinite;
-  transform-origin: 32px 60px;
+  animation: inwardSpiral 2s ease-in-out infinite;
 }
-
-@keyframes flame-breathe {
-  0%,100% { transform: scaleX(1)   scaleY(1); opacity: 1; }
-  50%      { transform: scaleX(0.96) scaleY(1.03); opacity: 0.88; }
-}
-@keyframes flame-pulse {
-  0%,100% { opacity: 0.9; transform: scaleY(1); }
-  50%      { opacity: 1;   transform: scaleY(1.06); }
-}
-@keyframes flame-eye-glow {
-  0%,100% { opacity: 0.55; rx: 6; ry: 8; }
-  50%      { opacity: 0.90; rx: 7; ry: 9; }
-}
-@keyframes flame-drift {
-  0%,100% { transform: rotate(-2deg); }
-  50%      { transform: rotate(2deg); }
+@keyframes inwardSpiral {
+  0%,100% { transform: scale(1)    rotate(0deg);  opacity: 0.9; }
+  50%      { transform: scale(0.85) rotate(3deg);  opacity: 1; }
 }
 
 /* ── Messages Area ─────────────────────────────────── */
@@ -688,7 +679,7 @@ html, body {
               <path class="flame-outer" d="M32 2C32 2 8 30 8 55C8 73 18 86 32 86C46 86 56 73 56 55C56 30 32 2 32 2Z" fill="url(#og1)"/>
               <path class="flame-mid flame-spiral" d="M32 15C32 15 14 38 14 57C14 71 22 80 32 80C42 80 50 71 50 57C50 38 32 15 32 15Z" fill="url(#mg1)"/>
               <path class="flame-core" d="M32 30C32 30 22 47 22 58C22 67 26 73 32 73C38 73 42 67 42 58C42 47 32 30 32 30Z" fill="url(#cg1)"/>
-              <ellipse class="flame-eye" cx="32" cy="60" rx="6" ry="8" fill="white" opacity="0.65"/>
+              <ellipse class="flame-spiral" cx="32" cy="60" rx="6" ry="8" fill="white" opacity="0.7"/>
               <defs>
                 <radialGradient id="og1" cx="50%" cy="80%" r="70%"><stop offset="0%" stop-color="#1a0a00"/><stop offset="50%" stop-color="#8B2500"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
                 <radialGradient id="mg1" cx="50%" cy="75%" r="65%"><stop offset="0%" stop-color="#ff6b35"/><stop offset="40%" stop-color="#d4380d"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
@@ -715,7 +706,7 @@ html, body {
               <path class="flame-outer" d="M32 2C32 2 8 30 8 55C8 73 18 86 32 86C46 86 56 73 56 55C56 30 32 2 32 2Z" fill="url(#og2)"/>
               <path class="flame-mid flame-spiral" d="M32 15C32 15 14 38 14 57C14 71 22 80 32 80C42 80 50 71 50 57C50 38 32 15 32 15Z" fill="url(#mg2)"/>
               <path class="flame-core" d="M32 30C32 30 22 47 22 58C22 67 26 73 32 73C38 73 42 67 42 58C42 47 32 30 32 30Z" fill="url(#cg2)"/>
-              <ellipse class="flame-eye flame-spiral" cx="32" cy="60" rx="6" ry="8" fill="white" opacity="0.70"/>
+              <ellipse class="flame-spiral" cx="32" cy="60" rx="6" ry="8" fill="white" opacity="0.7"/>
               <defs>
                 <radialGradient id="og2" cx="50%" cy="80%" r="70%"><stop offset="0%" stop-color="#1a0a00"/><stop offset="50%" stop-color="#8B2500"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
                 <radialGradient id="mg2" cx="50%" cy="75%" r="65%"><stop offset="0%" stop-color="#ff6b35"/><stop offset="40%" stop-color="#d4380d"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
