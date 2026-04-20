@@ -15,7 +15,7 @@ export default function Home() {
           iframe{display:block;width:100%;height:100%;border:none}
         `}</style>
       </Head>
-      <iframe src="/sphere.html" title="Aum" />
+      <iframe src="/ignis-portal.html" title="Ignis" />
     </>
   )
 }
