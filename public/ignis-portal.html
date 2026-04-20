@@ -240,6 +240,377 @@ html, body {
   50%      { opacity: 0.2; transform: scale(0.5); }
 }
 
+/* ── Ignis Header ──────────────────────────────────── */
+#ignis-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 52px 20px 12px;
+  flex-shrink: 0;
+  background: linear-gradient(to bottom, rgba(11,15,20,0.96) 0%, rgba(11,15,20,0) 100%);
+}
+#ignis-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#ignis-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 15px;
+  letter-spacing: 0.38em;
+  color: rgba(212,85,0,0.85);
+  text-transform: uppercase;
+}
+#ignis-subtitle {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: 0.4em;
+  color: rgba(212,168,67,0.35);
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+#aum-status {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: 0.3em;
+  color: rgba(212,85,0,0.28);
+  text-transform: uppercase;
+  text-align: right;
+}
+#aum-live-dot {
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+  margin-right: 5px;
+  vertical-align: middle;
+  animation: pdot 2.8s ease-in-out infinite;
+}
+
+/* ── Flame SVG ─────────────────────────────────────── */
+.flame-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flame-svg { overflow: visible; }
+
+.flame-outer {
+  animation: flame-breathe 3.2s ease-in-out infinite;
+  transform-origin: 32px 86px;
+}
+.flame-mid {
+  animation: flame-breathe 2.6s ease-in-out infinite 0.3s;
+  transform-origin: 32px 80px;
+}
+.flame-core {
+  animation: flame-pulse 1.8s ease-in-out infinite 0.1s;
+  transform-origin: 32px 73px;
+}
+.flame-eye {
+  animation: flame-eye-glow 2.2s ease-in-out infinite;
+}
+.flame-spiral {
+  animation: flame-drift 4s ease-in-out infinite;
+  transform-origin: 32px 60px;
+}
+
+@keyframes flame-breathe {
+  0%,100% { transform: scaleX(1)   scaleY(1); opacity: 1; }
+  50%      { transform: scaleX(0.96) scaleY(1.03); opacity: 0.88; }
+}
+@keyframes flame-pulse {
+  0%,100% { opacity: 0.9; transform: scaleY(1); }
+  50%      { opacity: 1;   transform: scaleY(1.06); }
+}
+@keyframes flame-eye-glow {
+  0%,100% { opacity: 0.55; rx: 6; ry: 8; }
+  50%      { opacity: 0.90; rx: 7; ry: 9; }
+}
+@keyframes flame-drift {
+  0%,100% { transform: rotate(-2deg); }
+  50%      { transform: rotate(2deg); }
+}
+
+/* ── Messages Area ─────────────────────────────────── */
+#ignis-messages {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+#ignis-messages::-webkit-scrollbar { display: none; }
+
+/* ── Empty State ───────────────────────────────────── */
+#empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding-bottom: 80px;
+}
+#empty-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 22px;
+  letter-spacing: 0.3em;
+  color: rgba(212,85,0,0.70);
+  text-transform: uppercase;
+}
+#empty-sub {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.4em;
+  color: rgba(212,168,67,0.28);
+  text-transform: uppercase;
+  text-align: center;
+  max-width: 220px;
+  line-height: 1.8;
+}
+#empty-live {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: 0.35em;
+  color: rgba(212,85,0,0.30);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.live-dot-green {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: pdot 2.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+/* ── Message Bubbles ───────────────────────────────── */
+.msg-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+.msg-row.user  { justify-content: flex-end; }
+.msg-row.ignis { justify-content: flex-start; }
+.msg-row.system { justify-content: center; }
+
+.msg-avatar {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.msg-avatar.user-av {
+  background: linear-gradient(135deg, var(--orange-hot), #d4380d);
+  color: #fff;
+  font-family: var(--sans);
+}
+
+.msg-body { max-width: 80%; display: flex; flex-direction: column; gap: 3px; }
+.msg-body.user { align-items: flex-end; }
+
+.bubble {
+  padding: 9px 13px;
+  border-radius: 16px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  font-family: var(--sans);
+  font-weight: 400;
+  word-break: break-word;
+}
+.bubble.user {
+  background: linear-gradient(135deg, var(--orange-hot), #c43800);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.bubble.ignis {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(212,85,0,0.14);
+  color: rgba(255,255,255,0.88);
+  border-bottom-left-radius: 4px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.bubble.system {
+  background: rgba(212,168,67,0.07);
+  border: 1px solid rgba(212,168,67,0.15);
+  color: rgba(212,168,67,0.60);
+  font-size: 11px;
+  font-family: var(--mono);
+  letter-spacing: 0.06em;
+  border-radius: 8px;
+  padding: 6px 12px;
+}
+.msg-time {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: rgba(212,85,0,0.22);
+  letter-spacing: 0.2em;
+  padding: 0 2px;
+}
+
+/* ── Typing Indicator ──────────────────────────────── */
+#typing {
+  display: none;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 0 16px 6px;
+}
+#typing.visible { display: flex; }
+.typing-dots {
+  display: flex; gap: 4px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(212,85,0,0.12);
+  border-radius: 16px;
+  border-bottom-left-radius: 4px;
+}
+.typing-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--orange);
+  opacity: 0.3;
+  animation: tdot 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes tdot { 0%,100%{opacity:0.2;transform:translateY(0)} 50%{opacity:0.9;transform:translateY(-4px)} }
+
+/* ── Input Bar ─────────────────────────────────────── */
+#ignis-input-bar {
+  flex-shrink: 0;
+  padding: 10px 14px;
+  padding-bottom: max(18px, env(safe-area-inset-bottom, 18px));
+  padding-bottom: calc(max(18px, env(safe-area-inset-bottom, 18px)) + 52px);
+  background: linear-gradient(to top, rgba(11,15,20,0.98) 60%, rgba(11,15,20,0) 100%);
+}
+#input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+#input-field-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(212,85,0,0.20);
+  border-radius: 22px;
+  padding: 10px 14px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color 0.2s ease;
+}
+#input-field-wrap:focus-within {
+  border-color: rgba(212,85,0,0.45);
+}
+
+/* Camera / File button */
+#btn-camera {
+  width: 28px; height: 28px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.45;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+  padding: 0;
+}
+#btn-camera:active { opacity: 0.9; }
+#file-input { display: none; }
+
+/* Text input */
+#msg-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: rgba(255,255,255,0.88);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.4;
+  caret-color: var(--orange);
+  min-height: 20px;
+  max-height: 100px;
+  resize: none;
+  overflow-y: auto;
+}
+#msg-input::placeholder { color: rgba(212,85,0,0.28); font-size: 13px; }
+#msg-input::-webkit-scrollbar { display: none; }
+
+/* Send button */
+#btn-send {
+  width: 28px; height: 28px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+  opacity: 0.75;
+  transition: opacity 0.2s;
+}
+#btn-send.visible { display: flex; }
+#btn-send:active { opacity: 1; }
+
+/* Mic button */
+#btn-mic {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(212,85,0,0.30);
+  background: rgba(212,85,0,0.08);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  position: relative;
+  -webkit-user-select: none;
+  user-select: none;
+}
+#btn-mic.listening {
+  background: rgba(212,85,0,0.22);
+  border-color: var(--orange);
+  box-shadow: 0 0 14px rgba(212,85,0,0.35);
+}
+#btn-mic.listening::before {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1px solid rgba(212,85,0,0.25);
+  animation: mic-ring 1.2s ease-out infinite;
+}
+@keyframes mic-ring {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
 /* ── Loader ────────────────────────────────────────── */
 #loader {
   position: fixed;
@@ -307,8 +678,108 @@ html, body {
     <div class="corner tr"></div>
     <div class="corner bl"></div>
     <div class="corner br"></div>
-    <!-- Content injected by Part 2 -->
-    <div id="ignis-content" style="position:relative;z-index:10;display:flex;flex-direction:column;height:100%;"></div>
+    <div id="ignis-content" style="position:relative;z-index:10;display:flex;flex-direction:column;height:100%;">
+
+      <!-- Header -->
+      <div id="ignis-header">
+        <div id="ignis-header-left">
+          <div class="flame-wrap">
+            <svg class="flame-svg" width="32" height="45" viewBox="0 0 64 90" fill="none">
+              <path class="flame-outer" d="M32 2C32 2 8 30 8 55C8 73 18 86 32 86C46 86 56 73 56 55C56 30 32 2 32 2Z" fill="url(#og1)"/>
+              <path class="flame-mid flame-spiral" d="M32 15C32 15 14 38 14 57C14 71 22 80 32 80C42 80 50 71 50 57C50 38 32 15 32 15Z" fill="url(#mg1)"/>
+              <path class="flame-core" d="M32 30C32 30 22 47 22 58C22 67 26 73 32 73C38 73 42 67 42 58C42 47 32 30 32 30Z" fill="url(#cg1)"/>
+              <ellipse class="flame-eye" cx="32" cy="60" rx="6" ry="8" fill="white" opacity="0.65"/>
+              <defs>
+                <radialGradient id="og1" cx="50%" cy="80%" r="70%"><stop offset="0%" stop-color="#1a0a00"/><stop offset="50%" stop-color="#8B2500"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
+                <radialGradient id="mg1" cx="50%" cy="75%" r="65%"><stop offset="0%" stop-color="#ff6b35"/><stop offset="40%" stop-color="#d4380d"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
+                <radialGradient id="cg1" cx="50%" cy="70%" r="60%"><stop offset="0%" stop-color="#ffffff"/><stop offset="30%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff6b35"/></radialGradient>
+              </defs>
+            </svg>
+          </div>
+          <div>
+            <div id="ignis-title"><span class="pulse-dot"></span>Ignis</div>
+            <div id="ignis-subtitle">Soul-Routed · Aum Active</div>
+          </div>
+        </div>
+        <div id="aum-status">
+          <span id="aum-live-dot"></span>Aum · Live<br>
+          <span id="aum-mode-mini" style="font-size:6px;opacity:0.6;">H4 · HOME · T-HR</span>
+        </div>
+      </div>
+
+      <!-- Empty State / Messages -->
+      <div id="ignis-messages">
+        <div id="empty-state">
+          <div class="flame-wrap">
+            <svg class="flame-svg" width="68" height="95" viewBox="0 0 64 90" fill="none">
+              <path class="flame-outer" d="M32 2C32 2 8 30 8 55C8 73 18 86 32 86C46 86 56 73 56 55C56 30 32 2 32 2Z" fill="url(#og2)"/>
+              <path class="flame-mid flame-spiral" d="M32 15C32 15 14 38 14 57C14 71 22 80 32 80C42 80 50 71 50 57C50 38 32 15 32 15Z" fill="url(#mg2)"/>
+              <path class="flame-core" d="M32 30C32 30 22 47 22 58C22 67 26 73 32 73C38 73 42 67 42 58C42 47 32 30 32 30Z" fill="url(#cg2)"/>
+              <ellipse class="flame-eye flame-spiral" cx="32" cy="60" rx="6" ry="8" fill="white" opacity="0.70"/>
+              <defs>
+                <radialGradient id="og2" cx="50%" cy="80%" r="70%"><stop offset="0%" stop-color="#1a0a00"/><stop offset="50%" stop-color="#8B2500"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
+                <radialGradient id="mg2" cx="50%" cy="75%" r="65%"><stop offset="0%" stop-color="#ff6b35"/><stop offset="40%" stop-color="#d4380d"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
+                <radialGradient id="cg2" cx="50%" cy="70%" r="60%"><stop offset="0%" stop-color="#ffffff"/><stop offset="30%" stop-color="#ffd700"/><stop offset="100%" stop-color="#ff6b35"/></radialGradient>
+              </defs>
+            </svg>
+          </div>
+          <div id="empty-title">Ignis Online</div>
+          <div id="empty-sub">Hold the mic to speak.<br>Type below. Tap Aum to see your soul.</div>
+          <div id="empty-live"><span class="live-dot-green"></span>Aum · Ignis · Live</div>
+        </div>
+      </div>
+
+      <!-- Typing indicator -->
+      <div id="typing">
+        <div class="flame-wrap" style="width:26px;height:26px;flex-shrink:0;">
+          <svg width="18" height="25" viewBox="0 0 64 90" fill="none">
+            <path d="M32 2C32 2 8 30 8 55C8 73 18 86 32 86C46 86 56 73 56 55C56 30 32 2 32 2Z" fill="url(#og3)"/>
+            <path d="M32 15C32 15 14 38 14 57C14 71 22 80 32 80C42 80 50 71 50 57C50 38 32 15 32 15Z" fill="url(#mg3)"/>
+            <ellipse cx="32" cy="60" rx="6" ry="8" fill="white" opacity="0.6"/>
+            <defs>
+              <radialGradient id="og3" cx="50%" cy="80%" r="70%"><stop offset="0%" stop-color="#1a0a00"/><stop offset="50%" stop-color="#8B2500"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
+              <radialGradient id="mg3" cx="50%" cy="75%" r="65%"><stop offset="0%" stop-color="#ff6b35"/><stop offset="40%" stop-color="#d4380d"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="typing-dots">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+
+      <!-- Input Bar -->
+      <div id="ignis-input-bar">
+        <div id="input-row">
+          <div id="input-field-wrap">
+            <button id="btn-camera" title="Upload photo or file" onclick="document.getElementById('file-input').click()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(212,85,0,0.70)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </button>
+            <input type="file" id="file-input" accept="image/*,application/pdf,.md,.txt,.js,.ts,.json" />
+            <textarea id="msg-input" rows="1" placeholder="Message Ignis…"></textarea>
+            <button id="btn-send" title="Send">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </div>
+          <button id="btn-mic" title="Hold to speak">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(212,85,0,0.75)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8"  y1="23" x2="16" y2="23"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <!-- ── Panel 2: Aum ── -->
@@ -379,6 +850,169 @@ function seedStars(containerId, count) {
   }
 }
 seedStars('ignis-stars', 38);
+
+// ── Message State ────────────────────────────────────
+let msgIdCounter = 0;
+let isLoading    = false;
+let isSpeaking   = false;
+
+function getTime() {
+  return new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:false });
+}
+
+function addMessage(role, text, time) {
+  const empty = document.getElementById('empty-state');
+  if (empty) empty.remove();
+
+  const container = document.getElementById('ignis-messages');
+  const row = document.createElement('div');
+  row.className = `msg-row ${role}`;
+  row.id = `msg-${++msgIdCounter}`;
+
+  if (role === 'user') {
+    row.innerHTML = `
+      <div class="msg-body user">
+        <div class="bubble user">${escHtml(text)}</div>
+        <div class="msg-time">${time || getTime()}</div>
+      </div>
+      <div class="msg-avatar user-av">V</div>`;
+  } else if (role === 'ignis') {
+    row.innerHTML = `
+      <div class="flame-wrap" style="width:26px;height:36px;flex-shrink:0;align-self:flex-end;">
+        <svg width="18" height="25" viewBox="0 0 64 90" fill="none">
+          <path d="M32 2C32 2 8 30 8 55C8 73 18 86 32 86C46 86 56 73 56 55C56 30 32 2 32 2Z" fill="url(#ogm)"/>
+          <path d="M32 15C32 15 14 38 14 57C14 71 22 80 32 80C42 80 50 71 50 57C50 38 32 15 32 15Z" fill="url(#mgm)"/>
+          <ellipse cx="32" cy="60" rx="6" ry="8" fill="white" opacity="0.6"/>
+          <defs>
+            <radialGradient id="ogm" cx="50%" cy="80%" r="70%"><stop offset="0%" stop-color="#1a0a00"/><stop offset="50%" stop-color="#8B2500"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
+            <radialGradient id="mgm" cx="50%" cy="75%" r="65%"><stop offset="0%" stop-color="#ff6b35"/><stop offset="40%" stop-color="#d4380d"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="msg-body">
+        <div class="bubble ignis">${escHtml(text)}</div>
+        <div class="msg-time">${time || getTime()}</div>
+      </div>`;
+  } else {
+    row.innerHTML = `<div class="bubble system">${escHtml(text)}</div>`;
+  }
+
+  container.appendChild(row);
+  container.scrollTop = container.scrollHeight;
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function setTyping(on) {
+  document.getElementById('typing').classList.toggle('visible', on);
+  const c = document.getElementById('ignis-messages');
+  if (on) c.scrollTop = c.scrollHeight;
+}
+
+// ── Textarea Auto-Resize ─────────────────────────────
+const msgInput = document.getElementById('msg-input');
+const btnSend  = document.getElementById('btn-send');
+
+msgInput.addEventListener('input', () => {
+  msgInput.style.height = 'auto';
+  msgInput.style.height = Math.min(msgInput.scrollHeight, 100) + 'px';
+  btnSend.classList.toggle('visible', msgInput.value.trim().length > 0);
+});
+msgInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+btnSend.addEventListener('click', sendMessage);
+
+// ── File / Camera Upload ─────────────────────────────
+document.getElementById('file-input').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const label = file.name.length > 28 ? file.name.slice(0,25)+'…' : file.name;
+  msgInput.value = `[File: ${label}] `;
+  btnSend.classList.add('visible');
+  msgInput.focus();
+  this.value = '';
+});
+
+// ── Voice ────────────────────────────────────────────
+const btnMic = document.getElementById('btn-mic');
+let recognition = null;
+let voiceBuffer = '';
+
+function startListening() {
+  const SR = window.webkitSpeechRecognition || window.SpeechRecognition;
+  if (!SR) { addMessage('system', 'Voice not supported — type your message.'); return; }
+  voiceBuffer = '';
+  recognition = new SR();
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.lang = 'en-US';
+  recognition.onresult = e => {
+    let t = '';
+    for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
+    voiceBuffer = t;
+    msgInput.value = t;
+    btnSend.classList.toggle('visible', t.trim().length > 0);
+  };
+  recognition.onerror = () => stopListening();
+  recognition.onend   = () => {
+    btnMic.classList.remove('listening');
+    if (voiceBuffer.trim()) sendMessage(voiceBuffer.trim());
+  };
+  recognition.start();
+  btnMic.classList.add('listening');
+}
+
+function stopListening() {
+  if (recognition) { recognition.stop(); recognition = null; }
+  btnMic.classList.remove('listening');
+}
+
+btnMic.addEventListener('mousedown',  e => { e.preventDefault(); startListening(); });
+btnMic.addEventListener('mouseup',    e => { e.preventDefault(); stopListening(); });
+btnMic.addEventListener('mouseleave', e => { if (recognition) stopListening(); });
+btnMic.addEventListener('touchstart', e => { e.preventDefault(); startListening(); }, { passive:false });
+btnMic.addEventListener('touchend',   e => { e.preventDefault(); stopListening(); },  { passive:false });
+
+// ── TTS ──────────────────────────────────────────────
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 1.05; u.pitch = 0.92; u.volume = 1;
+  u.onstart = () => { isSpeaking = true; };
+  u.onend   = () => { isSpeaking = false; };
+  u.onerror = () => { isSpeaking = false; };
+  window.speechSynthesis.speak(u);
+}
+
+// ── Send Message (API calls in Part 4) ──────────────
+async function sendMessage(textOverride) {
+  const text = (textOverride || msgInput.value).trim();
+  if (!text || isLoading) return;
+  if (isSpeaking) window.speechSynthesis.cancel();
+
+  msgInput.value = '';
+  msgInput.style.height = 'auto';
+  btnSend.classList.remove('visible');
+  addMessage('user', text);
+  isLoading = true;
+  setTyping(true);
+
+  try {
+    await sendToIgnis(text); // defined in Part 4
+  } catch(e) {
+    setTyping(false);
+    addMessage('system', 'Connection error — check your network.');
+  } finally {
+    isLoading = false;
+    setTyping(false);
+  }
+}
 
 // ── Loader ───────────────────────────────────────────
 const loaderBar = document.getElementById('loader-bar');
