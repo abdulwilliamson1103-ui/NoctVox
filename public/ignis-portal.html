@@ -1103,6 +1103,141 @@ async function sendMessage(textOverride) {
   }
 }
 
+// ── Part 4: API Wiring ───────────────────────────────
+
+const HOUSE_NAMES = {
+  1:'IDENTITY', 2:'VALUES',   3:'VOICE',         4:'HOME',
+  5:'CREATION', 6:'SERVICE',  7:'PARTNERSHIP',   8:'TRANSFORMATION',
+  9:'PHILOSOPHY',10:'LEGACY', 11:'COMMUNITY',    12:'SUBCONSCIOUS',
+};
+
+async function sendToIgnis(text) {
+  // Step 1 — Route through Aum first (soul state for this message)
+  let aumContext = null;
+  try {
+    const aumRes = await fetch('/api/aum', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        rawInput:    text,
+        userId:      'noctvox_vision',
+        surfaceType: 'ignis',
+      }),
+    });
+    if (aumRes.ok) {
+      aumContext = await aumRes.json();
+      // Update Aum sphere mode token with live routing data
+      if (aumContext && !aumContext.error) {
+        const hId    = aumContext.houseMapping?.primaryHouseId;
+        const torch  = aumContext.torchActivation?.dominant   || '';
+        const ring   = aumContext.ringActivation?.primary     || '';
+        const echo   = aumContext.echoBlend?.leadEcho?.id     || '';
+        const hName  = HOUSE_NAMES[hId] || '?';
+        const token  = `H${hId} · ${hName} · ${torch} · ${ring} · ${echo}`;
+        // Update Aum panel token
+        const modeEl = document.getElementById('aum-mode-token');
+        if (modeEl) {
+          modeEl.style.opacity = '0';
+          setTimeout(() => { modeEl.textContent = token; modeEl.style.opacity = '1'; }, 400);
+        }
+        // Update mini token on Ignis header
+        const mini = document.getElementById('aum-mode-mini');
+        if (mini) mini.textContent = `H${hId} · ${torch} · ${echo}`;
+      }
+    }
+  } catch (_) {
+    // Aum offline — Ignis continues unrouted
+  }
+
+  // Step 2 — Call Ignis with Aum context
+  const res = await fetch('/api/ignis', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ text, aumContext }),
+  });
+
+  if (!res.ok) throw new Error(`Ignis ${res.status}`);
+  const data = await res.json();
+  const reply = data.text || data.response || '[No response]';
+
+  setTyping(false);
+  addMessage('ignis', reply);
+  speak(reply);
+
+  // Step 3 — Flash Aum panel tab briefly if on Ignis panel
+  // so Vision knows soul routed this response
+  if (currentPanel === 'ignis') flashAumDot();
+}
+
+function flashAumDot() {
+  const dot = document.getElementById('dot-aum');
+  if (!dot) return;
+  dot.style.background = 'var(--orange)';
+  dot.style.boxShadow  = '0 0 8px var(--orange)';
+  setTimeout(() => {
+    dot.style.background = '';
+    dot.style.boxShadow  = '';
+  }, 1200);
+}
+
+// ── PWA Install Prompt ───────────────────────────────
+let deferredInstall = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstall = e;
+  // Show a subtle install hint after 8s if not already installed
+  setTimeout(() => {
+    if (deferredInstall) showInstallHint();
+  }, 8000);
+});
+
+function showInstallHint() {
+  const hint = document.createElement('div');
+  hint.style.cssText = `
+    position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+    background:rgba(11,15,20,0.92); border:1px solid rgba(212,85,0,0.25);
+    border-radius:12px; padding:10px 16px;
+    font-family:var(--mono); font-size:9px; letter-spacing:0.35em;
+    color:rgba(212,85,0,0.70); text-transform:uppercase;
+    z-index:100; cursor:pointer; backdrop-filter:blur(12px);
+    white-space:nowrap;
+  `;
+  hint.textContent = '+ Add Ignis to Home Screen';
+  hint.addEventListener('click', async () => {
+    hint.remove();
+    if (deferredInstall) { deferredInstall.prompt(); deferredInstall = null; }
+  });
+  // Auto-dismiss after 6s
+  document.body.appendChild(hint);
+  setTimeout(() => hint.remove(), 6000);
+}
+
+// iOS Safari — show manual instructions (no beforeinstallprompt)
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+function isInStandaloneMode() {
+  return window.navigator.standalone === true;
+}
+if (isIOS() && !isInStandaloneMode()) {
+  setTimeout(() => {
+    const hint = document.createElement('div');
+    hint.style.cssText = `
+      position:fixed; bottom:90px; left:50%; transform:translateX(-50%);
+      background:rgba(11,15,20,0.92); border:1px solid rgba(212,85,0,0.25);
+      border-radius:12px; padding:10px 18px; text-align:center;
+      font-family:var(--mono); font-size:9px; letter-spacing:0.3em;
+      color:rgba(212,85,0,0.65); text-transform:uppercase;
+      z-index:100; cursor:pointer; backdrop-filter:blur(12px);
+      max-width:280px; line-height:1.9;
+    `;
+    hint.innerHTML = 'Add to Home Screen<br><span style="opacity:0.45;letter-spacing:0.2em;">Share → Add to Home Screen</span>';
+    hint.addEventListener('click', () => hint.remove());
+    document.body.appendChild(hint);
+    setTimeout(() => hint.remove(), 7000);
+  }, 10000);
+}
+
 // ── Aum Sphere ───────────────────────────────────────
 // Mode tokens from actual Aum code: House · Name · Torch · Ring
 // Mode tokens: House · Name · Torch (chakra) · Ring (planet) · Echo (zodiac sign)
