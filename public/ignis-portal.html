@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ignis">
+<meta name="theme-color" content="#0B0F14">
+<title>Ignis — NoctVox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cinzel:wght@300;400&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ── Reset ─────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  width: 100%; height: 100%;
+  background: #0B0F14;
+  overflow: hidden;
+  font-family: 'Space Grotesk', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── CSS Variables ─────────────────────────────────── */
+:root {
+  --black:      #0B0F14;
+  --black-soft: #0F1218;
+  --orange:     #D45500;
+  --orange-hot: #FF6B35;
+  --orange-dim: rgba(212,85,0,0.18);
+  --gold:       #D4A843;
+  --gold-dim:   rgba(212,168,67,0.15);
+  --purple:     #5500A0;
+  --purple-dim: rgba(85,0,160,0.18);
+  --red:        #8B1A1A;
+  --red-hot:    #CC2200;
+  --mono:       'Share Tech Mono', monospace;
+  --serif:      'Cinzel', serif;
+  --sans:       'Space Grotesk', sans-serif;
+}
+
+/* ── App Shell ─────────────────────────────────────── */
+#app {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── Panel System ──────────────────────────────────── */
+.panel {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity   0.42s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+}
+
+#panel-ignis {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 2;
+}
+
+#panel-aum {
+  transform: translateX(100%);
+  opacity: 0;
+  z-index: 1;
+}
+
+#panel-ignis.hidden {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#panel-aum.visible {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+/* ── Stars Background ──────────────────────────────── */
+.stars-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #0B0F14;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.stars-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 15%  12%, rgba(212,168,67,0.55) 0%, transparent 100%),
+    radial-gradient(1px 1px at 72%   8%, rgba(255,255,255,0.30) 0%, transparent 100%),
+    radial-gradient(1px 1px at 38%  22%, rgba(255,255,255,0.20) 0%, transparent 100%),
+    radial-gradient(1px 1px at 88%  18%, rgba(212,85,0,0.45)   0%, transparent 100%),
+    radial-gradient(1px 1px at  5%  45%, rgba(255,255,255,0.18) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55%  35%, rgba(212,168,67,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 92%  50%, rgba(255,255,255,0.22) 0%, transparent 100%),
+    radial-gradient(1px 1px at 25%  68%, rgba(255,255,255,0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 78%  72%, rgba(212,85,0,0.30)   0%, transparent 100%),
+    radial-gradient(1px 1px at 45%  80%, rgba(255,255,255,0.20) 0%, transparent 100%),
+    radial-gradient(1px 1px at 10%  85%, rgba(212,168,67,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 62%  90%, rgba(255,255,255,0.18) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 33%  5%, rgba(212,168,67,0.60) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 80%  30%, rgba(255,107,53,0.45) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 18%  55%, rgba(255,255,255,0.35) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 95%  78%, rgba(212,168,67,0.40) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50%  15%, rgba(255,255,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 67%  60%, rgba(212,85,0,0.20)   0%, transparent 100%),
+    radial-gradient(1px 1px at  3%  25%, rgba(255,255,255,0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 42%  95%, rgba(212,168,67,0.20) 0%, transparent 100%);
+}
+
+.stars-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, transparent 20%, rgba(11,15,20,0.75) 100%);
+}
+
+/* ── Star Twinkle Particles ────────────────────────── */
+.star-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(212,168,67,0.6);
+  animation: twinkle var(--dur, 4s) ease-in-out infinite var(--delay, 0s);
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(1);   }
+  50%       { opacity: 0.80; transform: scale(1.4); }
+}
+
+/* ── Scanlines (subtle) ────────────────────────────── */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.018) 2px, rgba(0,0,0,0.018) 4px
+  );
+}
+
+/* ── Corner Brackets ───────────────────────────────── */
+.corner {
+  position: absolute;
+  width: 22px; height: 22px;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.20;
+}
+.corner.tl { top: 16px; left: 16px; border-top: 1px solid var(--orange); border-left: 1px solid var(--orange); }
+.corner.tr { top: 16px; right: 16px; border-top: 1px solid var(--orange); border-right: 1px solid var(--orange); }
+.corner.bl { bottom: 16px; left: 16px; border-bottom: 1px solid var(--orange); border-left: 1px solid var(--orange); }
+.corner.br { bottom: 16px; right: 16px; border-bottom: 1px solid var(--orange); border-right: 1px solid var(--orange); }
+
+/* ── Vignette ──────────────────────────────────────── */
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 35%, rgba(11,15,20,0.88) 100%);
+}
+
+/* ── Tab Navigation ────────────────────────────────── */
+#tab-nav {
+  position: fixed;
+  bottom: max(24px, env(safe-area-inset-bottom, 24px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px;
+  background: rgba(11,15,20,0.82);
+  border: 1px solid rgba(212,85,0,0.18);
+  border-radius: 999px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.tab-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(212,85,0,0.28);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  padding: 0;
+}
+.tab-dot.active {
+  background: var(--orange);
+  box-shadow: 0 0 8px var(--orange);
+  width: 18px;
+  border-radius: 3px;
+}
+
+.tab-label {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(212,85,0,0.45);
+  cursor: pointer;
+  transition: color 0.3s ease;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.tab-label.active { color: var(--orange); }
+
+/* ── Pulse Dot ─────────────────────────────────────── */
+.pulse-dot {
+  display: inline-block;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow: 0 0 6px var(--orange);
+  margin-right: 6px;
+  vertical-align: middle;
+  animation: pdot 2.4s ease-in-out infinite;
+}
+@keyframes pdot {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.2; transform: scale(0.5); }
+}
+
+/* ── Loader ────────────────────────────────────────── */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: #0B0F14;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  transition: opacity 0.9s ease;
+}
+#loader-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+#loader-name {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 28px;
+  letter-spacing: 0.45em;
+  color: rgba(212,85,0,0.55);
+  text-transform: uppercase;
+}
+#loader-sub {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.5em;
+  color: rgba(212,168,67,0.28);
+  text-transform: uppercase;
+  animation: blink 1.1s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+#loader-bar-wrap {
+  width: 100px; height: 1px;
+  background: rgba(212,85,0,0.12);
+  overflow: hidden;
+}
+#loader-bar {
+  height: 1px; width: 0%;
+  background: linear-gradient(90deg, var(--orange), var(--gold));
+  transition: width 1.4s ease;
+}
+</style>
+</head>
+
+<body>
+<div id="loader">
+  <div id="loader-inner">
+    <div id="loader-name">Ignis</div>
+    <div id="loader-sub">initializing · aum routing</div>
+    <div id="loader-bar-wrap"><div id="loader-bar"></div></div>
+  </div>
+</div>
+
+<div id="app">
+
+  <!-- ── Panel 1: Ignis ── -->
+  <div class="panel" id="panel-ignis">
+    <div class="stars-bg" id="ignis-stars"></div>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+    <!-- Content injected by Part 2 -->
+    <div id="ignis-content" style="position:relative;z-index:10;display:flex;flex-direction:column;height:100%;"></div>
+  </div>
+
+  <!-- ── Panel 2: Aum ── -->
+  <div class="panel" id="panel-aum">
+    <canvas id="aum-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+    <!-- Aum UI overlays injected by Part 3 -->
+    <div id="aum-ui" style="position:absolute;inset:0;z-index:10;pointer-events:none;"></div>
+  </div>
+
+</div>
+
+<!-- ── Tab Navigation (global, above both panels) ── -->
+<nav id="tab-nav">
+  <button class="tab-label active" id="tab-ignis" onclick="switchPanel('ignis')">Ignis</button>
+  <button class="tab-dot active"   id="dot-ignis" onclick="switchPanel('ignis')"></button>
+  <button class="tab-dot"          id="dot-aum"   onclick="switchPanel('aum')"></button>
+  <button class="tab-label"        id="tab-aum"   onclick="switchPanel('aum')">Aum</button>
+</nav>
+
+<script>
+// ── Panel Switch Logic ───────────────────────────────
+let currentPanel = 'ignis';
+
+function switchPanel(target) {
+  if (target === currentPanel) return;
+  currentPanel = target;
+
+  const pIgnis = document.getElementById('panel-ignis');
+  const pAum   = document.getElementById('panel-aum');
+  const tIgnis = document.getElementById('tab-ignis');
+  const tAum   = document.getElementById('tab-aum');
+  const dIgnis = document.getElementById('dot-ignis');
+  const dAum   = document.getElementById('dot-aum');
+
+  if (target === 'aum') {
+    pIgnis.classList.add('hidden');
+    pAum.classList.add('visible');
+    tIgnis.classList.remove('active');
+    tAum.classList.add('active');
+    dIgnis.classList.remove('active');
+    dAum.classList.add('active');
+  } else {
+    pIgnis.classList.remove('hidden');
+    pAum.classList.remove('visible');
+    tAum.classList.remove('active');
+    tIgnis.classList.add('active');
+    dAum.classList.remove('active');
+    dIgnis.classList.add('active');
+  }
+}
+
+// ── Star Particles ───────────────────────────────────
+function seedStars(containerId, count) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('div');
+    s.className = 'star-particle';
+    const size = 1 + Math.random() * 1.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --dur:${3 + Math.random()*5}s;
+      --delay:${Math.random()*6}s;
+    `;
+    container.appendChild(s);
+  }
+}
+seedStars('ignis-stars', 38);
+
+// ── Loader ───────────────────────────────────────────
+const loaderBar = document.getElementById('loader-bar');
+const loaderEl  = document.getElementById('loader');
+setTimeout(() => { loaderBar.style.width = '100%'; }, 120);
+setTimeout(() => {
+  loaderEl.style.opacity = '0';
+  setTimeout(() => { loaderEl.style.display = 'none'; }, 900);
+}, 1800);
+</script>
+</body>
+</html>
