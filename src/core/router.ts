@@ -204,10 +204,10 @@ export async function routeIntent(
   const torchActivation = computeRoutingTorchState(houseMapping, houseMasses);
 
   // ── Stage 3: Torch → Ring ─────────────────────────────────────────────────
-  const rawRingActivation = activateRings(torchActivation, request.rawInput);
+  const rawRingActivation = activateRings(torchActivation, request.rawInput, houseMapping.energyRatio);
 
   // ── Stage 4: Ring → Echo ──────────────────────────────────────────────────
-  const rawEchoBlend = buildEchoBlend(rawRingActivation);
+  const rawEchoBlend = buildEchoBlend(rawRingActivation, houseMapping.energyRatio);
 
   // ── Stage 5: Surface Abstraction ──────────────────────────────────────────
   const { primaryHouseId, ringActivation, echoBlend, config: surfaceConfig } =

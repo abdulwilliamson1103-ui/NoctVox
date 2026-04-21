@@ -200,6 +200,28 @@ export const RING_TO_ECHOES: Record<RingId, EchoId[]> = Object.fromEntries(
   RINGS.map((r) => [r.id, r.echoes])
 ) as Record<RingId, EchoId[]>;
 
+// ─── Ring Polarity ────────────────────────────────────────────────────────────
+// 0 = pure Yang (action, structure, disruption)
+// 1 = pure Yin  (healing, dissolution, intuition, soul)
+// Mirrors TORCH_POLARITY — the house energyRatio bends ring weights
+// toward rings that match its accumulated energy character.
+
+export const RING_POLARITY: Record<RingId, number> = {
+  'R-MA': 0.05,  // Action / Power — most Yang
+  'R-SR': 0.15,  // Caution / Structure — Yang
+  'R-UU': 0.20,  // Disruption / Liberation — Yang
+  'R-LT': 0.25,  // Shadow / Primal — Yang
+  'R-PA': 0.30,  // Strategy / Pattern — Yang-leaning
+  'R-JE': 0.45,  // Growth / Optimism — balanced
+  'R-MR': 0.50,  // Communication — neutral
+  'R-PT': 0.60,  // Transformation — mixed
+  'R-VU': 0.80,  // Connection / Art — Yin
+  'R-CO': 0.85,  // Healing / Integration — Yin
+  'R-MO': 0.85,  // Intuition / Safety — Yin
+  'R-NN': 0.90,  // Dissolution / Intuition — Yin
+  'R-SU': 0.90,  // Core Purpose — most Yin
+};
+
 // ─── Activation Logic ─────────────────────────────────────────────────────────
 
 // Base weight every ring starts with (10%). No ring is ever fully silenced.
@@ -247,7 +269,8 @@ function scoreExtendedRing(ring: Ring, rawInput: string): number {
  */
 export function activateRings(
   torchActivation: TorchActivation,
-  rawInput: string
+  rawInput: string,
+  energyRatio = 0.5
 ): RingActivation {
   const weights = initBaseWeights();
 
@@ -272,10 +295,20 @@ export function activateRings(
   for (const ring of RINGS.filter((r) => r.isExtended)) {
     const score = scoreExtendedRing(ring, rawInput);
     if (score > 0) {
-      weights[ring.id] += score * PRIMARY_MAX_BOOST; // proportional boost up to 40
+      weights[ring.id] += score * PRIMARY_MAX_BOOST;
       if (score >= EXTENDED_ACTIVATION_FLOOR) {
         activatedExtended.push(ring.id as ExtendedRingId);
       }
+    }
+  }
+
+  // Energy field — house energy ratio bends ring weights toward matching polarity.
+  // Up to +12 on the most-aligned ring. Neutral houses (0.5) produce no field effect.
+  const polarization = Math.abs(energyRatio - 0.5) * 2;
+  if (polarization > 0.05) {
+    for (const ring of RINGS) {
+      const alignment = 1 - Math.abs(energyRatio - RING_POLARITY[ring.id as RingId]);
+      weights[ring.id] += alignment * polarization * 12;
     }
   }
 
