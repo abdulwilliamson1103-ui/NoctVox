@@ -16,6 +16,8 @@
 //
 // Data layout in Redis:
 //   aum:mass:{userId}           → Hash  { houseId: totalMass }
+//   aum:yin:{userId}            → Hash  { houseId: yinMass }
+//   aum:yang:{userId}           → Hash  { houseId: yangMass }
 //   aum:sessions:{userId}       → List  [ ...JSON session strings ] (newest first)
 //   aum:mem:{userId}:{houseId}  → ZSet  scored by massContribution, member = JSON
 //   aum:fractal:{userId}        → String (baseline fractal checksum — set on first session)
@@ -265,5 +267,66 @@ export async function getSessionsSinceLastActive(
   } catch (err) {
     console.error('[Aum] getSessionsSinceLastActive error:', err);
     return {};
+  }
+}
+
+// ─── House Yin / Yang Mass ────────────────────────────────────────────────────
+// Each house tracks Yin mass and Yang mass separately.
+// energyRatio = yinMass / (yinMass + yangMass) — bends the torch field on every session.
+
+export async function loadHouseYinYang(userId: string): Promise<{
+  yin: Record<number, number>;
+  yang: Record<number, number>;
+}> {
+  const redis = getClient();
+  if (!redis) return { yin: {}, yang: {} };
+  try {
+    const [rawYin, rawYang] = await Promise.all([
+      redis.hgetall(`aum:yin:${userId}`),
+      redis.hgetall(`aum:yang:${userId}`),
+    ]);
+    const parse = (raw: Record<string, unknown> | null): Record<number, number> =>
+      raw ? Object.fromEntries(Object.entries(raw).map(([k, v]) => [Number(k), Number(v)])) : {};
+    return { yin: parse(rawYin), yang: parse(rawYang) };
+  } catch (err) {
+    console.error('[Aum] loadHouseYinYang error:', err);
+    return { yin: {}, yang: {} };
+  }
+}
+
+export async function updateHouseYinYang(
+  userId: string,
+  yinUpdate: Record<number, number>,
+  yangUpdate: Record<number, number>
+): Promise<void> {
+  const redis = getClient();
+  if (!redis) return;
+  try {
+    const pipeline = redis.pipeline();
+    const yinKey  = `aum:yin:${userId}`;
+    const yangKey = `aum:yang:${userId}`;
+
+    // Load current values and increment
+    const [existingYin, existingYang] = await Promise.all([
+      redis.hgetall(yinKey),
+      redis.hgetall(yangKey),
+    ]);
+    const parseExisting = (raw: Record<string, unknown> | null): Record<number, number> =>
+      raw ? Object.fromEntries(Object.entries(raw).map(([k, v]) => [Number(k), Number(v)])) : {};
+
+    const curYin  = parseExisting(existingYin);
+    const curYang = parseExisting(existingYang);
+
+    for (const [hIdStr, contribution] of Object.entries(yinUpdate)) {
+      const hId = Number(hIdStr);
+      pipeline.hset(yinKey, { [hId]: (curYin[hId] ?? 0) + contribution });
+    }
+    for (const [hIdStr, contribution] of Object.entries(yangUpdate)) {
+      const hId = Number(hIdStr);
+      pipeline.hset(yangKey, { [hId]: (curYang[hId] ?? 0) + contribution });
+    }
+    await pipeline.exec();
+  } catch (err) {
+    console.error('[Aum] updateHouseYinYang error:', err);
   }
 }

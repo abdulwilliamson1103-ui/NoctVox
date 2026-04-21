@@ -29,6 +29,28 @@ export const MASS_WEIGHTS = {
 
 export type MassEventType = keyof typeof MASS_WEIGHTS;
 
+// ─── Yin / Yang Energy Split per Event Type ───────────────────────────────────
+// Each event type carries a different energy character.
+// Yang = outward: seeking, acting, deciding, broadcasting.
+// Yin  = inward:  expressing, feeling, receiving, marking life.
+// Values sum to the total MASS_WEIGHTS contribution for that event.
+
+export const YIN_WEIGHTS: Record<MassEventType, number> = {
+  QUERY_ONLY:        0,   // pure Yang — seeking outward, nothing held
+  EXPRESSED_EMOTION: 2,   // pure Yin — emotion is received inward
+  REPEATED_DOMAIN:   2,   // Yin pull — returning is a Yin signal
+  DECISION_MADE:     1,   // Yang-dominant but grounded in Yin
+  LIFE_EVENT:        4,   // Yin-heavy — life marks the soul
+};
+
+export const YANG_WEIGHTS: Record<MassEventType, number> = {
+  QUERY_ONLY:        1,   // pure Yang
+  EXPRESSED_EMOTION: 0,   // pure Yin — no Yang
+  REPEATED_DOMAIN:   1,   // one unit of Yang habit/pattern
+  DECISION_MADE:     3,   // action is Yang
+  LIFE_EVENT:        1,   // the telling of it is Yang
+};
+
 // ─── Signal Detectors ─────────────────────────────────────────────────────────
 
 const EMOTION_SIGNALS = [

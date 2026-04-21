@@ -94,6 +94,21 @@ export const TORCH_TO_RING: Record<TorchId, ClassicalRingId> = {
   'T-CW': 'R-SU',
 };
 
+// ─── Torch Polarity ───────────────────────────────────────────────────────────
+// 0 = pure Yang (outward: will, action, assertion)
+// 1 = pure Yin  (inward: receiving, holding, soul)
+// The house energy ratio bends torch weights toward torches that share its polarity.
+
+export const TORCH_POLARITY: Record<TorchId, number> = {
+  'T-SU': 0.10,  // "I Do"    — power, will — most Yang
+  'T-RO': 0.15,  // "I Am"    — grounding, safety — Yang
+  'T-SA': 0.40,  // "I Feel"  — passion, creation — Yang-leaning
+  'T-TA': 0.50,  // "I Speak" — truth, expression — balanced
+  'T-TY': 0.65,  // "I See"   — insight, vision — Yin-leaning
+  'T-HR': 0.85,  // "I Love"  — connection, healing — Yin
+  'T-CW': 0.95,  // "I Know"  — unity, spirit — most Yin
+};
+
 // ─── Weight Computation ───────────────────────────────────────────────────────
 
 /** Baseline equal distribution when there is no house mass history */
@@ -155,6 +170,19 @@ export function computeRoutingTorchState(
   for (const mod of houseMapping.modulators) {
     const modTorchId = HOUSE_MAP[mod.id].torchRoot;
     base[modTorchId] = (base[modTorchId] ?? 0) + mod.weight * 5;
+  }
+
+  // Energy field — the primary house's Yin/Yang ratio bends the torch field.
+  // Polarization measures how far the house is from neutral (0 = balanced, 1 = fully polarized).
+  // Each torch is boosted proportionally to how closely its polarity matches the house energy.
+  // Max field contribution: +8 to the most-aligned torch (vs +10 for primary torch routing boost).
+  const { energyRatio } = houseMapping;
+  const polarization = Math.abs(energyRatio - 0.5) * 2;
+  if (polarization > 0.05) {
+    for (const torch of TORCHES) {
+      const alignment = 1 - Math.abs(energyRatio - TORCH_POLARITY[torch.id]);
+      base[torch.id] = (base[torch.id] ?? 0) + alignment * polarization * 8;
+    }
   }
 
   const normalized = normalizeToHundred(base) as Record<TorchId, number>;

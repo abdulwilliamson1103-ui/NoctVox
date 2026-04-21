@@ -41,7 +41,10 @@ import {
   getRecentSessions,
   incrementCycleCount,
   markHouseActiveCycle,
+  loadHouseYinYang,
+  updateHouseYinYang,
 } from './upstash';
+import { TORCH_POLARITY } from './torches';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -183,13 +186,19 @@ export async function routeIntent(
   const surfaceType = request.surfaceType ?? 'browser';
 
   // ── Load user history in parallel with routing ─────────────────────────────
-  const [fractalBaseline, recentSessions] = await Promise.all([
+  const [fractalBaseline, recentSessions, houseEnergy] = await Promise.all([
     loadFractalChecksum(request.userId),
     getRecentSessions(request.userId, 20),
+    loadHouseYinYang(request.userId),
   ]);
 
   // ── Stage 1: Intent → House ────────────────────────────────────────────────
-  const houseMapping = classifyHouse(request.rawInput, houseMasses);
+  const houseMapping = classifyHouse(
+    request.rawInput,
+    houseMasses,
+    houseEnergy.yin,
+    houseEnergy.yang
+  );
 
   // ── Stage 2: House → Torch ────────────────────────────────────────────────
   const torchActivation = computeRoutingTorchState(houseMapping, houseMasses);
@@ -293,6 +302,20 @@ export async function routeIntent(
     ...houseMapping.modulators.map(m => m.id),
   ];
   await markHouseActiveCycle(request.userId, activeHouses, cycleCount);
+
+  // ── Persist Yin/Yang energy — derived from dominant torch polarity ──────────
+  // The torch that won this session determines the energy character of the
+  // interaction. That character accumulates into the house's energy ratio,
+  // bending future torch routing toward matching polarity torches.
+  const dominantPolarity = TORCH_POLARITY[torchActivation.dominant];
+  const yinUpdate: Record<number, number> = {};
+  const yangUpdate: Record<number, number> = {};
+  for (const [houseId, contribution] of Object.entries(massUpdate)) {
+    const hId = Number(houseId);
+    yinUpdate[hId]  = Math.round(contribution * dominantPolarity);
+    yangUpdate[hId] = contribution - yinUpdate[hId];
+  }
+  await updateHouseYinYang(request.userId, yinUpdate, yangUpdate);
 
   return { ...partial, systemPrompt, timestamp };
 }

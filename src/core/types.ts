@@ -165,6 +165,7 @@ export interface HouseMapping {
   primaryHouseId: HouseId;
   modulators: Array<{ id: HouseId; weight: number }>;
   confidence: number;
+  energyRatio: number;  // 0 = full Yang, 1 = full Yin — derived from primary house yinMass/totalMass
 }
 
 export interface TorchActivation {
