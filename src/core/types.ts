@@ -103,8 +103,8 @@ export interface HouseState {
   primaryDomain: string;
   torchRoot: TorchId;
   mass: number;                 // accumulated interaction weight (0–∞)
-  massDecayRate: number;        // per-day decay coefficient (default: 0.02)
-  lastInteraction: string;      // ISO8601
+  massDecayRate: number;        // per-cycle decay coefficient (default: 0.005) — silence is not time
+  lastActiveCycle: number;      // session count when this house was last primary
   triggerKeywords: string[];
 }
 

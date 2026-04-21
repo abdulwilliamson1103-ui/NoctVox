@@ -39,6 +39,8 @@ import {
   loadFractalChecksum,
   saveFractalChecksum,
   getRecentSessions,
+  incrementCycleCount,
+  markHouseActiveCycle,
 } from './upstash';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -283,6 +285,14 @@ export async function routeIntent(
   if (!fractalBaseline) {
     await saveFractalChecksum(request.userId, fractalChecksum);
   }
+
+  // ── Advance the cycle clock — time is sessions, not calendar days ──────────
+  const cycleCount = await incrementCycleCount(request.userId);
+  const activeHouses = [
+    primaryHouseId,
+    ...houseMapping.modulators.map(m => m.id),
+  ];
+  await markHouseActiveCycle(request.userId, activeHouses, cycleCount);
 
   return { ...partial, systemPrompt, timestamp };
 }

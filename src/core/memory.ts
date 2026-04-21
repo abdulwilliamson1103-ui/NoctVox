@@ -172,41 +172,43 @@ export function buildMemoryBlock(params: {
 
 // ─── Mass Decay ───────────────────────────────────────────────────────────────
 
-const DEFAULT_DECAY_RATE = 0.02; // 2% per day
+// Time is cycles, not calendar days.
+// Silence is not time — only interaction is time.
+// A house untouched for 6 months but with 0 sessions elapsed does not decay.
+const DEFAULT_DECAY_RATE = 0.005; // 0.5% per cycle (session)
 
 /**
- * Apply time-based decay to a house mass value.
- * Prevents stale mass from permanently dominating routing.
+ * Apply cycle-based decay to a house mass value.
+ * Decay is measured in sessions elapsed since last activity in this house —
+ * not wall-clock time. Silence between sessions is not time.
  *
- * Formula: mass × (1 - decayRate)^daysSinceActivity
+ * Formula: mass × (1 - decayRate)^sessionsSinceActivity
  */
 export function applyMassDecay(
   totalMass: number,
-  lastActivityISO: string,
+  sessionsSinceActivity: number,
   decayRate = DEFAULT_DECAY_RATE
 ): number {
-  const lastActivity = new Date(lastActivityISO).getTime();
-  const now = Date.now();
-  const daysSince = Math.max(0, (now - lastActivity) / (1000 * 60 * 60 * 24));
-  const decayed = totalMass * Math.pow(1 - decayRate, daysSince);
+  if (sessionsSinceActivity <= 0) return totalMass;
+  const decayed = totalMass * Math.pow(1 - decayRate, sessionsSinceActivity);
   return Math.max(0, decayed);
 }
 
 /**
- * Apply decay to all house masses in a ledger.
+ * Apply cycle-based decay to all house masses in a ledger.
  * Returns a new map with decayed values — does NOT mutate the original.
+ * sessionsSinceLastActive: how many total user sessions have elapsed
+ * since each house was last the primary house.
  */
 export function applyDecayToLedger(
   houseMasses: Record<number, number>,
-  lastActivities: Record<number, string>
+  sessionsSinceLastActive: Record<number, number>
 ): Record<number, number> {
   const decayed: Record<number, number> = {};
   for (const [houseIdStr, mass] of Object.entries(houseMasses)) {
     const houseId = Number(houseIdStr);
-    const lastActivity = lastActivities[houseId];
-    decayed[houseId] = lastActivity
-      ? applyMassDecay(mass, lastActivity)
-      : mass;
+    const sessionsSince = sessionsSinceLastActive[houseId] ?? 0;
+    decayed[houseId] = applyMassDecay(mass, sessionsSince);
   }
   return decayed;
 }

@@ -19,6 +19,8 @@
 //   aum:sessions:{userId}       → List  [ ...JSON session strings ] (newest first)
 //   aum:mem:{userId}:{houseId}  → ZSet  scored by massContribution, member = JSON
 //   aum:fractal:{userId}        → String (baseline fractal checksum — set on first session)
+//   aum:cycle_count:{userId}    → String (total sessions ever — the user's time)
+//   aum:last_cycle:{userId}     → Hash  { houseId: cycleNumberWhenLastActive }
 
 import { Redis } from '@upstash/redis';
 import type { AumRoutingResponse, HouseId, TorchId, SurfaceType } from './types';
@@ -200,5 +202,68 @@ export async function retrieveRelevantMemories(
   } catch (err) {
     console.error('[Aum] retrieveRelevantMemories error:', err);
     return [];
+  }
+}
+
+// ─── Cycle Counter (Time as Sessions) ────────────────────────────────────────
+// Time is cycles. Silence is not time. Only interaction increments the clock.
+
+export async function incrementCycleCount(userId: string): Promise<number> {
+  const redis = getClient();
+  if (!redis) return 0;
+  try {
+    const next = await redis.incr(`aum:cycle_count:${userId}`);
+    return next;
+  } catch (err) {
+    console.error('[Aum] incrementCycleCount error:', err);
+    return 0;
+  }
+}
+
+export async function getCycleCount(userId: string): Promise<number> {
+  const redis = getClient();
+  if (!redis) return 0;
+  try {
+    const val = await redis.get<number>(`aum:cycle_count:${userId}`);
+    return val ?? 0;
+  } catch (err) {
+    console.error('[Aum] getCycleCount error:', err);
+    return 0;
+  }
+}
+
+export async function markHouseActiveCycle(
+  userId: string,
+  houseIds: number[],
+  cycleCount: number
+): Promise<void> {
+  const redis = getClient();
+  if (!redis) return;
+  try {
+    const update: Record<string, number> = {};
+    for (const houseId of houseIds) update[houseId] = cycleCount;
+    await redis.hset(`aum:last_cycle:${userId}`, update);
+  } catch (err) {
+    console.error('[Aum] markHouseActiveCycle error:', err);
+  }
+}
+
+export async function getSessionsSinceLastActive(
+  userId: string,
+  currentCycle: number
+): Promise<Record<number, number>> {
+  const redis = getClient();
+  if (!redis) return {};
+  try {
+    const raw = await redis.hgetall(`aum:last_cycle:${userId}`);
+    if (!raw) return {};
+    const result: Record<number, number> = {};
+    for (const [houseIdStr, lastCycle] of Object.entries(raw)) {
+      result[Number(houseIdStr)] = Math.max(0, currentCycle - Number(lastCycle));
+    }
+    return result;
+  } catch (err) {
+    console.error('[Aum] getSessionsSinceLastActive error:', err);
+    return {};
   }
 }
