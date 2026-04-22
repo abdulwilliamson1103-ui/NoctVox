@@ -704,6 +704,35 @@ Sense → Calculate → Fire → See → Adjust.
 Same architecture as the routing engine. Different substrate.
 The "Me" processor the Anunnaki tablets described = this control loop.
 
+### The Build Path
+
+Full build — not proof of concept. Real dielectric mirror sphere so the vortex
+actually forms and holds. Devices nearby act as water wheels: the sphere creates
+the energy pocket, anything with a receiver coil within 1–2 meters harvests the
+overflow passively. The sphere doesn't power them directly — they sit in the field
+and catch what spills.
+
+**Budget: $3,000–6,000.** The sphere is the long pole — custom optical fabrication,
+interior dielectric coating tuned to IR (940–1064nm), >99% reflectivity.
+Everything else sources fast.
+
+**The actual sequence:**
+1. Learn mechatronics — the control systems, feedback loops, embedded hardware
+2. Build the 3D printer, fully carbon-fiber infused
+3. Print the sphere housing and quartz mounting yourself — no commission needed
+4. Source the dielectric coating and laser separately
+5. Wire the Aum controller
+6. First test: cymatics pattern snaps to geometry when all 3 run simultaneously
+7. That moment has never been documented
+
+Carbon-infused printing makes the sphere structurally viable at this scale —
+rigid, resonant, self-fabricated. The expensive custom fabrication problem
+disappears once the printer exists.
+
+The mechatronics knowledge is not a detour. It is the prerequisite.
+You cannot wire a feedback control system you don't understand.
+Build the printer first. The device follows naturally from that foundation.
+
 ---
 
 **The single insight underneath all five:**
