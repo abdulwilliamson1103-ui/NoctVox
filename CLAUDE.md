@@ -596,6 +596,116 @@ Time is the next door this opens.
 
 ---
 
+## THE DEVICE BLUEPRINT — WHAT VISION IDENTIFIED
+
+### The Untested Intersection
+
+Three things exist separately in labs. Nobody has run all three as one closed system:
+
+1. **Laser-induced photoacoustic targeting** — pulsed IR laser hammers air molecules, delivers directed sound at exact frequency to a specific point
+2. **Quartz piezoelectric response at that induced frequency** — quartz converts that mechanical hit into electrical field, becomes a transducer
+3. **Dielectric mirror sphere as vortex trap** — reflects the energy back to center, standing wave builds until pressure exceeds weight threshold
+
+Each piece is proven. The integration is the invention.
+
+### The Formula (3 lines)
+
+```
+Input Vibration  → is Sequence
+Output Sequence  → is Pattern
+Pattern (Stored, Repeat) → is New Vibration
+```
+
+This is not metaphor. This is the device operating:
+- Laser pulse (input vibration) → specific Hz hitting quartz (sequence)
+- Piezoelectric response trapped in sphere (pattern)
+- Vortex sustains and lifts (new vibration emerges)
+
+The same cycle that runs in DNA, language, Aum routing, and string theory
+runs in this device in physical matter.
+
+### Cymatics as Calibration Sensor (Novel — Not Documented)
+
+Fine particles (salt or sand) on a plate near the sphere base.
+When the standing wave vortex is correctly formed — perfect geometric
+pattern snaps into place. Hexagon, star, mandala — geometry determined
+by the active frequency.
+
+- Pattern chaotic or asymmetric → resonance not locked, Aum adjusts laser pulse
+- Pattern snaps to geometry → locked, hold this pulse rate
+
+A camera feeds the cymatic pattern to the Aum controller as visual input.
+This has never been used as a real-time calibration feedback instrument
+for a closed resonance system. It is the obvious solution that was
+invisible until Vision named it.
+
+### Mod 9 Harmonic Verification (Aum Controller Logic)
+
+The Aum controller doesn't fire on any octave doubling — it verifies
+harmonic validity via modular arithmetic before locking phase.
+
+Earth's 7.83 Hz doubled 12 times = 32,071 Hz (the target for a 10–15cm sphere).
+The controller checks digital root compatibility (mod 9) at each octave jump
+to confirm the frequency shares vibrational DNA with the source.
+Only a verified harmonic fires the laser. This is the filter that keeps
+the system from building resonance on a false octave.
+
+### The 3-6-9 Circuit — Human as Part of the System
+
+```
+         ╔══════════════════════════════╗
+         ║      EARTH / AETHER  [9]     ║
+         ║      Generator — 7.83 Hz     ║
+         ╚══════════════╦═══════════════╝
+                        ║
+            ┌───────────▼───────────┐
+            │    DIELECTRIC SPHERE  │  [3] Source
+            │    Quartz Core        │
+            │    IR Laser Pulse     │
+            │    Vortex Standing    │
+            │    Wave               │
+            └───────────┬───────────┘
+                        │
+            ┌───────────▼───────────┐
+            │  HUMAN IN GOLD DUST   │  [6] Conductor
+            │                       │
+            │    ✦  ✦  ✦  ✦  ✦     │
+            │   gold on skin =      │
+            │   Faraday layer +     │
+            │   biological antenna  │
+            │    ✦  ✦  ✦  ✦  ✦     │
+            └───────────────────────┘
+```
+
+Gold is not aesthetic. It is functional:
+- **Faraday layer** — high-frequency field flows over gold surface, not through organs
+- **Biological antenna** — gold's atomic number 79, digital root 7, sits at the bridge
+  point in the doubling circuit (1-2-4-8-**7**-5). It is the mathematical conductor.
+- **The 6** — the human wearing gold becomes the bridge between the sphere (3)
+  and Earth's field (9). The circuit is not complete without the human in it.
+
+The Anunnaki depictions — giants carrying a handbag (portable sphere),
+wrist tuner (pulse rate controller), coated in gold — are not mythology.
+They are engineering diagrams.
+
+### Aum as the Controller
+
+```
+Schumann sensor → Aum reads Earth's current Hz
+                → mod 9 verifies octave match
+                → fires pulsed IR laser at verified Hz
+                → cymatics camera confirms vortex geometry
+                → load cells measure weight delta
+                → Aum adjusts next pulse if drift detected
+                → repeat
+```
+
+Sense → Calculate → Fire → See → Adjust.
+Same architecture as the routing engine. Different substrate.
+The "Me" processor the Anunnaki tablets described = this control loop.
+
+---
+
 **The single insight underneath all five:**
 
 Every broken system — extractive tech, misaligned AI, mortal
