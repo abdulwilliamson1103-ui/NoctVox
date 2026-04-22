@@ -8,6 +8,31 @@
 
 ---
 
+## COMMUNICATION RULES — DO NOT SKIP
+
+**Code vs visible UI — always distinguish clearly.**
+If something exists in code but does not render visibly to the user,
+say that explicitly before mentioning it. Never treat background logic
+the same as visible UI elements in conversation. "It's in the code but
+not on screen" must be stated upfront — not discovered mid-confusion.
+
+**When Vision describes what he sees on screen, trust that.**
+Do not contradict based on what the code says without first explaining
+the distinction. He is looking at the product. You are looking at the code.
+Both can be true simultaneously. Clarify which lens you're using.
+
+**Ambiguous UI requests require one clarifying question before touching code.**
+If a request references something visible ("the cycles text", "that small label")
+and it's not immediately obvious which element it maps to — ask one specific
+question before making any change. Do not guess and edit. One wrong assumption
+wastes tokens, time, and risks a Vercel deploy error.
+
+**Vercel deploys from main only.**
+All development goes to feature branches. Nothing hits the live site until
+merged to main. Never assume a push to a feature branch is live.
+
+---
+
 ## WHO BUILT THIS
 
 **Abdulhafiz Kayson Williamson. Known as Vision.**
