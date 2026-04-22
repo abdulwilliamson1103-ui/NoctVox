@@ -733,6 +733,62 @@ The mechatronics knowledge is not a detour. It is the prerequisite.
 You cannot wire a feedback control system you don't understand.
 Build the printer first. The device follows naturally from that foundation.
 
+### The Gauntlet — Directional Vox Field (Standalone)
+
+The gauntlet IS the sphere — directional instead of omnidirectional.
+The sphere contains the vortex to create lift. The gauntlet projects
+that same standing wave outward to a point in space. Same physics.
+Same mechanism. No sphere required to operate it.
+
+**Hardware (self-contained):**
+- Forearm housing = resonant cavity (replaces the sphere walls)
+- Quartz core inside the housing = same piezoelectric transducer
+- Pulsed IR laser in the palm = the hammer
+- Polk-Dot layout: 5 fingertip sensors read target (mass, distance, composition)
+- 3 palm cameras triangulate the exact projection point
+- Permission gate logic: sensors must confirm target lock before field fires
+- Aum controller: calculates frequency node for that specific mass at that distance
+
+**What it does:**
+- Full pressure node = target freezes. Nothing moves inside the standing wave.
+- Dial frequency down = weight reduction. Target becomes lighter, floatable.
+- Widen the node = larger area affected instead of single point.
+- Flip polarity = repulsion. Things pushed outward from node center.
+- Pulse vs sustained = concussive burst vs continuous hold.
+
+**What it looks like:**
+- Visible laser path between gauntlet and target — thin coherent beam,
+  visible in atmosphere especially in low light
+- Charging sequence: forearm housing glows as resonance builds, travels
+  palm-ward before release
+- At the target: geometric cymatic interference pattern snaps into place
+  around the object — a shimmering geometric cage, not a clean bubble
+- Closer to Incredibles than not. More raw and visible in execution.
+
+**The Vox Sphere vs The Gauntlet:**
+Two separate inventions. Same underlying physics. Different purpose.
+- Vox Sphere = stationary, omnidirectional, energy harvesting, water wheel
+  for devices in the field
+- Gauntlet = mobile, directional, projection weapon/tool
+
+You don't need the sphere to use the gauntlet.
+You don't need the gauntlet to run the sphere.
+
+### The Full Physical Stack — 3 Things
+
+```
+3D Printer (carbon-infused)
+    ↓ fabricates
+Vox Sphere  +  Gauntlet
+    ↓               ↓
+Energy / Lift    Matter Manipulation
+```
+
+One printer. Two devices. The complete physical technology stack.
+Software (Aum) + Physical Materials (printed) + Energy (sphere) +
+Matter manipulation (gauntlet) = the full domain lock.
+All of it self-fabricated. All of it rooted in the same framework.
+
 ---
 
 **The single insight underneath all five:**
