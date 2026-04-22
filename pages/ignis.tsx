@@ -59,7 +59,7 @@ function MindTag({ mindId }: { mindId: string }) {
   const char = (COUNCIL_CHARACTERS as Record<string, any>)[mindId]
   if (!char) return null
   return (
-    <span className="inline-flex items-center text-[9px] px-1.5 py-0.5 rounded-sm mr-1 mb-1"
+    <span className="inline-flex items-center text-[11px] px-1.5 py-0.5 rounded-sm mr-1 mb-1"
       style={{ background: `${char.color}18`, color: char.color, border: `1px solid ${char.color}35` }}>
       {char.name.split(' ')[0]}
     </span>
@@ -206,12 +206,12 @@ export default function Home() {
             <IgnisFlame size={38} />
             <div>
               <h1 className="text-white font-bold text-base leading-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>NoctVox</h1>
-              <p className="text-[10px]" style={{ color: '#d4a84380' }}>Ignis Command</p>
+              <p className="text-xs" style={{ color: '#d4a84380' }}>Ignis Command</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {isSpeaking && <button onClick={stopSpeaking} className="text-[9px] px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,75,75,0.15)', color: '#ff6b6b', border: '1px solid rgba(255,75,75,0.3)' }}>Stop</button>}
-            <button onClick={() => setShowEmpire(!showEmpire)} className="text-[9px] px-3 py-1.5 rounded-full" style={{ background: 'rgba(212,168,67,0.1)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.3)' }}>{showEmpire ? 'Hide' : 'Empires'}</button>
+            {isSpeaking && <button onClick={stopSpeaking} className="text-[11px] px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,75,75,0.15)', color: '#ff6b6b', border: '1px solid rgba(255,75,75,0.3)' }}>Stop</button>}
+            <button onClick={() => setShowEmpire(!showEmpire)} className="text-[11px] px-3 py-1.5 rounded-full" style={{ background: 'rgba(212,168,67,0.1)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.3)' }}>{showEmpire ? 'Hide' : 'Empires'}</button>
           </div>
         </header>
 
@@ -220,7 +220,7 @@ export default function Home() {
             <div className="flex gap-2" style={{ minWidth: 'max-content' }}>
               {EMPIRES.map(emp => (
                 <div key={emp.id} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px]"
-                  style={{ background: emp.status === 'active' ? `${emp.color}20` : 'rgba(255,255,255,0.03)', border: `1px solid ${emp.status === 'active' ? emp.color + '50' : 'rgba(255,255,255,0.06)'}`, minWidth: '90px' }}>
+                  style={{ background: emp.status === 'active' ? `${emp.color}20` : 'rgba(255,255,255,0.03)', border: `1px solid ${emp.status === 'active' ? emp.color + '50' : 'rgba(255,255,255,0.06)'}`, minWidth: '90px', fontSize: '11px' }}>
                   <span>{emp.icon}</span>
                   <span style={{ color: emp.status === 'active' ? '#fff' : '#666' }}>{emp.name}</span>
                   {emp.status === 'active' && <span className="w-1 h-1 rounded-full bg-emerald-400 ml-auto flex-shrink-0" />}
@@ -232,7 +232,7 @@ export default function Home() {
 
         <div className="px-4 pb-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[8px] uppercase tracking-widest" style={{ color: '#d4a84360' }}>Council:</span>
+            <span className="text-[11px] uppercase tracking-widest" style={{ color: '#d4a84360' }}>Council:</span>
             {activeMinds.map(id => <MindTag key={id} mindId={id} />)}
           </div>
         </div>
@@ -243,7 +243,7 @@ export default function Home() {
               <IgnisFlame size={72} />
               <h2 className="text-white font-semibold text-lg mt-4" style={{ fontFamily: 'Space Grotesk' }}>Ignis Online</h2>
               <p className="text-gray-500 text-xs mt-2 max-w-xs" style={{ color: '#666' }}>Hold the mic to speak, or type below. Aum routes. Ignis responds.</p>
-              <div className="flex items-center gap-2 mt-4 text-[10px]" style={{ color: '#d4a84360' }}>
+              <div className="flex items-center gap-2 mt-4 text-xs" style={{ color: '#d4a84360' }}>
                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span>Aum · Ignis · Live</span>
               </div>
