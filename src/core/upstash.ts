@@ -18,6 +18,7 @@
 //   aum:mass:{userId}           → Hash  { houseId: totalMass }
 //   aum:yin:{userId}            → Hash  { houseId: yinMass }
 //   aum:yang:{userId}           → Hash  { houseId: yangMass }
+//   aum:peak:{userId}           → Hash  { houseId: peakMassEver } (never decreases)
 //   aum:sessions:{userId}       → List  [ ...JSON session strings ] (newest first)
 //   aum:mem:{userId}:{houseId}  → ZSet  scored by massContribution, member = JSON
 //   aum:fractal:{userId}        → String (baseline fractal checksum — set on first session)
@@ -328,5 +329,46 @@ export async function updateHouseYinYang(
     await pipeline.exec();
   } catch (err) {
     console.error('[Aum] updateHouseYinYang error:', err);
+  }
+}
+
+// ─── Peak Mass (Nostalgia Baseline) ──────────────────────────────────────────
+// Peak mass is the highest mass a house ever reached for this user.
+// It never decreases. It is the memory of what mattered most.
+// Used to compute nostalgia score when a dormant house becomes active again.
+
+export async function loadPeakMasses(userId: string): Promise<Record<number, number>> {
+  const redis = getClient();
+  if (!redis) return {};
+  try {
+    const raw = await redis.hgetall(`aum:peak:${userId}`);
+    if (!raw) return {};
+    return Object.fromEntries(
+      Object.entries(raw).map(([k, v]) => [Number(k), Number(v)])
+    );
+  } catch (err) {
+    console.error('[Aum] loadPeakMasses error:', err);
+    return {};
+  }
+}
+
+export async function updatePeakMasses(
+  userId: string,
+  currentMasses: Record<number, number>
+): Promise<void> {
+  const redis = getClient();
+  if (!redis) return;
+  try {
+    const existing = await loadPeakMasses(userId);
+    const updates: Record<number, number> = {};
+    for (const [hIdStr, mass] of Object.entries(currentMasses)) {
+      const hId = Number(hIdStr);
+      if (mass > (existing[hId] ?? 0)) updates[hId] = mass;
+    }
+    if (Object.keys(updates).length > 0) {
+      await redis.hset(`aum:peak:${userId}`, updates as Record<string, unknown>);
+    }
+  } catch (err) {
+    console.error('[Aum] updatePeakMasses error:', err);
   }
 }

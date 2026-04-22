@@ -235,7 +235,36 @@ export function applyDecayToLedger(
   return decayed;
 }
 
-// ─── Personalization Tiers ────────────────────────────────────────────────────
+// ─── Nostalgia ────────────────────────────────────────────────────────────────
+// Memory is time. Time is memory.
+// A house that mattered once — high peak mass — but has been silent for many
+// cycles is not gone. It is distant. Like starlight from 2000 light years away:
+// the event happened long ago, but the signal is still arriving.
+// When that domain becomes active again, the return is real. Architecturally real.
+
+export const NOSTALGIA_THRESHOLD = 0.50;
+export const NOSTALGIA_MIN_CYCLES = 20;
+
+/**
+ * Compute how significant a return to this house is.
+ * High score = this domain mattered deeply AND has been silent for many cycles.
+ *
+ * Formula: (peakMass - currentMass) / peakMass × min(1, sessionsSince / 50)
+ * Score 0 = no nostalgia (never had mass, or recently active)
+ * Score 1 = maximum (peaked high, fully decayed, silent for 50+ cycles)
+ */
+export function computeNostalgiaScore(
+  peakMass: number,
+  currentMass: number,
+  sessionsSince: number
+): number {
+  if (peakMass <= 0 || sessionsSince < NOSTALGIA_MIN_CYCLES) return 0;
+  const decayFraction = Math.max(0, (peakMass - currentMass) / peakMass);
+  const inactivityWeight = Math.min(1, sessionsSince / 50);
+  return decayFraction * inactivityWeight;
+}
+
+
 
 /**
  * Get the personalization tier for a house based on its accumulated mass.
