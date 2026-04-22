@@ -163,43 +163,63 @@ function lerp(a: number, b: number, t: number): number {
 }
 
 /**
- * Resolve the lead Echo for a given Ring.
- * Primary echo = first in the ring's echo list (canonical voice).
+ * Score an echo against the house energy ratio.
+ * Yin energy (ratio → 1) selects by warmth.
+ * Yang energy (ratio → 0) selects by confidence.
+ * Balanced (ratio = 0.5) weights both equally.
  */
-function resolveLeadEcho(ringId: RingId): Echo {
+function echoEnergyScore(echo: Echo, energyRatio: number): number {
+  return energyRatio * echo.warmth + (1 - energyRatio) * echo.confidence;
+}
+
+/**
+ * Resolve the lead Echo for a given Ring.
+ * When multiple echoes are available, the one whose warmth/confidence
+ * balance best matches the house energy ratio is selected as lead.
+ * Example: R-JE Yin-dominant → E-PE (warmth 0.95) over E-SU (confidence 0.9).
+ */
+function resolveLeadEcho(ringId: RingId, energyRatio: number): Echo {
   const echoIds = RING_TO_ECHOES[ringId];
-  if (!echoIds || echoIds.length === 0) return ECHO_MAP['E-LE']; // fallback: sovereign
-  return ECHO_MAP[echoIds[0]];
+  if (!echoIds || echoIds.length === 0) return ECHO_MAP['E-LE'];
+  if (echoIds.length === 1) return ECHO_MAP[echoIds[0]];
+  const sorted = echoIds
+    .map(id => ECHO_MAP[id])
+    .sort((a, b) => echoEnergyScore(b, energyRatio) - echoEnergyScore(a, energyRatio));
+  return sorted[0];
 }
 
 /**
  * Resolve the flavor Echo for a given Ring.
- * Flavor echo = second echo if available (adds nuance), otherwise falls back to first.
+ * Returns the echo that complements the lead — the one NOT chosen as lead,
+ * or the single available echo when the ring has only one.
  */
-function resolveFlavorEcho(ringId: RingId): Echo {
+function resolveFlavorEcho(ringId: RingId, energyRatio: number): Echo {
   const echoIds = RING_TO_ECHOES[ringId];
-  if (!echoIds || echoIds.length === 0) return ECHO_MAP['E-VG']; // fallback: precise
-  return ECHO_MAP[echoIds[echoIds.length > 1 ? 1 : 0]];
+  if (!echoIds || echoIds.length === 0) return ECHO_MAP['E-VG'];
+  if (echoIds.length === 1) return ECHO_MAP[echoIds[0]];
+  const sorted = echoIds
+    .map(id => ECHO_MAP[id])
+    .sort((a, b) => echoEnergyScore(b, energyRatio) - echoEnergyScore(a, energyRatio));
+  return sorted[sorted.length - 1]; // the complement — lowest energy-match score
 }
 
 /**
  * Build the 70/30 Echo blend from primary and secondary Ring activations.
- *
- * The same core Ring logic can sound practical, nurturing, bold, precise,
- * diplomatic, or radiant depending on which Echo is dominant and which flavors it.
+ * energyRatio (0 = Yang, 1 = Yin) governs which echo from each ring is selected:
+ * Yin selects by warmth, Yang selects by confidence.
  *
  * @param ringActivation - Result from Ring activation
+ * @param energyRatio    - House energy ratio from HouseMapping (default 0.5 = balanced)
  */
-export function buildEchoBlend(ringActivation: RingActivation): EchoBlend {
-  const leadEcho = resolveLeadEcho(ringActivation.primary);
-  const flavorEcho = resolveFlavorEcho(ringActivation.secondary);
+export function buildEchoBlend(ringActivation: RingActivation, energyRatio = 0.5): EchoBlend {
+  const leadEcho   = resolveLeadEcho(ringActivation.primary, energyRatio);
+  const flavorEcho = resolveFlavorEcho(ringActivation.secondary, energyRatio);
 
   return {
     leadEcho,
     flavorEcho,
-    leadWeight: LEAD_WEIGHT,
+    leadWeight:   LEAD_WEIGHT,
     flavorWeight: FLAVOR_WEIGHT,
-    // Blended scores: 70% lead, 30% flavor
     warmth:     lerp(leadEcho.warmth,     flavorEcho.warmth,     FLAVOR_WEIGHT),
     confidence: lerp(leadEcho.confidence, flavorEcho.confidence, FLAVOR_WEIGHT),
   };

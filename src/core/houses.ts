@@ -171,13 +171,19 @@ function scoreKeywordMatch(input: string, keywords: string[]): number {
 /**
  * Classify user intent into a primary House + optional modulator Houses.
  * House mass from prior interactions is applied as a personalization prior.
+ * Yin/Yang mass determines the energy ratio of the primary house,
+ * which bends torch routing toward matching polarity torches.
  *
- * @param rawInput - The raw user intent string
- * @param houseMasses - Accumulated mass per house (from Supabase ledger)
+ * @param rawInput    - The raw user intent string
+ * @param houseMasses - Accumulated total mass per house
+ * @param yinMasses   - Accumulated Yin mass per house
+ * @param yangMasses  - Accumulated Yang mass per house
  */
 export function classifyHouse(
   rawInput: string,
-  houseMasses: Record<number, number> = {}
+  houseMasses: Record<number, number> = {},
+  yinMasses: Record<number, number> = {},
+  yangMasses: Record<number, number> = {}
 ): HouseMapping {
   const scores: Record<number, number> = {};
 
@@ -198,7 +204,7 @@ export function classifyHouse(
 
   // No keyword match at all — default to House 1 (Identity) with low confidence
   if (primaryScore === 0) {
-    return { primaryHouseId: 1, modulators: [], confidence: 0.1 };
+    return { primaryHouseId: 1, modulators: [], confidence: 0.1, energyRatio: 0.5 };
   }
 
   const modulators = sorted
@@ -210,9 +216,16 @@ export function classifyHouse(
       weight: Math.min(0.3, score / (primaryScore + 0.001)),
     }));
 
+  // Energy ratio — how Yin vs Yang the primary house is from accumulated mass.
+  // 0 = pure Yang, 1 = pure Yin, 0.5 = balanced (neutral, no field effect).
+  const yin  = yinMasses[primaryHouseId]  ?? 0;
+  const yang = yangMasses[primaryHouseId] ?? 0;
+  const energyRatio = (yin + yang) === 0 ? 0.5 : yin / (yin + yang);
+
   return {
     primaryHouseId,
     modulators,
     confidence: Math.min(1, primaryScore * 3),
+    energyRatio,
   };
 }

@@ -39,7 +39,17 @@ import {
   loadFractalChecksum,
   saveFractalChecksum,
   getRecentSessions,
+  incrementCycleCount,
+  getCycleCount,
+  markHouseActiveCycle,
+  loadHouseYinYang,
+  updateHouseYinYang,
+  loadPeakMasses,
+  updatePeakMasses,
+  getSessionsSinceLastActive,
 } from './upstash';
+import { TORCH_POLARITY } from './torches';
+import { computeNostalgiaScore, NOSTALGIA_THRESHOLD } from './memory';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -89,7 +99,7 @@ function mergeAlignmentStatus(statuses: AlignmentStatus[]): AlignmentStatus {
 
 function assembleSystemPrompt(
   response: Omit<AumRoutingResponse, 'systemPrompt' | 'timestamp'>,
-  flags: { harmonicOk: boolean; fractalOk: boolean; radiantOk: boolean },
+  flags: { harmonicOk: boolean; fractalOk: boolean; radiantOk: boolean; nostalgiaScore: number },
   voiceMode = false,
   maxTokens = 2000
 ): string {
@@ -162,6 +172,13 @@ Hollowness: ${(mirror.hollownessScore * 100).toFixed(0)}% | Manipulation risk: $
 Overall alignment score: ${(mirror.overallAlignmentScore * 100).toFixed(0)}% | Mirror action: ${mirror.action.toUpperCase()}
 ${mirrorDirective}
 
+${flags.nostalgiaScore >= 0.5 ? `
+[NOSTALGIC RETURN]
+House ${HOUSE_MAP[response.houseMapping.primaryHouseId].id} (${HOUSE_MAP[response.houseMapping.primaryHouseId].name}) — nostalgia score: ${(flags.nostalgiaScore * 100).toFixed(0)}%
+This domain mattered deeply to this person. It went quiet. Now it's active again.
+Memory is time. The past is still arriving. This return is real.
+DIRECTIVE: Acknowledge the weight of return. Do not treat this as a new topic.` : ''}
+
 [FRACTAL CHECKSUM]
 ${response.fractalChecksum}
 
@@ -181,22 +198,29 @@ export async function routeIntent(
   const surfaceType = request.surfaceType ?? 'browser';
 
   // ── Load user history in parallel with routing ─────────────────────────────
-  const [fractalBaseline, recentSessions] = await Promise.all([
+  const [fractalBaseline, recentSessions, houseEnergy, peakMasses] = await Promise.all([
     loadFractalChecksum(request.userId),
     getRecentSessions(request.userId, 20),
+    loadHouseYinYang(request.userId),
+    loadPeakMasses(request.userId),
   ]);
 
   // ── Stage 1: Intent → House ────────────────────────────────────────────────
-  const houseMapping = classifyHouse(request.rawInput, houseMasses);
+  const houseMapping = classifyHouse(
+    request.rawInput,
+    houseMasses,
+    houseEnergy.yin,
+    houseEnergy.yang
+  );
 
   // ── Stage 2: House → Torch ────────────────────────────────────────────────
   const torchActivation = computeRoutingTorchState(houseMapping, houseMasses);
 
   // ── Stage 3: Torch → Ring ─────────────────────────────────────────────────
-  const rawRingActivation = activateRings(torchActivation, request.rawInput);
+  const rawRingActivation = activateRings(torchActivation, request.rawInput, houseMapping.energyRatio);
 
   // ── Stage 4: Ring → Echo ──────────────────────────────────────────────────
-  const rawEchoBlend = buildEchoBlend(rawRingActivation);
+  const rawEchoBlend = buildEchoBlend(rawRingActivation, houseMapping.energyRatio);
 
   // ── Stage 5: Surface Abstraction ──────────────────────────────────────────
   const { primaryHouseId, ringActivation, echoBlend, config: surfaceConfig } =
@@ -269,12 +293,20 @@ export async function routeIntent(
     internalMirror,
   };
 
+  // ── Nostalgia — did this person just return to a dormant domain? ──────────
+  const sessionsSinceMap = await getSessionsSinceLastActive(request.userId, await getCycleCount(request.userId));
+  const nostalgiaScore = computeNostalgiaScore(
+    peakMasses[primaryHouseId] ?? 0,
+    houseMasses[primaryHouseId] ?? 0,
+    sessionsSinceMap[primaryHouseId] ?? 0
+  );
+
   // ── System prompt assembly ─────────────────────────────────────────────────
   const systemPrompt = surfaceConfig.headlessMode
     ? ''
     : assembleSystemPrompt(
         partial,
-        { harmonicOk, fractalOk, radiantOk },
+        { harmonicOk, fractalOk, radiantOk, nostalgiaScore },
         surfaceConfig.voiceOutputMode,
         surfaceConfig.maxOutputTokens
       );
@@ -283,6 +315,31 @@ export async function routeIntent(
   if (!fractalBaseline) {
     await saveFractalChecksum(request.userId, fractalChecksum);
   }
+
+  // ── Advance the cycle clock — time is sessions, not calendar days ──────────
+  const cycleCount = await incrementCycleCount(request.userId);
+  const activeHouses = [
+    primaryHouseId,
+    ...houseMapping.modulators.map(m => m.id),
+  ];
+  await markHouseActiveCycle(request.userId, activeHouses, cycleCount);
+
+  // ── Persist Yin/Yang energy — derived from dominant torch polarity ──────────
+  // The torch that won this session determines the energy character of the
+  // interaction. That character accumulates into the house's energy ratio,
+  // bending future torch routing toward matching polarity torches.
+  const dominantPolarity = TORCH_POLARITY[torchActivation.dominant];
+  const yinUpdate: Record<number, number> = {};
+  const yangUpdate: Record<number, number> = {};
+  for (const [houseId, contribution] of Object.entries(massUpdate)) {
+    const hId = Number(houseId);
+    yinUpdate[hId]  = Math.round(contribution * dominantPolarity);
+    yangUpdate[hId] = contribution - yinUpdate[hId];
+  }
+  await updateHouseYinYang(request.userId, yinUpdate, yangUpdate);
+
+  // ── Update peak masses — record the highest mass each house ever reached ───
+  await updatePeakMasses(request.userId, houseMasses);
 
   return { ...partial, systemPrompt, timestamp };
 }

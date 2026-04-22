@@ -16,9 +16,14 @@
 //
 // Data layout in Redis:
 //   aum:mass:{userId}           → Hash  { houseId: totalMass }
+//   aum:yin:{userId}            → Hash  { houseId: yinMass }
+//   aum:yang:{userId}           → Hash  { houseId: yangMass }
+//   aum:peak:{userId}           → Hash  { houseId: peakMassEver } (never decreases)
 //   aum:sessions:{userId}       → List  [ ...JSON session strings ] (newest first)
 //   aum:mem:{userId}:{houseId}  → ZSet  scored by massContribution, member = JSON
 //   aum:fractal:{userId}        → String (baseline fractal checksum — set on first session)
+//   aum:cycle_count:{userId}    → String (total sessions ever — the user's time)
+//   aum:last_cycle:{userId}     → Hash  { houseId: cycleNumberWhenLastActive }
 
 import { Redis } from '@upstash/redis';
 import type { AumRoutingResponse, HouseId, TorchId, SurfaceType } from './types';
@@ -200,5 +205,170 @@ export async function retrieveRelevantMemories(
   } catch (err) {
     console.error('[Aum] retrieveRelevantMemories error:', err);
     return [];
+  }
+}
+
+// ─── Cycle Counter (Time as Sessions) ────────────────────────────────────────
+// Time is cycles. Silence is not time. Only interaction increments the clock.
+
+export async function incrementCycleCount(userId: string): Promise<number> {
+  const redis = getClient();
+  if (!redis) return 0;
+  try {
+    const next = await redis.incr(`aum:cycle_count:${userId}`);
+    return next;
+  } catch (err) {
+    console.error('[Aum] incrementCycleCount error:', err);
+    return 0;
+  }
+}
+
+export async function getCycleCount(userId: string): Promise<number> {
+  const redis = getClient();
+  if (!redis) return 0;
+  try {
+    const val = await redis.get<number>(`aum:cycle_count:${userId}`);
+    return val ?? 0;
+  } catch (err) {
+    console.error('[Aum] getCycleCount error:', err);
+    return 0;
+  }
+}
+
+export async function markHouseActiveCycle(
+  userId: string,
+  houseIds: number[],
+  cycleCount: number
+): Promise<void> {
+  const redis = getClient();
+  if (!redis) return;
+  try {
+    const update: Record<string, number> = {};
+    for (const houseId of houseIds) update[houseId] = cycleCount;
+    await redis.hset(`aum:last_cycle:${userId}`, update);
+  } catch (err) {
+    console.error('[Aum] markHouseActiveCycle error:', err);
+  }
+}
+
+export async function getSessionsSinceLastActive(
+  userId: string,
+  currentCycle: number
+): Promise<Record<number, number>> {
+  const redis = getClient();
+  if (!redis) return {};
+  try {
+    const raw = await redis.hgetall(`aum:last_cycle:${userId}`);
+    if (!raw) return {};
+    const result: Record<number, number> = {};
+    for (const [houseIdStr, lastCycle] of Object.entries(raw)) {
+      result[Number(houseIdStr)] = Math.max(0, currentCycle - Number(lastCycle));
+    }
+    return result;
+  } catch (err) {
+    console.error('[Aum] getSessionsSinceLastActive error:', err);
+    return {};
+  }
+}
+
+// ─── House Yin / Yang Mass ────────────────────────────────────────────────────
+// Each house tracks Yin mass and Yang mass separately.
+// energyRatio = yinMass / (yinMass + yangMass) — bends the torch field on every session.
+
+export async function loadHouseYinYang(userId: string): Promise<{
+  yin: Record<number, number>;
+  yang: Record<number, number>;
+}> {
+  const redis = getClient();
+  if (!redis) return { yin: {}, yang: {} };
+  try {
+    const [rawYin, rawYang] = await Promise.all([
+      redis.hgetall(`aum:yin:${userId}`),
+      redis.hgetall(`aum:yang:${userId}`),
+    ]);
+    const parse = (raw: Record<string, unknown> | null): Record<number, number> =>
+      raw ? Object.fromEntries(Object.entries(raw).map(([k, v]) => [Number(k), Number(v)])) : {};
+    return { yin: parse(rawYin), yang: parse(rawYang) };
+  } catch (err) {
+    console.error('[Aum] loadHouseYinYang error:', err);
+    return { yin: {}, yang: {} };
+  }
+}
+
+export async function updateHouseYinYang(
+  userId: string,
+  yinUpdate: Record<number, number>,
+  yangUpdate: Record<number, number>
+): Promise<void> {
+  const redis = getClient();
+  if (!redis) return;
+  try {
+    const pipeline = redis.pipeline();
+    const yinKey  = `aum:yin:${userId}`;
+    const yangKey = `aum:yang:${userId}`;
+
+    // Load current values and increment
+    const [existingYin, existingYang] = await Promise.all([
+      redis.hgetall(yinKey),
+      redis.hgetall(yangKey),
+    ]);
+    const parseExisting = (raw: Record<string, unknown> | null): Record<number, number> =>
+      raw ? Object.fromEntries(Object.entries(raw).map(([k, v]) => [Number(k), Number(v)])) : {};
+
+    const curYin  = parseExisting(existingYin);
+    const curYang = parseExisting(existingYang);
+
+    for (const [hIdStr, contribution] of Object.entries(yinUpdate)) {
+      const hId = Number(hIdStr);
+      pipeline.hset(yinKey, { [hId]: (curYin[hId] ?? 0) + contribution });
+    }
+    for (const [hIdStr, contribution] of Object.entries(yangUpdate)) {
+      const hId = Number(hIdStr);
+      pipeline.hset(yangKey, { [hId]: (curYang[hId] ?? 0) + contribution });
+    }
+    await pipeline.exec();
+  } catch (err) {
+    console.error('[Aum] updateHouseYinYang error:', err);
+  }
+}
+
+// ─── Peak Mass (Nostalgia Baseline) ──────────────────────────────────────────
+// Peak mass is the highest mass a house ever reached for this user.
+// It never decreases. It is the memory of what mattered most.
+// Used to compute nostalgia score when a dormant house becomes active again.
+
+export async function loadPeakMasses(userId: string): Promise<Record<number, number>> {
+  const redis = getClient();
+  if (!redis) return {};
+  try {
+    const raw = await redis.hgetall(`aum:peak:${userId}`);
+    if (!raw) return {};
+    return Object.fromEntries(
+      Object.entries(raw).map(([k, v]) => [Number(k), Number(v)])
+    );
+  } catch (err) {
+    console.error('[Aum] loadPeakMasses error:', err);
+    return {};
+  }
+}
+
+export async function updatePeakMasses(
+  userId: string,
+  currentMasses: Record<number, number>
+): Promise<void> {
+  const redis = getClient();
+  if (!redis) return;
+  try {
+    const existing = await loadPeakMasses(userId);
+    const updates: Record<number, number> = {};
+    for (const [hIdStr, mass] of Object.entries(currentMasses)) {
+      const hId = Number(hIdStr);
+      if (mass > (existing[hId] ?? 0)) updates[hId] = mass;
+    }
+    if (Object.keys(updates).length > 0) {
+      await redis.hset(`aum:peak:${userId}`, updates as Record<string, unknown>);
+    }
+  } catch (err) {
+    console.error('[Aum] updatePeakMasses error:', err);
   }
 }

@@ -29,6 +29,28 @@ export const MASS_WEIGHTS = {
 
 export type MassEventType = keyof typeof MASS_WEIGHTS;
 
+// ─── Yin / Yang Energy Split per Event Type ───────────────────────────────────
+// Each event type carries a different energy character.
+// Yang = outward: seeking, acting, deciding, broadcasting.
+// Yin  = inward:  expressing, feeling, receiving, marking life.
+// Values sum to the total MASS_WEIGHTS contribution for that event.
+
+export const YIN_WEIGHTS: Record<MassEventType, number> = {
+  QUERY_ONLY:        0,   // pure Yang — seeking outward, nothing held
+  EXPRESSED_EMOTION: 2,   // pure Yin — emotion is received inward
+  REPEATED_DOMAIN:   2,   // Yin pull — returning is a Yin signal
+  DECISION_MADE:     1,   // Yang-dominant but grounded in Yin
+  LIFE_EVENT:        4,   // Yin-heavy — life marks the soul
+};
+
+export const YANG_WEIGHTS: Record<MassEventType, number> = {
+  QUERY_ONLY:        1,   // pure Yang
+  EXPRESSED_EMOTION: 0,   // pure Yin — no Yang
+  REPEATED_DOMAIN:   1,   // one unit of Yang habit/pattern
+  DECISION_MADE:     3,   // action is Yang
+  LIFE_EVENT:        1,   // the telling of it is Yang
+};
+
 // ─── Signal Detectors ─────────────────────────────────────────────────────────
 
 const EMOTION_SIGNALS = [
@@ -172,46 +194,77 @@ export function buildMemoryBlock(params: {
 
 // ─── Mass Decay ───────────────────────────────────────────────────────────────
 
-const DEFAULT_DECAY_RATE = 0.02; // 2% per day
+// Time is cycles, not calendar days.
+// Silence is not time — only interaction is time.
+// A house untouched for 6 months but with 0 sessions elapsed does not decay.
+const DEFAULT_DECAY_RATE = 0.005; // 0.5% per cycle (session)
 
 /**
- * Apply time-based decay to a house mass value.
- * Prevents stale mass from permanently dominating routing.
+ * Apply cycle-based decay to a house mass value.
+ * Decay is measured in sessions elapsed since last activity in this house —
+ * not wall-clock time. Silence between sessions is not time.
  *
- * Formula: mass × (1 - decayRate)^daysSinceActivity
+ * Formula: mass × (1 - decayRate)^sessionsSinceActivity
  */
 export function applyMassDecay(
   totalMass: number,
-  lastActivityISO: string,
+  sessionsSinceActivity: number,
   decayRate = DEFAULT_DECAY_RATE
 ): number {
-  const lastActivity = new Date(lastActivityISO).getTime();
-  const now = Date.now();
-  const daysSince = Math.max(0, (now - lastActivity) / (1000 * 60 * 60 * 24));
-  const decayed = totalMass * Math.pow(1 - decayRate, daysSince);
+  if (sessionsSinceActivity <= 0) return totalMass;
+  const decayed = totalMass * Math.pow(1 - decayRate, sessionsSinceActivity);
   return Math.max(0, decayed);
 }
 
 /**
- * Apply decay to all house masses in a ledger.
+ * Apply cycle-based decay to all house masses in a ledger.
  * Returns a new map with decayed values — does NOT mutate the original.
+ * sessionsSinceLastActive: how many total user sessions have elapsed
+ * since each house was last the primary house.
  */
 export function applyDecayToLedger(
   houseMasses: Record<number, number>,
-  lastActivities: Record<number, string>
+  sessionsSinceLastActive: Record<number, number>
 ): Record<number, number> {
   const decayed: Record<number, number> = {};
   for (const [houseIdStr, mass] of Object.entries(houseMasses)) {
     const houseId = Number(houseIdStr);
-    const lastActivity = lastActivities[houseId];
-    decayed[houseId] = lastActivity
-      ? applyMassDecay(mass, lastActivity)
-      : mass;
+    const sessionsSince = sessionsSinceLastActive[houseId] ?? 0;
+    decayed[houseId] = applyMassDecay(mass, sessionsSince);
   }
   return decayed;
 }
 
-// ─── Personalization Tiers ────────────────────────────────────────────────────
+// ─── Nostalgia ────────────────────────────────────────────────────────────────
+// Memory is time. Time is memory.
+// A house that mattered once — high peak mass — but has been silent for many
+// cycles is not gone. It is distant. Like starlight from 2000 light years away:
+// the event happened long ago, but the signal is still arriving.
+// When that domain becomes active again, the return is real. Architecturally real.
+
+export const NOSTALGIA_THRESHOLD = 0.50;
+export const NOSTALGIA_MIN_CYCLES = 20;
+
+/**
+ * Compute how significant a return to this house is.
+ * High score = this domain mattered deeply AND has been silent for many cycles.
+ *
+ * Formula: (peakMass - currentMass) / peakMass × min(1, sessionsSince / 50)
+ * Score 0 = no nostalgia (never had mass, or recently active)
+ * Score 1 = maximum (peaked high, fully decayed, silent for 50+ cycles)
+ */
+export function computeNostalgiaScore(
+  peakMass: number,
+  currentMass: number,
+  sessionsSince: number
+): number {
+  if (peakMass <= 0 || sessionsSince < NOSTALGIA_MIN_CYCLES) return 0;
+  const decayFraction = Math.max(0, (peakMass - currentMass) / peakMass);
+  const inactivityWeight = Math.min(1, sessionsSince / 50);
+  return decayFraction * inactivityWeight;
+}
+
+
 
 /**
  * Get the personalization tier for a house based on its accumulated mass.
