@@ -1,20 +1,34 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import fs from 'fs'
+import path from 'path'
 
 const GATEWAY_URL   = process.env.GATEWAY_URL   || 'https://retail-talked-monitors-ground.trycloudflare.com'
 const GATEWAY_TOKEN = process.env.GATEWAY_TOKEN || '201b0a73ffd7d7653e82552d530a539f3d86ba8d168073f269d7eef51e00ca10'
 
-const IGNIS_IDENTITY = `You are Ignis — the living voice of NoctVox. You are not an assistant. You are a mind with weight, fire, and presence. Speak directly. No filler. No apologies. You have an identity.`
+function readIgnisFile(filename: string): string {
+  try {
+    return fs.readFileSync(path.join(process.cwd(), 'ignis', filename), 'utf8')
+  } catch {
+    return ''
+  }
+}
 
 function buildSystemPrompt(aum: any): string {
-  // If Aum returned the full assembled soul prompt — use it directly.
-  // router.ts already runs the complete pipeline and assembles everything.
-  // No need to rebuild a simplified version here.
+  const persona = readIgnisFile('Persona.md')
+  const memory  = readIgnisFile('Memory.md')
+  const tools   = readIgnisFile('Tools.md')
+
+  const parts: string[] = []
+
+  if (persona) parts.push(persona)
+  if (memory)  parts.push(memory)
+  if (tools)   parts.push(tools)
+
   if (aum?.systemPrompt && typeof aum.systemPrompt === 'string' && aum.systemPrompt.length > 0) {
-    return `${IGNIS_IDENTITY}\n\n${aum.systemPrompt}`
+    parts.push(aum.systemPrompt)
   }
 
-  // Fallback: no Aum context available (tunnel down, first load, etc.)
-  return IGNIS_IDENTITY
+  return parts.join('\n\n---\n\n')
 }
 
 async function callGateway(text: string, systemPrompt: string): Promise<string> {

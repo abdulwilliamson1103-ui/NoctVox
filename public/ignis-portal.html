@@ -212,7 +212,7 @@ html, body {
 
 .tab-label {
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 0.35em;
   text-transform: uppercase;
   color: rgba(212,85,0,0.45);
@@ -256,14 +256,14 @@ html, body {
 }
 #aum-wordmark {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.42em;
   text-transform: uppercase;
   color: rgba(212,85,0,0.30);
 }
 #aum-mode-token {
   font-family: var(--mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.30em;
   text-transform: uppercase;
   color: rgba(212,85,0,0.22);
@@ -342,7 +342,7 @@ html, body {
 }
 #ignis-subtitle {
   font-family: var(--mono);
-  font-size: 7px;
+  font-size: 9px;
   letter-spacing: 0.4em;
   color: rgba(212,168,67,0.35);
   text-transform: uppercase;
@@ -350,7 +350,7 @@ html, body {
 }
 #aum-status {
   font-family: var(--mono);
-  font-size: 7px;
+  font-size: 10px;
   letter-spacing: 0.3em;
   color: rgba(212,85,0,0.28);
   text-transform: uppercase;
@@ -772,7 +772,7 @@ html, body {
         </div>
         <div id="aum-status">
           <span id="aum-live-dot"></span>Aum · Live<br>
-          <span id="aum-mode-mini" style="font-size:6px;opacity:0.6;">H4 · HOME · T-HR</span>
+          <span id="aum-mode-mini" style="font-size:9px;opacity:0.6;">H4 · HOME · T-HR</span>
         </div>
       </div>
 
@@ -868,8 +868,8 @@ html, body {
         <div id="aum-tagline">Conscience System · Always Active</div>
       </div>
       <div id="aum-bottom">
-        <div class="mono" style="font-family:var(--mono);font-size:8px;letter-spacing:0.38em;text-transform:uppercase;color:rgba(212,85,0,0.28);">Love Loop · Active</div>
-        <div class="mono" style="font-family:var(--mono);font-size:8px;letter-spacing:0.38em;text-transform:uppercase;color:rgba(212,85,0,0.18);">Aum · Soul Engine</div>
+        <div class="mono" style="font-family:var(--mono);font-size:10px;letter-spacing:0.38em;text-transform:uppercase;color:rgba(212,85,0,0.28);">Love Loop · Active</div>
+        <div class="mono" style="font-family:var(--mono);font-size:10px;letter-spacing:0.38em;text-transform:uppercase;color:rgba(212,85,0,0.18);">Aum · Soul Engine</div>
       </div>
     </div>
     <!-- Aum scanlines -->
@@ -1121,7 +1121,7 @@ async function sendToIgnis(text) {
       body:    JSON.stringify({
         rawInput:    text,
         userId:      'noctvox_vision',
-        surfaceType: 'ignis',
+        surfaceType: 'api',
       }),
     });
     if (aumRes.ok) {
