@@ -24,58 +24,11 @@ function buildSystemPrompt(aum: any): string {
   if (memory)  parts.push(memory)
   if (tools)   parts.push(tools)
 
-  // Aum soul prompt — full pipeline output from router.ts
   if (aum?.systemPrompt && typeof aum.systemPrompt === 'string' && aum.systemPrompt.length > 0) {
     parts.push(aum.systemPrompt)
   }
 
   return parts.join('\n\n---\n\n')
-}
-
-async function callGateway(text: string, systemPrompt: string): Promise<string> {
-  const messages = [
-    ...(systemPrompt ? [{ role: 'system', content: systemPrompt }] : []),
-    { role: 'user', content: text },
-  ]
-  const res = await fetch(`${GATEWAY_URL}/v1/chat/completions`, {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${GATEWAY_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'openclaw', messages, max_tokens: 800, temperature: 0.8 }),
-  })
-  if (!res.ok) throw new Error(`Gateway ${res.status}: ${await res.text()}`)
-  const data = await res.json() as any
-  return data.choices?.[0]?.message?.content || '[No response]'
-}
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-
-  if (req.method === 'OPTIONS') { res.status(200).end(); return }
-  if (req.method === 'GET')     { return res.status(200).json({ messages: [], timestamp: 0 }) }
-
-  if (req.method === 'POST') {
-    const { text, minds, aumContext } = req.body as { text?: string; minds?: string[]; aumContext?: any }
-    if (!text) return res.status(400).json({ error: 'No text' })
-
-    const systemPrompt = buildSystemPrompt(aumContext ?? null)
-
-    try {
-      const response = await callGateway(String(text).trim(), systemPrompt)
-      return res.status(200).json({
-        ok: true, role: 'ignis', text: response, minds: minds || [],
-        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-      })
-    } catch (err: any) {
-      return res.status(200).json({
-        ok: true, role: 'ignis', text: `[Gateway error: ${err.message}]`, minds: [],
-        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }),
-      })
-    }
-  }
-
-  res.status(405).json({ error: 'Method not allowed' })
 }
 
 async function callGateway(text: string, systemPrompt: string): Promise<string> {
