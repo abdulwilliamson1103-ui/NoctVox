@@ -526,6 +526,27 @@ html, body {
   border-radius: 8px;
   padding: 6px 12px;
 }
+/* ── Pipeline download button ──────────────────────── */
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 6px 14px;
+  background: rgba(212,85,0,0.15);
+  border: 1px solid rgba(212,85,0,0.40);
+  border-radius: 8px;
+  color: var(--orange);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.btn-download:active { background: rgba(212,85,0,0.28); }
+
 .msg-time {
   font-family: var(--mono);
   font-size: 8px;
@@ -1433,6 +1454,13 @@ async function sendToIgnis(text, files = []) {
   // Step 3 — Flash Aum panel tab briefly if on Ignis panel
   // so Vision knows soul routed this response
   if (currentPanel === 'ignis') flashAumDot();
+
+  // Step 4 — If video clips were staged, kick off the pipeline upload
+  // This runs in parallel — Ignis already responded, pipeline processes in background
+  const videoFiles = files.filter(f => f.type.startsWith('video/'));
+  if (videoFiles.length > 0) {
+    uploadToPipeline(videoFiles);
+  }
 }
 
 function flashAumDot() {
@@ -1444,6 +1472,96 @@ function flashAumDot() {
     dot.style.background = '';
     dot.style.boxShadow  = '';
   }, 1200);
+}
+
+// ── Video Pipeline Upload ────────────────────────────
+// Uploads clips to MyClaw via /api/ignis-upload, polls status,
+// then shows a download link when the edit is ready.
+async function uploadToPipeline(videoFiles) {
+  // Add a live-updating system message for pipeline progress
+  const container = document.getElementById('ignis-messages');
+  const pipeRow   = document.createElement('div');
+  pipeRow.className = 'msg-row system';
+  const pipeBubble  = document.createElement('div');
+  pipeBubble.className = 'bubble system';
+  pipeBubble.textContent = `↑ uploading ${videoFiles.length} clip${videoFiles.length > 1 ? 's' : ''} to pipeline…`;
+  pipeRow.appendChild(pipeBubble);
+  container.appendChild(pipeRow);
+  container.scrollTop = container.scrollHeight;
+
+  function setProgress(msg) {
+    pipeBubble.textContent = msg;
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function setDone(downloadUrl) {
+    pipeBubble.innerHTML = '';
+    const label = document.createElement('div');
+    label.textContent = '✓ Edit ready';
+    label.style.cssText = 'margin-bottom:6px;color:rgba(212,168,67,0.80);';
+    const btn = document.createElement('a');
+    btn.className = 'btn-download';
+    btn.href      = downloadUrl;
+    btn.download  = 'ignis_edit.mp4';
+    btn.innerHTML = '▼ &nbsp;Download Edit';
+    pipeBubble.appendChild(label);
+    pipeBubble.appendChild(btn);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  // Build FormData — actual binary clips, not just names
+  const fd = new FormData();
+  videoFiles.forEach(f => fd.append('clips', f));
+  fd.append('type',        'cinematic');
+  fd.append('skipUpscale', 'false');
+  fd.append('scale',       '4');
+
+  let jobId;
+  try {
+    const uploadRes = await fetch('/api/ignis-upload', { method: 'POST', body: fd });
+    if (!uploadRes.ok) {
+      const err = await uploadRes.json().catch(() => ({}));
+      setProgress(`Pipeline unavailable — ${err.error || uploadRes.status}`);
+      return;
+    }
+    const { jobId: id } = await uploadRes.json();
+    jobId = id;
+    setProgress(`⟳ processing… job ${jobId}`);
+  } catch (e) {
+    setProgress('Upload failed — MyClaw not reachable. Check gateway.');
+    return;
+  }
+
+  // Poll status every 4 seconds until done or error
+  let pollTimer = setInterval(async () => {
+    try {
+      const statusRes = await fetch(`/api/ignis-upload?jobId=${jobId}`);
+      if (!statusRes.ok) return; // transient — keep polling
+      const { status, progress, downloadUrl } = await statusRes.json();
+
+      if (status === 'done') {
+        clearInterval(pollTimer);
+        setDone(downloadUrl);
+        // Tell Ignis the edit is ready so he can respond in conversation
+        sendToIgnis(`The video pipeline finished. The edit is ready to download.`);
+      } else if (status === 'error') {
+        clearInterval(pollTimer);
+        setProgress(`Pipeline error — ${progress || 'check server logs'}`);
+      } else if (progress) {
+        setProgress(`⟳ ${progress}`);
+      }
+    } catch (_) {
+      // network hiccup — keep polling
+    }
+  }, 4000);
+
+  // Safety timeout — stop polling after 30 minutes
+  setTimeout(() => {
+    clearInterval(pollTimer);
+    if (pipeBubble.textContent.startsWith('⟳')) {
+      setProgress('Pipeline timed out — check MyClaw server.');
+    }
+  }, 30 * 60 * 1000);
 }
 
 // ── PWA Install Prompt ───────────────────────────────
