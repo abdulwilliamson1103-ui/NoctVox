@@ -39,7 +39,7 @@ async function callGateway(text: string, systemPrompt: string): Promise<string> 
   const res = await fetch(`${GATEWAY_URL}/v1/chat/completions`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${GATEWAY_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'openclaw', messages, max_tokens: 800, temperature: 0.8 }),
+    body: JSON.stringify({ model: 'openclaw', messages, max_tokens: 2048, temperature: 0.8 }),
   })
   if (!res.ok) throw new Error(`Gateway ${res.status}: ${await res.text()}`)
   const data = await res.json() as any

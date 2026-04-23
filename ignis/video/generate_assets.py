@@ -138,6 +138,27 @@ def grade_product(r, g, b):
     return r, g, b
 
 
+def grade_zenith(r, g, b):
+    # Gaming base + cinematic overlay — NPC moments need energy AND weight
+    # Start with gaming vibrance and contrast
+    r, g, b = adjust_sat(r, g, b, 1.32)
+    r = scurve(r, 1.3)
+    g = scurve(g, 1.2)
+    b = scurve(b, 1.3)
+    r = clamp(r * 0.96)               # slight teal push from gaming
+    b = clamp(b * 1.04)
+    # Overlay cinematic: lift blacks + shadow teal for weight
+    r = lift_blacks(r, 0.025)
+    g = lift_blacks(g, 0.018)
+    b = lift_blacks(b, 0.030)
+    lu = luma(r, g, b)
+    cool = (1.0 - lu) * 0.025
+    warm = lu * lu   * 0.025
+    r = clamp(r - cool * 0.5 + warm)
+    b = clamp(b + cool - warm * 0.4)
+    return r, g, b
+
+
 # ── LUT writer ──────────────────────────────────────────
 
 def write_cube(path, title, grade_fn, size=17):
@@ -193,6 +214,7 @@ if __name__ == '__main__':
     write_cube(os.path.join(luts_dir, 'cinematic.cube'), 'Ignis Cinematic', grade_cinematic)
     write_cube(os.path.join(luts_dir, 'gaming.cube'),    'Ignis Gaming',    grade_gaming)
     write_cube(os.path.join(luts_dir, 'product.cube'),   'Ignis Product',   grade_product)
+    write_cube(os.path.join(luts_dir, 'zenith.cube'),    'Ignis Zenith',    grade_zenith)
 
     print('\nGenerating SFX placeholders...')
     write_silent_wav(os.path.join(sfx_dir, 'whoosh.wav'), duration_sec=0.5)

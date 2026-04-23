@@ -92,10 +92,12 @@ integrations:
         role: 10-bit LOG original footage — matches $5,000 camera dynamic range on iPhone
     export:
       codec: H.265 (libx265)
-      bitrate: 40 Mbps
-      resolution: 3840×2160
-      fps: 60
-      lut_flag: -vf lut3d={content_type}.cube
+      quality: CRF 22 (variable bitrate — content-adaptive, ~15–40 Mbps depending on clip)
+      preset: slow (maximum compression efficiency)
+      resolution: 3840×2160 (source must be upscaled first via Replicate)
+      fps: 60 (after RIFE interpolation)
+      apple_compat: -tag:v hvc1 -movflags +faststart
+      lut_flag: -vf lut3d={content_type}.cube (full path required)
       destination: cloud folder → Instagram Edits app → WiFi upload
 ---
 
@@ -359,7 +361,9 @@ Uploads on WiFi only
 
 FFmpeg applies the LUT inline during export — zero extra step, zero quality loss:
 ```
-ffmpeg -i stitched.mp4 -vf lut3d=anime.cube -c:v libx265 -b:v 40M -r 60 out_4k.mp4
+ffmpeg -i stitched.mp4 -vf lut3d=/path/to/anime.cube \
+  -c:v libx265 -crf 22 -preset slow -tag:v hvc1 \
+  -movflags +faststart -c:a aac -b:a 192k out_4k.mp4
 ```
 
 ---

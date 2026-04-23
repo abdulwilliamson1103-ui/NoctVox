@@ -24,8 +24,11 @@ import tempfile
 STYLE_PRESETS = {
     'anime':      {'contrast': 1.08, 'saturation': 1.20, 'brightness': 0.02},
     'cinematic':  {'contrast': 1.12, 'saturation': 0.85, 'brightness': -0.02},
+    'gaming':     {'contrast': 1.18, 'saturation': 1.30, 'brightness': 0.01},
     'portrait':   {'contrast': 1.05, 'saturation': 1.10, 'brightness': 0.04},
     'sport':      {'contrast': 1.15, 'saturation': 1.25, 'brightness': 0.01},
+    'product':    {'contrast': 1.03, 'saturation': 1.05, 'brightness': 0.03},
+    'zenith':     {'contrast': 1.16, 'saturation': 1.22, 'brightness': 0.00},
     'raw':        {'contrast': 1.00, 'saturation': 1.00, 'brightness': 0.00},
 }
 
@@ -195,7 +198,8 @@ def main():
     parser = argparse.ArgumentParser(description='Stitch — Step 3')
     parser.add_argument('--data',    required=True, help='timestamps.json from beat_sync.py')
     parser.add_argument('--type',    default='cinematic',
-                        choices=list(STYLE_PRESETS.keys()), help='Colour grade style')
+                        choices=list(STYLE_PRESETS.keys()),
+                        help='Colour grade style: anime|cinematic|gaming|portrait|sport|product|zenith|raw')
     parser.add_argument('--lut',     default=None, help='Path to .cube LUT file (overrides style)')
     parser.add_argument('--sfx-dir', default=None, help='Folder of SFX .wav files for cut transitions')
     parser.add_argument('--output',  default='final_output.mp4', help='Output file path')
