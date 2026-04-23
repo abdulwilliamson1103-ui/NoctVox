@@ -1042,6 +1042,15 @@ function setTyping(on) {
   if (on) c.scrollTop = c.scrollHeight;
 }
 
+// ── Tap messages area to stop Ignis speaking ─────────
+document.getElementById('ignis-messages').addEventListener('click', () => {
+  if (isSpeaking) {
+    window.speechSynthesis.cancel();
+    isSpeaking = false;
+    if (iosResumeTimer) { clearInterval(iosResumeTimer); iosResumeTimer = null; }
+  }
+});
+
 // ── Textarea Auto-Resize ─────────────────────────────
 const msgInput = document.getElementById('msg-input');
 const btnSend  = document.getElementById('btn-send');
@@ -1123,7 +1132,14 @@ function startListening() {
     msgInput.value = t;
     btnSend.classList.toggle('visible', t.trim().length > 0);
   };
-  recognition.onerror = () => stopListening();
+  recognition.onerror = (e) => {
+    stopListening();
+    if (e.error === 'not-allowed') {
+      addMessage('system', 'Microphone access blocked — allow mic in browser settings.');
+    } else if (e.error === 'network') {
+      addMessage('system', 'Voice needs internet — check connection.');
+    }
+  };
   recognition.onend   = () => {
     btnMic.classList.remove('listening');
     if (voiceBuffer.trim()) sendMessage(voiceBuffer.trim());
@@ -1144,15 +1160,94 @@ btnMic.addEventListener('touchstart', e => { e.preventDefault(); startListening(
 btnMic.addEventListener('touchend',   e => { e.preventDefault(); stopListening(); },  { passive:false });
 
 // ── TTS ──────────────────────────────────────────────
+
+// Pick the best available English voice — prefer high-quality named voices
+function getBestVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+  // Priority list — best sounding English voices across platforms
+  const preferred = [
+    'Daniel',            // iOS UK English — deep and clear
+    'Aaron',             // macOS — natural
+    'Samantha',          // macOS / iOS US — clean
+    'Google US English', // Chrome on Android/desktop
+    'Microsoft David',   // Windows
+    'Alex',              // older macOS
+  ];
+  for (const name of preferred) {
+    const v = voices.find(v => v.name === name);
+    if (v) return v;
+  }
+  // Fall back to first English voice
+  return voices.find(v => v.lang.startsWith('en')) || voices[0];
+}
+
+// Strip markdown so TTS doesn't speak symbols aloud
+function stripMarkdown(text) {
+  return text
+    .replace(/```[\s\S]*?```/g, 'code block.')      // code blocks → "code block"
+    .replace(/`[^`]+`/g, '')                          // inline code → removed
+    .replace(/\*\*(.+?)\*\*/g, '$1')                  // **bold** → bold
+    .replace(/\*(.+?)\*/g, '$1')                      // *italic* → italic
+    .replace(/_{1,2}(.+?)_{1,2}/g, '$1')              // _italic_ → italic
+    .replace(/#{1,6}\s/g, '')                          // headings
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1')               // [link](url) → link text
+    .replace(/!\[.*?\]\(.*?\)/g, '')                   // images → removed
+    .replace(/^\s*[-*+]\s/gm, '')                      // list bullets
+    .replace(/^\s*\d+\.\s/gm, '')                      // numbered lists
+    .replace(/\|.*\|/g, '')                            // table rows
+    .replace(/\n{2,}/g, '. ')                          // double newlines → pause
+    .replace(/\n/g, ' ')                               // single newlines → space
+    .trim();
+}
+
+let iosResumeTimer = null;
+
 function speak(text) {
   if (!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = 1.05; u.pitch = 0.92; u.volume = 1;
-  u.onstart = () => { isSpeaking = true; };
-  u.onend   = () => { isSpeaking = false; };
-  u.onerror = () => { isSpeaking = false; };
-  window.speechSynthesis.speak(u);
+  if (iosResumeTimer) { clearInterval(iosResumeTimer); iosResumeTimer = null; }
+
+  const clean = stripMarkdown(text);
+  if (!clean) return;
+
+  const u    = new SpeechSynthesisUtterance(clean);
+  const voice = getBestVoice();
+  if (voice) u.voice = voice;
+  u.rate   = 1.05;
+  u.pitch  = 0.92;
+  u.volume = 1;
+
+  u.onstart = () => {
+    isSpeaking = true;
+    // iOS fix — speechSynthesis pauses after ~15s on mobile Safari
+    // Resume every 10s to keep it alive
+    iosResumeTimer = setInterval(() => {
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.pause();
+        window.speechSynthesis.resume();
+      }
+    }, 10000);
+  };
+  u.onend = () => {
+    isSpeaking = false;
+    if (iosResumeTimer) { clearInterval(iosResumeTimer); iosResumeTimer = null; }
+  };
+  u.onerror = () => {
+    isSpeaking = false;
+    if (iosResumeTimer) { clearInterval(iosResumeTimer); iosResumeTimer = null; }
+  };
+
+  // iOS requires voices to load async — wait if not ready
+  if (window.speechSynthesis.getVoices().length === 0) {
+    window.speechSynthesis.onvoiceschanged = () => {
+      const v = getBestVoice();
+      if (v) u.voice = v;
+      window.speechSynthesis.speak(u);
+    };
+  } else {
+    window.speechSynthesis.speak(u);
+  }
 }
 
 // ── Send Message (API calls in Part 4) ──────────────
