@@ -153,6 +153,10 @@ Authorization: Bearer {GATEWAY_TOKEN}
   "downloadUrl": "/pipeline/download/abc123"
 }
 ```
+Note: the Next.js proxy (`ignis-upload.ts`) overwrites `downloadUrl` with its own
+proxied path before forwarding to the browser. MyClaw can return any string here —
+it will not reach the portal as-is. Just include the field so the proxy can detect
+`status === 'done'`.
 
 **Response 200 (error):**
 ```json
@@ -205,7 +209,14 @@ REPLICATE_API_TOKEN  in environment (only needed when skipUpscale is false)
 ```
 
 The pipeline scripts are at: `ignis/video/` in the NoctVox repo root.
-`run.py` is the entry point.
+`run.py` is the entry point. Use the **absolute path** when invoking:
+```python
+import os
+PIPELINE_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'ignis', 'video')
+RUN_PY       = os.path.abspath(os.path.join(PIPELINE_DIR, 'run.py'))
+# then: cmd = ['python3', RUN_PY, '--clips', clips_dir, ...]
+```
+Adjust the relative path to match where MyClaw's server file lives in the repo.
 
 ---
 
@@ -218,6 +229,15 @@ Authorization: Bearer {GATEWAY_TOKEN}
 
 `GATEWAY_TOKEN` is the same token already used for the `/v1/chat/completions` endpoint.
 MyClaw should validate it on every pipeline request the same way it does for LLM requests.
+
+**Note on token visibility:**
+The portal fetches `GATEWAY_URL` and `GATEWAY_TOKEN` from `/api/ignis-config` (a Next.js
+endpoint) on page load, so the token is visible in the browser's network tab.
+This is intentional and not a new exposure — both values are already hardcoded as
+fallback constants in `pages/api/ignis-upload.ts` which is in the repo. The Cloudflare
+tunnel URL also rotates whenever MyClaw restarts, which naturally invalidates any
+previously observed URL. No action needed — just don't be surprised to see the token
+appear in browser devtools.
 
 ---
 
