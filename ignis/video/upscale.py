@@ -55,7 +55,7 @@ def upscale_clip(clip_path, output_dir, scale=4):
 
     print(f"  Upscaling: {filename}")
     with open(clip_path, 'rb') as f:
-        output_url = replicate.run(
+        output = replicate.run(
             REPLICATE_MODEL,
             input={
                 'video':        f,
@@ -64,9 +64,13 @@ def upscale_clip(clip_path, output_dir, scale=4):
             }
         )
 
-    # output_url is a string URL to the processed file
+    # SDK ≥0.25 may return a list, FileOutput object, or plain string URL
+    if isinstance(output, list):
+        output = output[0]
+    url = output.url if hasattr(output, 'url') else str(output)
+
     print(f"  Downloading result...")
-    urllib.request.urlretrieve(str(output_url), output_path)
+    urllib.request.urlretrieve(url, output_path)
     print(f"  Saved: {output_path}")
     return output_path
 

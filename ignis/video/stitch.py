@@ -55,10 +55,11 @@ def build_color_filter(style_name, lut_path=None):
     eq = f"eq=contrast={c}:saturation={s}:brightness={b}"
 
     if lut_path and os.path.exists(lut_path):
-        # Apply LUT on top of eq — lut3d for .cube files
         ext = os.path.splitext(lut_path)[1].lower()
         if ext == '.cube':
-            return f"{eq},lut3d='{lut_path}'"
+            # Escape path for FFmpeg filter string — forward slashes, escape single quotes
+            safe = os.path.abspath(lut_path).replace('\\', '/').replace("'", "\\'")
+            return f"{eq},lut3d='{safe}'"
         else:
             print(f"  Warning: unsupported LUT format {ext} — skipping LUT")
 
@@ -68,7 +69,7 @@ def build_color_filter(style_name, lut_path=None):
 def trim_clip(clip_path, duration, output_path):
     """
     Trim a single clip to `duration` seconds.
-    Returns output_path.
+    Returns output_path, or None if FFmpeg fails.
     """
     cmd = [
         'ffmpeg', '-y',
@@ -77,7 +78,9 @@ def trim_clip(clip_path, duration, output_path):
         '-c', 'copy',
         output_path,
     ]
-    subprocess.run(cmd, capture_output=True, check=True)
+    result = subprocess.run(cmd, capture_output=True)
+    if result.returncode != 0:
+        return None
     return output_path
 
 
@@ -132,7 +135,9 @@ def stitch_clips(clip_paths, color_filter, output_path, song_path=None):
     # Write concat list file
     with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
         for clip in clip_paths:
-            f.write(f"file '{os.path.abspath(clip)}'\n")
+            # FFmpeg concat format requires escaping single quotes in paths
+            safe = os.path.abspath(clip).replace("'", "\\'")
+            f.write(f"file '{safe}'\n")
         concat_file = f.name
 
     # Build filter chain
@@ -150,15 +155,17 @@ def stitch_clips(clip_paths, color_filter, output_path, song_path=None):
     if song_path and os.path.exists(song_path):
         cmd += ['-i', song_path]
         cmd += [
-            '-filter_complex',
-            f"[0:v]{vf}[vout];[1:a]anull[aout]",
+            # Apply video grade via filter_complex, map song audio directly
+            '-filter_complex', f"[0:v]{vf}[vout]",
             '-map', '[vout]',
-            '-map', '[aout]',
-            '-shortest',
+            '-map', '1:a',      # song audio — no intermediate filter needed
+            '-shortest',        # trim to shorter of video vs song
         ]
     else:
         cmd += [
             '-vf', vf,
+            '-map', '0:v',
+            '-map', '0:a?',     # include clip audio if present, skip if not
         ]
 
     # H.265 export — high quality, small file size
@@ -221,9 +228,12 @@ def main():
             print(f"  Missing: {clip} — skipping")
             continue
         out = os.path.join(tmpdir, f"trim_{i:04d}.mp4")
-        trim_clip(clip, args.clip_duration, out)
-        trimmed.append(out)
-        print(f"  [{i+1}/{len(clips)}] {os.path.basename(clip)}")
+        result = trim_clip(clip, args.clip_duration, out)
+        if result is None:
+            print(f"  [{i+1}/{len(clips)}] FAILED (bad codec?) — skipping: {os.path.basename(clip)}")
+        else:
+            trimmed.append(out)
+            print(f"  [{i+1}/{len(clips)}] {os.path.basename(clip)}")
 
     if not trimmed:
         print("No valid clips to stitch.")
