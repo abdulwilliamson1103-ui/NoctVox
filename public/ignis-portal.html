@@ -526,6 +526,27 @@ html, body {
   border-radius: 8px;
   padding: 6px 12px;
 }
+/* ── Pipeline download button ──────────────────────── */
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 6px 14px;
+  background: rgba(212,85,0,0.15);
+  border: 1px solid rgba(212,85,0,0.40);
+  border-radius: 8px;
+  color: var(--orange);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.btn-download:active { background: rgba(212,85,0,0.28); }
+
 .msg-time {
   font-family: var(--mono);
   font-size: 8px;
@@ -610,6 +631,45 @@ html, body {
 #btn-camera:active { opacity: 0.9; }
 #file-input { display: none; }
 
+/* ── Clip Queue ────────────────────────────────────── */
+#clip-queue {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 12px 0;
+}
+.clip-card {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 4px 6px;
+  background: rgba(212,85,0,0.10);
+  border: 1px solid rgba(212,85,0,0.28);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(212,168,67,0.85);
+  letter-spacing: 0.02em;
+  max-width: 180px;
+}
+.clip-card-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.clip-card-remove {
+  cursor: pointer;
+  color: rgba(212,85,0,0.5);
+  font-size: 12px;
+  line-height: 1;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0 0 0 2px;
+}
+.clip-card-remove:active { color: var(--orange); }
+
 /* Text input */
 #msg-input {
   flex: 1;
@@ -679,6 +739,27 @@ html, body {
   0%   { transform: scale(1);   opacity: 0.6; }
   100% { transform: scale(1.5); opacity: 0; }
 }
+
+/* ── Voice Toggle Button ───────────────────────────── */
+#btn-voice {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(212,85,0,0.20);
+  background: rgba(212,85,0,0.05);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.25s ease;
+  padding: 0;
+}
+#btn-voice.voice-on {
+  border-color: rgba(212,85,0,0.48);
+  background: rgba(212,85,0,0.13);
+  box-shadow: 0 0 10px rgba(212,85,0,0.16);
+}
+#btn-voice svg { transition: stroke 0.25s ease; }
 
 /* ── Loader ────────────────────────────────────────── */
 #loader {
@@ -820,15 +901,16 @@ html, body {
 
       <!-- Input Bar -->
       <div id="ignis-input-bar">
+        <div id="clip-queue"></div>
         <div id="input-row">
           <div id="input-field-wrap">
-            <button id="btn-camera" title="Upload photo or file" onclick="document.getElementById('file-input').click()">
+            <button id="btn-camera" title="Upload photo, file or video clips" onclick="document.getElementById('file-input').click()">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(212,85,0,0.70)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
                 <circle cx="12" cy="13" r="4"/>
               </svg>
             </button>
-            <input type="file" id="file-input" accept="image/*,application/pdf,.md,.txt,.js,.ts,.json" />
+            <input type="file" id="file-input" accept="image/*,video/*,application/pdf,.md,.txt,.js,.ts,.json" multiple />
             <textarea id="msg-input" rows="1" placeholder="Message Ignis…"></textarea>
             <button id="btn-send" title="Send">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -837,6 +919,13 @@ html, body {
               </svg>
             </button>
           </div>
+          <button id="btn-voice" class="voice-on" title="Voice response on/off">
+            <svg id="voice-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+          </button>
           <button id="btn-mic" title="Hold to speak">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(212,85,0,0.75)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
@@ -941,9 +1030,27 @@ function seedStars(containerId, count) {
 seedStars('ignis-stars', 38);
 
 // ── Message State ────────────────────────────────────
-let msgIdCounter = 0;
-let isLoading    = false;
-let isSpeaking   = false;
+let msgIdCounter  = 0;
+let isLoading     = false;
+let isSpeaking    = false;
+let voiceMode     = true; // persist across sessions
+try { voiceMode = localStorage.getItem('ignis_voice') !== 'off'; } catch(_) {}
+
+// Gateway config — fetched once on load so large uploads go direct to MyClaw
+let ignisGateway = null; // { gatewayUrl, gatewayToken }
+fetch('/api/ignis-config').then(r => r.json()).then(cfg => { ignisGateway = cfg; }).catch(() => {});
+
+const VOICE_SVG_ON  = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>`;
+const VOICE_SVG_OFF = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>`;
+
+function setVoiceBtn(on) {
+  const btn  = document.getElementById('btn-voice');
+  const icon = document.getElementById('voice-icon');
+  btn.classList.toggle('voice-on', on);
+  icon.innerHTML  = on ? VOICE_SVG_ON : VOICE_SVG_OFF;
+  icon.setAttribute('stroke', on ? 'var(--orange)' : 'rgba(212,85,0,0.28)');
+}
+setVoiceBtn(voiceMode);
 
 function getTime() {
   return new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:false });
@@ -1002,6 +1109,18 @@ function setTyping(on) {
   if (on) c.scrollTop = c.scrollHeight;
 }
 
+// ── Tap messages area or Aum panel to stop Ignis speaking ─
+function stopSpeaking() {
+  if (!isSpeaking) return;
+  window.speechSynthesis.cancel();
+  isSpeaking = false;
+  if (iosResumeTimer) { clearInterval(iosResumeTimer); iosResumeTimer = null; }
+  if (currentPanel === 'aum') switchPanel('ignis');
+}
+document.getElementById('ignis-messages').addEventListener('click', stopSpeaking);
+// Tap anywhere on Aum panel to stop speech + return — drag won't fire click
+document.getElementById('panel-aum').addEventListener('click', stopSpeaking);
+
 // ── Textarea Auto-Resize ─────────────────────────────
 const msgInput = document.getElementById('msg-input');
 const btnSend  = document.getElementById('btn-send');
@@ -1009,22 +1128,58 @@ const btnSend  = document.getElementById('btn-send');
 msgInput.addEventListener('input', () => {
   msgInput.style.height = 'auto';
   msgInput.style.height = Math.min(msgInput.scrollHeight, 100) + 'px';
-  btnSend.classList.toggle('visible', msgInput.value.trim().length > 0);
+  btnSend.classList.toggle('visible', msgInput.value.trim().length > 0 || stagedFiles.length > 0);
 });
 msgInput.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 });
 btnSend.addEventListener('click', sendMessage);
 
-// ── File / Camera Upload ─────────────────────────────
+// ── File / Video Upload ──────────────────────────────
+const clipQueue = document.getElementById('clip-queue');
+const stagedFiles = [];
+
+function formatSize(bytes) {
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + 'KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + 'MB';
+}
+
+function renderClipQueue() {
+  clipQueue.innerHTML = '';
+  stagedFiles.forEach((file, i) => {
+    const isVideo = file.type.startsWith('video/');
+    const label   = file.name.length > 22 ? file.name.slice(0, 19) + '…' : file.name;
+    const card    = document.createElement('div');
+    card.className = 'clip-card';
+    card.innerHTML = `
+      <span style="opacity:0.6">${isVideo ? '▶' : '📄'}</span>
+      <span class="clip-card-name" title="${file.name}">${label}</span>
+      <span style="opacity:0.45;font-size:9px">${formatSize(file.size)}</span>
+      <button class="clip-card-remove" data-i="${i}" title="Remove">✕</button>
+    `;
+    clipQueue.appendChild(card);
+  });
+  clipQueue.querySelectorAll('.clip-card-remove').forEach(btn => {
+    btn.addEventListener('click', e => {
+      stagedFiles.splice(Number(e.target.dataset.i), 1);
+      renderClipQueue();
+      updateSendBtn();
+    });
+  });
+}
+
+function updateSendBtn() {
+  const hasText  = msgInput.value.trim().length > 0;
+  const hasFiles = stagedFiles.length > 0;
+  btnSend.classList.toggle('visible', hasText || hasFiles);
+}
+
 document.getElementById('file-input').addEventListener('change', function() {
-  const file = this.files[0];
-  if (!file) return;
-  const label = file.name.length > 28 ? file.name.slice(0,25)+'…' : file.name;
-  msgInput.value = `[File: ${label}] `;
-  btnSend.classList.add('visible');
-  msgInput.focus();
+  Array.from(this.files).forEach(file => stagedFiles.push(file));
+  renderClipQueue();
+  updateSendBtn();
   this.value = '';
+  msgInput.focus();
 });
 
 // ── Voice ────────────────────────────────────────────
@@ -1047,7 +1202,14 @@ function startListening() {
     msgInput.value = t;
     btnSend.classList.toggle('visible', t.trim().length > 0);
   };
-  recognition.onerror = () => stopListening();
+  recognition.onerror = (e) => {
+    stopListening();
+    if (e.error === 'not-allowed') {
+      addMessage('system', 'Microphone access blocked — allow mic in browser settings.');
+    } else if (e.error === 'network') {
+      addMessage('system', 'Voice needs internet — check connection.');
+    }
+  };
   recognition.onend   = () => {
     btnMic.classList.remove('listening');
     if (voiceBuffer.trim()) sendMessage(voiceBuffer.trim());
@@ -1067,33 +1229,150 @@ btnMic.addEventListener('mouseleave', e => { if (recognition) stopListening(); }
 btnMic.addEventListener('touchstart', e => { e.preventDefault(); startListening(); }, { passive:false });
 btnMic.addEventListener('touchend',   e => { e.preventDefault(); stopListening(); },  { passive:false });
 
+// ── Voice Mode Toggle ────────────────────────────────
+document.getElementById('btn-voice').addEventListener('click', () => {
+  voiceMode = !voiceMode;
+  try { localStorage.setItem('ignis_voice', voiceMode ? 'on' : 'off'); } catch(_) {}
+  setVoiceBtn(voiceMode);
+  if (!voiceMode && isSpeaking) {
+    window.speechSynthesis.cancel();
+    isSpeaking = false;
+    if (iosResumeTimer) { clearInterval(iosResumeTimer); iosResumeTimer = null; }
+    if (currentPanel === 'aum') switchPanel('ignis');
+  }
+});
+
 // ── TTS ──────────────────────────────────────────────
+
+// Pick the best available English voice — prefer high-quality named voices
+function getBestVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+  // Priority list — best sounding English voices across platforms
+  const preferred = [
+    'Daniel',            // iOS UK English — deep and clear
+    'Aaron',             // macOS — natural
+    'Samantha',          // macOS / iOS US — clean
+    'Google US English', // Chrome on Android/desktop
+    'Microsoft David',   // Windows
+    'Alex',              // older macOS
+  ];
+  for (const name of preferred) {
+    const v = voices.find(v => v.name === name);
+    if (v) return v;
+  }
+  // Fall back to first English voice
+  return voices.find(v => v.lang.startsWith('en')) || voices[0];
+}
+
+// Strip markdown so TTS doesn't speak symbols aloud
+function stripMarkdown(text) {
+  return text
+    .replace(/```[\s\S]*?```/g, 'code block.')      // code blocks → "code block"
+    .replace(/`[^`]+`/g, '')                          // inline code → removed
+    .replace(/\*\*(.+?)\*\*/g, '$1')                  // **bold** → bold
+    .replace(/\*(.+?)\*/g, '$1')                      // *italic* → italic
+    .replace(/_{1,2}(.+?)_{1,2}/g, '$1')              // _italic_ → italic
+    .replace(/#{1,6}\s/g, '')                          // headings
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1')               // [link](url) → link text
+    .replace(/!\[.*?\]\(.*?\)/g, '')                   // images → removed
+    .replace(/^\s*[-*+]\s/gm, '')                      // list bullets
+    .replace(/^\s*\d+\.\s/gm, '')                      // numbered lists
+    .replace(/\|.*\|/g, '')                            // table rows
+    .replace(/\n{2,}/g, '. ')                          // double newlines → pause
+    .replace(/\n/g, ' ')                               // single newlines → space
+    .trim();
+}
+
+let iosResumeTimer = null;
+
 function speak(text) {
+  if (!voiceMode) return;
   if (!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = 1.05; u.pitch = 0.92; u.volume = 1;
-  u.onstart = () => { isSpeaking = true; };
-  u.onend   = () => { isSpeaking = false; };
-  u.onerror = () => { isSpeaking = false; };
-  window.speechSynthesis.speak(u);
+  if (iosResumeTimer) { clearInterval(iosResumeTimer); iosResumeTimer = null; }
+
+  const clean = stripMarkdown(text);
+  if (!clean) return;
+
+  const u    = new SpeechSynthesisUtterance(clean);
+  const voice = getBestVoice();
+  if (voice) u.voice = voice;
+  u.rate   = 1.05;
+  u.pitch  = 0.92;
+  u.volume = 1;
+
+  u.onstart = () => {
+    isSpeaking = true;
+    // Flip to Aum panel so Vision sees the soul routing while Ignis speaks
+    if (currentPanel === 'ignis') switchPanel('aum');
+    // iOS fix — speechSynthesis pauses after ~15s on mobile Safari
+    // Resume every 10s to keep it alive
+    iosResumeTimer = setInterval(() => {
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.pause();
+        window.speechSynthesis.resume();
+      }
+    }, 10000);
+  };
+  u.onend = () => {
+    isSpeaking = false;
+    if (iosResumeTimer) { clearInterval(iosResumeTimer); iosResumeTimer = null; }
+    // Return to Ignis when Aum finishes speaking
+    if (currentPanel === 'aum') switchPanel('ignis');
+  };
+  u.onerror = () => {
+    isSpeaking = false;
+    if (iosResumeTimer) { clearInterval(iosResumeTimer); iosResumeTimer = null; }
+    if (currentPanel === 'aum') switchPanel('ignis');
+  };
+
+  // iOS requires voices to load async — wait if not ready
+  if (window.speechSynthesis.getVoices().length === 0) {
+    window.speechSynthesis.onvoiceschanged = () => {
+      const v = getBestVoice();
+      if (v) u.voice = v;
+      window.speechSynthesis.speak(u);
+    };
+  } else {
+    window.speechSynthesis.speak(u);
+  }
 }
 
 // ── Send Message (API calls in Part 4) ──────────────
 async function sendMessage(textOverride) {
-  const text = (textOverride || msgInput.value).trim();
-  if (!text || isLoading) return;
+  const baseText  = (textOverride || msgInput.value).trim();
+  const hasFiles  = stagedFiles.length > 0;
+  if (!baseText && !hasFiles) return;
+  if (isLoading) return;
   if (isSpeaking) window.speechSynthesis.cancel();
 
+  // Build display text — append staged file names if present
+  let displayText = baseText;
+  if (hasFiles) {
+    const videos  = stagedFiles.filter(f => f.type.startsWith('video/'));
+    const others  = stagedFiles.filter(f => !f.type.startsWith('video/'));
+    const parts   = [];
+    if (videos.length)  parts.push(`${videos.length} clip${videos.length > 1 ? 's' : ''}: ${videos.map(f => f.name).join(', ')}`);
+    if (others.length)  parts.push(others.map(f => f.name).join(', '));
+    const fileNote = parts.join(' · ');
+    displayText = baseText ? `${baseText}\n[${fileNote}]` : `[${fileNote}]`;
+  }
+
+  // Clear input and queue
+  const filesToSend = [...stagedFiles];
+  stagedFiles.length = 0;
+  renderClipQueue();
   msgInput.value = '';
   msgInput.style.height = 'auto';
   btnSend.classList.remove('visible');
-  addMessage('user', text);
+
+  addMessage('user', displayText);
   isLoading = true;
   setTyping(true);
 
   try {
-    await sendToIgnis(text); // defined in Part 4
+    await sendToIgnis(baseText, filesToSend);
   } catch(e) {
     setTyping(false);
     addMessage('system', 'Connection error — check your network.');
@@ -1111,7 +1390,19 @@ const HOUSE_NAMES = {
   9:'PHILOSOPHY',10:'LEGACY', 11:'COMMUNITY',    12:'SUBCONSCIOUS',
 };
 
-async function sendToIgnis(text) {
+async function sendToIgnis(text, files = []) {
+  // Build file context note so Ignis knows what's been queued
+  let fileContext = '';
+  if (files.length > 0) {
+    const notes = files.map(f => {
+      const kb = f.size < 1024 * 1024 ? `${(f.size/1024).toFixed(0)}KB` : `${(f.size/1024/1024).toFixed(1)}MB`;
+      const kind = f.type.startsWith('video/') ? 'video clip' : f.type.startsWith('image/') ? 'image' : 'file';
+      return `${f.name} (${kind}, ${kb})`;
+    });
+    fileContext = `\n\n[Attached: ${notes.join(', ')}]`;
+  }
+  const fullText = (text || '') + fileContext;
+
   // Step 1 — Route through Aum first (soul state for this message)
   let aumContext = null;
   try {
@@ -1119,7 +1410,7 @@ async function sendToIgnis(text) {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({
-        rawInput:    text,
+        rawInput:    fullText,
         userId:      'noctvox_vision',
         surfaceType: 'api',
       }),
@@ -1153,7 +1444,7 @@ async function sendToIgnis(text) {
   const res = await fetch('/api/ignis', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ text, aumContext }),
+    body:    JSON.stringify({ text: fullText, aumContext }),
   });
 
   if (!res.ok) throw new Error(`Ignis ${res.status}`);
@@ -1167,6 +1458,13 @@ async function sendToIgnis(text) {
   // Step 3 — Flash Aum panel tab briefly if on Ignis panel
   // so Vision knows soul routed this response
   if (currentPanel === 'ignis') flashAumDot();
+
+  // Step 4 — If video clips were staged, kick off the pipeline upload
+  // This runs in parallel — Ignis already responded, pipeline processes in background
+  const videoFiles = files.filter(f => f.type.startsWith('video/'));
+  if (videoFiles.length > 0) {
+    uploadToPipeline(videoFiles);
+  }
 }
 
 function flashAumDot() {
@@ -1178,6 +1476,115 @@ function flashAumDot() {
     dot.style.background = '';
     dot.style.boxShadow  = '';
   }, 1200);
+}
+
+// ── Video Pipeline Upload ────────────────────────────
+// Uploads clips to MyClaw via /api/ignis-upload, polls status,
+// then shows a download link when the edit is ready.
+async function uploadToPipeline(videoFiles) {
+  const totalMB = videoFiles.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
+
+  // Add a live-updating system message for pipeline progress
+  const container = document.getElementById('ignis-messages');
+  const pipeRow   = document.createElement('div');
+  pipeRow.className = 'msg-row system';
+  const pipeBubble  = document.createElement('div');
+  pipeBubble.className = 'bubble system';
+  pipeBubble.textContent = `↑ uploading ${videoFiles.length} clip${videoFiles.length > 1 ? 's' : ''} to pipeline… (${totalMB.toFixed(1)} MB)`;
+  pipeRow.appendChild(pipeBubble);
+  container.appendChild(pipeRow);
+  container.scrollTop = container.scrollHeight;
+
+  function setProgress(msg) {
+    pipeBubble.textContent = msg;
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function setDone(downloadUrl) {
+    pipeBubble.innerHTML = '';
+    const label = document.createElement('div');
+    label.textContent = '✓ Edit ready';
+    label.style.cssText = 'margin-bottom:6px;color:rgba(212,168,67,0.80);';
+    const btn = document.createElement('a');
+    btn.className = 'btn-download';
+    btn.href      = downloadUrl;
+    btn.download  = 'ignis_edit.mp4';
+    btn.innerHTML = '▼ &nbsp;Download Edit';
+    pipeBubble.appendChild(label);
+    pipeBubble.appendChild(btn);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  // Build FormData — actual binary clips, not just names
+  const fd = new FormData();
+  videoFiles.forEach(f => fd.append('clips', f));
+  fd.append('type',        'cinematic');
+  fd.append('skipUpscale', 'false');
+  fd.append('scale',       '4');
+
+  // Upload strategy:
+  // 1. If ignisGateway is loaded: POST directly to MyClaw — no Vercel body limit
+  // 2. Fallback: POST through /api/ignis-upload proxy (Vercel free tier caps at ~4.5 MB)
+  const useDirect = ignisGateway && ignisGateway.gatewayUrl;
+  const uploadUrl = useDirect
+    ? `${ignisGateway.gatewayUrl}/pipeline/upload`
+    : '/api/ignis-upload';
+  const uploadHeaders = useDirect
+    ? { Authorization: `Bearer ${ignisGateway.gatewayToken}` }
+    : {};
+
+  if (!useDirect && totalMB > 4) {
+    setProgress(`⚠ Gateway config not loaded — routing through proxy. Files over 4.5 MB may fail.`);
+    await new Promise(r => setTimeout(r, 1500));
+    setProgress(`↑ uploading ${videoFiles.length} clip${videoFiles.length > 1 ? 's' : ''}…`);
+  }
+
+  let jobId;
+  try {
+    const uploadRes = await fetch(uploadUrl, { method: 'POST', headers: uploadHeaders, body: fd });
+    if (!uploadRes.ok) {
+      const err = await uploadRes.json().catch(() => ({}));
+      setProgress(`Pipeline unavailable — ${err.error || uploadRes.status}`);
+      return;
+    }
+    const { jobId: id } = await uploadRes.json();
+    jobId = id;
+    setProgress(`⟳ processing… job ${jobId}`);
+  } catch (e) {
+    setProgress('Upload failed — MyClaw not reachable. Check gateway.');
+    return;
+  }
+
+  // Status polling always goes through the Next.js proxy — small JSON, no body size issue
+  // Download link is also proxied so the auth token stays server-side
+  let pollTimer = setInterval(async () => {
+    try {
+      const statusRes = await fetch(`/api/ignis-upload?jobId=${jobId}`);
+      if (!statusRes.ok) return; // transient — keep polling
+      const { status, progress, downloadUrl } = await statusRes.json();
+
+      if (status === 'done') {
+        clearInterval(pollTimer);
+        setDone(downloadUrl);
+        sendToIgnis(`The video pipeline finished. The edit is ready to download.`);
+      } else if (status === 'error') {
+        clearInterval(pollTimer);
+        setProgress(`Pipeline error — ${progress || 'check server logs'}`);
+      } else if (progress) {
+        setProgress(`⟳ ${progress}`);
+      }
+    } catch (_) {
+      // network hiccup — keep polling
+    }
+  }, 4000);
+
+  // Safety timeout — stop polling after 30 minutes
+  setTimeout(() => {
+    clearInterval(pollTimer);
+    if (pipeBubble.textContent.startsWith('⟳')) {
+      setProgress('Pipeline timed out — check MyClaw server.');
+    }
+  }, 30 * 60 * 1000);
 }
 
 // ── PWA Install Prompt ───────────────────────────────

@@ -17,12 +17,14 @@ function buildSystemPrompt(aum: any): string {
   const persona = readIgnisFile('Persona.md')
   const memory  = readIgnisFile('Memory.md')
   const tools   = readIgnisFile('Tools.md')
+  const setup   = readIgnisFile('MYCLAW_SETUP.md')
 
   const parts: string[] = []
 
   if (persona) parts.push(persona)
   if (memory)  parts.push(memory)
   if (tools)   parts.push(tools)
+  if (setup)   parts.push(setup)
 
   if (aum?.systemPrompt && typeof aum.systemPrompt === 'string' && aum.systemPrompt.length > 0) {
     parts.push(aum.systemPrompt)
@@ -39,7 +41,7 @@ async function callGateway(text: string, systemPrompt: string): Promise<string> 
   const res = await fetch(`${GATEWAY_URL}/v1/chat/completions`, {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${GATEWAY_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ model: 'openclaw', messages, max_tokens: 800, temperature: 0.8 }),
+    body: JSON.stringify({ model: 'openclaw', messages, max_tokens: 2048, temperature: 0.8 }),
   })
   if (!res.ok) throw new Error(`Gateway ${res.status}: ${await res.text()}`)
   const data = await res.json() as any
