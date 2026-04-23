@@ -17,12 +17,14 @@ function buildSystemPrompt(aum: any): string {
   const persona = readIgnisFile('Persona.md')
   const memory  = readIgnisFile('Memory.md')
   const tools   = readIgnisFile('Tools.md')
+  const setup   = readIgnisFile('MYCLAW_SETUP.md')
 
   const parts: string[] = []
 
   if (persona) parts.push(persona)
   if (memory)  parts.push(memory)
   if (tools)   parts.push(tools)
+  if (setup)   parts.push(setup)
 
   if (aum?.systemPrompt && typeof aum.systemPrompt === 'string' && aum.systemPrompt.length > 0) {
     parts.push(aum.systemPrompt)
