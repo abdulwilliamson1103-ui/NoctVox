@@ -1030,11 +1030,15 @@ function seedStars(containerId, count) {
 seedStars('ignis-stars', 38);
 
 // ── Message State ────────────────────────────────────
-let msgIdCounter = 0;
-let isLoading    = false;
-let isSpeaking   = false;
-let voiceMode    = true; // persist across sessions
+let msgIdCounter  = 0;
+let isLoading     = false;
+let isSpeaking    = false;
+let voiceMode     = true; // persist across sessions
 try { voiceMode = localStorage.getItem('ignis_voice') !== 'off'; } catch(_) {}
+
+// Gateway config — fetched once on load so large uploads go direct to MyClaw
+let ignisGateway = null; // { gatewayUrl, gatewayToken }
+fetch('/api/ignis-config').then(r => r.json()).then(cfg => { ignisGateway = cfg; }).catch(() => {});
 
 const VOICE_SVG_ON  = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>`;
 const VOICE_SVG_OFF = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>`;
@@ -1478,24 +1482,7 @@ function flashAumDot() {
 // Uploads clips to MyClaw via /api/ignis-upload, polls status,
 // then shows a download link when the edit is ready.
 async function uploadToPipeline(videoFiles) {
-  // Vercel free tier caps request body at 4.5 MB — warn early
-  const totalBytes = videoFiles.reduce((sum, f) => sum + f.size, 0);
-  const totalMB    = totalBytes / (1024 * 1024);
-  if (totalMB > 45) {
-    // 45 MB chosen as a hard cap; the proxy itself will 413 above ~4.5 MB on free Vercel.
-    // Direct-to-MyClaw support can lift this later — for now surface a clear message.
-    const container2 = document.getElementById('ignis-messages');
-    const row2 = document.createElement('div'); row2.className = 'msg-row system';
-    const bub2 = document.createElement('div'); bub2.className = 'bubble system';
-    bub2.textContent = `⚠ Files too large for browser upload (${totalMB.toFixed(0)} MB). Run locally:\n  python run.py --clips ./clips --type cinematic`;
-    row2.appendChild(bub2); container2.appendChild(row2);
-    container2.scrollTop = container2.scrollHeight;
-    return;
-  }
-  if (totalMB > 4) {
-    // Warn but attempt — MyClaw on a paid Vercel plan or a Pro plan can handle this
-    console.warn(`uploadToPipeline: ${totalMB.toFixed(1)} MB — may hit Vercel 4.5 MB body limit on free tier`);
-  }
+  const totalMB = videoFiles.reduce((sum, f) => sum + f.size, 0) / (1024 * 1024);
 
   // Add a live-updating system message for pipeline progress
   const container = document.getElementById('ignis-messages');
@@ -1503,7 +1490,7 @@ async function uploadToPipeline(videoFiles) {
   pipeRow.className = 'msg-row system';
   const pipeBubble  = document.createElement('div');
   pipeBubble.className = 'bubble system';
-  pipeBubble.textContent = `↑ uploading ${videoFiles.length} clip${videoFiles.length > 1 ? 's' : ''} to pipeline…`;
+  pipeBubble.textContent = `↑ uploading ${videoFiles.length} clip${videoFiles.length > 1 ? 's' : ''} to pipeline… (${totalMB.toFixed(1)} MB)`;
   pipeRow.appendChild(pipeBubble);
   container.appendChild(pipeRow);
   container.scrollTop = container.scrollHeight;
@@ -1535,9 +1522,26 @@ async function uploadToPipeline(videoFiles) {
   fd.append('skipUpscale', 'false');
   fd.append('scale',       '4');
 
+  // Upload strategy:
+  // 1. If ignisGateway is loaded: POST directly to MyClaw — no Vercel body limit
+  // 2. Fallback: POST through /api/ignis-upload proxy (Vercel free tier caps at ~4.5 MB)
+  const useDirect = ignisGateway && ignisGateway.gatewayUrl;
+  const uploadUrl = useDirect
+    ? `${ignisGateway.gatewayUrl}/pipeline/upload`
+    : '/api/ignis-upload';
+  const uploadHeaders = useDirect
+    ? { Authorization: `Bearer ${ignisGateway.gatewayToken}` }
+    : {};
+
+  if (!useDirect && totalMB > 4) {
+    setProgress(`⚠ Gateway config not loaded — routing through proxy. Files over 4.5 MB may fail.`);
+    await new Promise(r => setTimeout(r, 1500));
+    setProgress(`↑ uploading ${videoFiles.length} clip${videoFiles.length > 1 ? 's' : ''}…`);
+  }
+
   let jobId;
   try {
-    const uploadRes = await fetch('/api/ignis-upload', { method: 'POST', body: fd });
+    const uploadRes = await fetch(uploadUrl, { method: 'POST', headers: uploadHeaders, body: fd });
     if (!uploadRes.ok) {
       const err = await uploadRes.json().catch(() => ({}));
       setProgress(`Pipeline unavailable — ${err.error || uploadRes.status}`);
@@ -1551,7 +1555,8 @@ async function uploadToPipeline(videoFiles) {
     return;
   }
 
-  // Poll status every 4 seconds until done or error
+  // Status polling always goes through the Next.js proxy — small JSON, no body size issue
+  // Download link is also proxied so the auth token stays server-side
   let pollTimer = setInterval(async () => {
     try {
       const statusRes = await fetch(`/api/ignis-upload?jobId=${jobId}`);
@@ -1561,7 +1566,6 @@ async function uploadToPipeline(videoFiles) {
       if (status === 'done') {
         clearInterval(pollTimer);
         setDone(downloadUrl);
-        // Tell Ignis the edit is ready so he can respond in conversation
         sendToIgnis(`The video pipeline finished. The edit is ready to download.`);
       } else if (status === 'error') {
         clearInterval(pollTimer);

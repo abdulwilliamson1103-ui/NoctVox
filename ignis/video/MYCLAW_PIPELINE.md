@@ -17,19 +17,25 @@ The full flow once MyClaw exposes these routes:
 
 ```
 iPhone portal
-  ↓ POST /api/ignis-upload (Next.js proxy)
-    ↓ POST /pipeline/upload (MyClaw — this file)
+  ↓ POST directly to MyClaw /pipeline/upload  ← large file, bypasses Vercel
+    (falls back to /api/ignis-upload proxy if gateway config not loaded)
       ↓ saves clips to /tmp/ignis_{jobId}/
       ↓ runs: python run.py --clips ... --type ... --output ...
       ↓ tracks job status in memory
     ↑ returns { jobId }
-  ↑ portal polls status every 4s
+  ↑ portal polls status every 4s via /api/ignis-upload?jobId=xxx (proxied)
     ↓ GET /pipeline/status/{jobId} (MyClaw)
     ↑ returns { status, progress, downloadUrl }
-  ↑ when done — portal opens download link
+  ↑ when done — portal opens download link via proxy
     ↓ GET /pipeline/download/{jobId} (MyClaw)
     ↑ streams final_output.mp4
 ```
+
+**Why direct upload?**
+Vercel free tier caps request bodies at ~4.5 MB. Video clips are always larger.
+The portal fetches `/api/ignis-config` on load to get `gatewayUrl` + `gatewayToken`,
+then POSTs clips directly to MyClaw. Status polling and download still go through
+the Next.js proxy (both are small payloads — no size issue there).
 
 ---
 
@@ -39,6 +45,15 @@ iPhone portal
 
 Accepts video clips and pipeline options. Starts the job immediately in a
 background thread. Returns a `jobId` without waiting for completion.
+
+**⚠ CORS required on this endpoint** — the portal POSTs directly from the browser.
+MyClaw must respond with:
+```
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: POST, OPTIONS
+Access-Control-Allow-Headers: Content-Type, Authorization
+```
+And handle the `OPTIONS` preflight with `200 OK` before the actual `POST` arrives.
 
 **Request:**
 ```
