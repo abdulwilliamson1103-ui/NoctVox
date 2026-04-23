@@ -1478,6 +1478,25 @@ function flashAumDot() {
 // Uploads clips to MyClaw via /api/ignis-upload, polls status,
 // then shows a download link when the edit is ready.
 async function uploadToPipeline(videoFiles) {
+  // Vercel free tier caps request body at 4.5 MB — warn early
+  const totalBytes = videoFiles.reduce((sum, f) => sum + f.size, 0);
+  const totalMB    = totalBytes / (1024 * 1024);
+  if (totalMB > 45) {
+    // 45 MB chosen as a hard cap; the proxy itself will 413 above ~4.5 MB on free Vercel.
+    // Direct-to-MyClaw support can lift this later — for now surface a clear message.
+    const container2 = document.getElementById('ignis-messages');
+    const row2 = document.createElement('div'); row2.className = 'msg-row system';
+    const bub2 = document.createElement('div'); bub2.className = 'bubble system';
+    bub2.textContent = `⚠ Files too large for browser upload (${totalMB.toFixed(0)} MB). Run locally:\n  python run.py --clips ./clips --type cinematic`;
+    row2.appendChild(bub2); container2.appendChild(row2);
+    container2.scrollTop = container2.scrollHeight;
+    return;
+  }
+  if (totalMB > 4) {
+    // Warn but attempt — MyClaw on a paid Vercel plan or a Pro plan can handle this
+    console.warn(`uploadToPipeline: ${totalMB.toFixed(1)} MB — may hit Vercel 4.5 MB body limit on free tier`);
+  }
+
   // Add a live-updating system message for pipeline progress
   const container = document.getElementById('ignis-messages');
   const pipeRow   = document.createElement('div');
