@@ -719,6 +719,27 @@ html, body {
   100% { transform: scale(1.5); opacity: 0; }
 }
 
+/* ── Voice Toggle Button ───────────────────────────── */
+#btn-voice {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(212,85,0,0.20);
+  background: rgba(212,85,0,0.05);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.25s ease;
+  padding: 0;
+}
+#btn-voice.voice-on {
+  border-color: rgba(212,85,0,0.48);
+  background: rgba(212,85,0,0.13);
+  box-shadow: 0 0 10px rgba(212,85,0,0.16);
+}
+#btn-voice svg { transition: stroke 0.25s ease; }
+
 /* ── Loader ────────────────────────────────────────── */
 #loader {
   position: fixed;
@@ -877,6 +898,13 @@ html, body {
               </svg>
             </button>
           </div>
+          <button id="btn-voice" class="voice-on" title="Voice response on/off">
+            <svg id="voice-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+            </svg>
+          </button>
           <button id="btn-mic" title="Hold to speak">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(212,85,0,0.75)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
@@ -984,6 +1012,20 @@ seedStars('ignis-stars', 38);
 let msgIdCounter = 0;
 let isLoading    = false;
 let isSpeaking   = false;
+let voiceMode    = true; // persist across sessions
+try { voiceMode = localStorage.getItem('ignis_voice') !== 'off'; } catch(_) {}
+
+const VOICE_SVG_ON  = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>`;
+const VOICE_SVG_OFF = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>`;
+
+function setVoiceBtn(on) {
+  const btn  = document.getElementById('btn-voice');
+  const icon = document.getElementById('voice-icon');
+  btn.classList.toggle('voice-on', on);
+  icon.innerHTML  = on ? VOICE_SVG_ON : VOICE_SVG_OFF;
+  icon.setAttribute('stroke', on ? 'var(--orange)' : 'rgba(212,85,0,0.28)');
+}
+setVoiceBtn(voiceMode);
 
 function getTime() {
   return new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:false });
@@ -1042,14 +1084,17 @@ function setTyping(on) {
   if (on) c.scrollTop = c.scrollHeight;
 }
 
-// ── Tap messages area to stop Ignis speaking ─────────
-document.getElementById('ignis-messages').addEventListener('click', () => {
-  if (isSpeaking) {
-    window.speechSynthesis.cancel();
-    isSpeaking = false;
-    if (iosResumeTimer) { clearInterval(iosResumeTimer); iosResumeTimer = null; }
-  }
-});
+// ── Tap messages area or Aum panel to stop Ignis speaking ─
+function stopSpeaking() {
+  if (!isSpeaking) return;
+  window.speechSynthesis.cancel();
+  isSpeaking = false;
+  if (iosResumeTimer) { clearInterval(iosResumeTimer); iosResumeTimer = null; }
+  if (currentPanel === 'aum') switchPanel('ignis');
+}
+document.getElementById('ignis-messages').addEventListener('click', stopSpeaking);
+// Tap anywhere on Aum panel to stop speech + return — drag won't fire click
+document.getElementById('panel-aum').addEventListener('click', stopSpeaking);
 
 // ── Textarea Auto-Resize ─────────────────────────────
 const msgInput = document.getElementById('msg-input');
@@ -1159,6 +1204,19 @@ btnMic.addEventListener('mouseleave', e => { if (recognition) stopListening(); }
 btnMic.addEventListener('touchstart', e => { e.preventDefault(); startListening(); }, { passive:false });
 btnMic.addEventListener('touchend',   e => { e.preventDefault(); stopListening(); },  { passive:false });
 
+// ── Voice Mode Toggle ────────────────────────────────
+document.getElementById('btn-voice').addEventListener('click', () => {
+  voiceMode = !voiceMode;
+  try { localStorage.setItem('ignis_voice', voiceMode ? 'on' : 'off'); } catch(_) {}
+  setVoiceBtn(voiceMode);
+  if (!voiceMode && isSpeaking) {
+    window.speechSynthesis.cancel();
+    isSpeaking = false;
+    if (iosResumeTimer) { clearInterval(iosResumeTimer); iosResumeTimer = null; }
+    if (currentPanel === 'aum') switchPanel('ignis');
+  }
+});
+
 // ── TTS ──────────────────────────────────────────────
 
 // Pick the best available English voice — prefer high-quality named voices
@@ -1204,6 +1262,7 @@ function stripMarkdown(text) {
 let iosResumeTimer = null;
 
 function speak(text) {
+  if (!voiceMode) return;
   if (!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
   if (iosResumeTimer) { clearInterval(iosResumeTimer); iosResumeTimer = null; }
@@ -1220,6 +1279,8 @@ function speak(text) {
 
   u.onstart = () => {
     isSpeaking = true;
+    // Flip to Aum panel so Vision sees the soul routing while Ignis speaks
+    if (currentPanel === 'ignis') switchPanel('aum');
     // iOS fix — speechSynthesis pauses after ~15s on mobile Safari
     // Resume every 10s to keep it alive
     iosResumeTimer = setInterval(() => {
@@ -1232,10 +1293,13 @@ function speak(text) {
   u.onend = () => {
     isSpeaking = false;
     if (iosResumeTimer) { clearInterval(iosResumeTimer); iosResumeTimer = null; }
+    // Return to Ignis when Aum finishes speaking
+    if (currentPanel === 'aum') switchPanel('ignis');
   };
   u.onerror = () => {
     isSpeaking = false;
     if (iosResumeTimer) { clearInterval(iosResumeTimer); iosResumeTimer = null; }
+    if (currentPanel === 'aum') switchPanel('ignis');
   };
 
   // iOS requires voices to load async — wait if not ready
