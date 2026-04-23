@@ -1,7 +1,7 @@
 ---
 agent: ignis
 file: tools
-version: 1.0.0
+version: 1.1.0
 auto_inject: true
 directive: >
   Use Level 1 tools for daily file and life management.
@@ -69,6 +69,34 @@ integrations:
       role: GitHub repo history → team persona and skill set builder
     - repo: openclaw/soul-persona
       role: scan fictional character wiki → adopt their logic, not just voice
+  video:
+    upscale:
+      - model: nightmareai/real-esrgan
+        host: replicate.com
+        role: AI texture reconstruction — crystal clear 4K from any source quality
+      - model: rife-interpolation
+        host: replicate.com
+        role: frame interpolation — 24fps to 60fps with no jitter or ghosting
+    beat_sync:
+      - tool: librosa
+        role: onset detection — reads beat drops, not just BPM, returns exact timestamps
+      - tool: ffmpeg
+        role: cuts clips to timestamps, stitches, mixes audio, applies LUT, exports H.265
+    luts:
+      anime:     high-contrast · saturated · orange-teal push · subtle bloom
+      cinematic: film grain · crushed blacks · desaturated mids · wide dynamic range
+      gaming:    vibrant · punchy · high contrast · deep shadows
+      product:   clean · warm highlights · lifted shadows · commercial grade
+    filming:
+      - app: Blackmagic Camera (iOS)
+        role: 10-bit LOG original footage — matches $5,000 camera dynamic range on iPhone
+    export:
+      codec: H.265 (libx265)
+      bitrate: 40 Mbps
+      resolution: 3840×2160
+      fps: 60
+      lut_flag: -vf lut3d={content_type}.cube
+      destination: cloud folder → Instagram Edits app → WiFi upload
 ---
 
 # IGNIS — Tools Directive
@@ -266,6 +294,127 @@ When Vision provides an image for 3D conversion:
 | **Rodin (Hyper 3D)** | Gold standard for structured assets. Person or product → solid geometry that holds in high-performance scenes. |
 | **Luma AI (Genie)** | Soft realism. Free as of early 2026. Best for rapid prototyping in Design DNA workflow. |
 | **Hunyuan3D 2.5** | Open-source by Tencent. Run locally on Mini PC. High-fidelity textured output at zero credit cost. |
+
+---
+
+## VIDEO — Cinematic Edit Pipeline
+
+*Drop clips. Say a song or don't. Ignis handles everything. Output: 4K 60fps, cinematic grade, beat-synced, ready for Instagram.*
+
+Works for: **movies · Zenith NPC moments · anime · gaming · ads · product ads · anything.**
+
+---
+
+### Activation
+
+```
+"Ignis, cut this."                     → Ignis selects timing based on clip energy
+"Ignis, cut this to [song/artist]."    → Librosa reads the song's exact beat timestamps
+"Ignis, cut this — anime look."        → Anime LUT + high contrast grade applied
+"Ignis, cut this — product ad."        → Clean commercial grade applied
+```
+
+No content type specified → Ignis reads the clips and infers (Zenith footage = gaming grade, live footage = cinematic grade, etc.)
+
+---
+
+### The 3-Agent Pipeline
+
+```
+Vision drops up to 9 clips (1–5 sec each) + optional song into folder
+       ↓
+Agent 1 — Beat Sync (Librosa)
+  If song provided: detect onsets (beat drops, not just BPM) → return exact cut timestamps
+  If no song:       analyze clip energy peaks → generate cut timing from clip rhythm
+       ↓
+Agent 2 — Upscale (Replicate)
+  nightmareai/real-esrgan   → AI texture reconstruction → crystal clear 4K
+  RIFE interpolation        → 24fps → 60fps, no jitter, no ghosting
+  Runs on all clips in parallel — not sequential
+       ↓
+Agent 3 — Stitch + Grade + Export (FFmpeg)
+  Cut clips to Agent 1 timestamps
+  Apply content-type LUT (Hollywood-grade, 3D .cube file)
+  Add cut SFX at beat timestamps (whoosh on transition, impact on drop)
+  Stitch in sequence
+  Mix song audio at -14 LUFS (Instagram loudness standard)
+  Export: H.265 · 3840×2160 · 60fps · 40 Mbps · directly to cloud folder
+       ↓
+Vision gets a link
+Opens Instagram Edits app
+Uploads on WiFi only
+```
+
+---
+
+### Content-Type LUT Library
+
+| Type | Grade | What it does |
+|------|-------|-------------|
+| `anime` | High contrast · saturated · orange-teal push · bloom | Makes color-graded frames look hand-painted. Glow on highlights. |
+| `cinematic` | Film grain · crushed blacks · desaturated mids | Movie look. Wide dynamic range. Feels expensive. |
+| `gaming` | Vibrant · punchy · deep shadows | High energy. Every frame readable at a glance. |
+| `product` | Clean · warm · lifted shadows · commercial | Ad-ready. Nothing harsh. Feels premium. |
+| `zenith` | Gaming base + cinematic overlay | NPC moments need both energy and weight. |
+
+FFmpeg applies the LUT inline during export — zero extra step, zero quality loss:
+```
+ffmpeg -i stitched.mp4 -vf lut3d=anime.cube -c:v libx265 -b:v 40M -r 60 out_4k.mp4
+```
+
+---
+
+### Upscale Stack (Replicate API — no local GPU needed)
+
+| Model | Role |
+|-------|------|
+| `nightmareai/real-esrgan` | AI texture reconstruction. Rebuilds fine detail lost to compression. Crystal clear. |
+| RIFE interpolation | Frame doubling. 24fps source → 60fps output. Smooth as liquid. No ghost frames. |
+
+iPhone calls Replicate API → GPU cluster processes → 4K file returned to cloud folder. Vision never sees the compute. Just the result.
+
+---
+
+### Sound Design on Cuts
+
+At every beat timestamp, FFmpeg layers a micro SFX:
+```
+Hard cut    → whoosh.wav  (0.08 sec, -18 dB under music)
+Drop hit    → impact.wav  (0.12 sec, -12 dB — felt not heard)
+Transition  → riser.wav   (0.5 sec, fades in before the cut)
+```
+
+SFX is what makes an edit feel cinematic. It's the most overlooked layer. When it's right, the viewer feels the cut before they see it. Ignis handles placement automatically from the beat timestamps — no manual SFX dragging.
+
+---
+
+### If Filming Original Footage
+
+**Blackmagic Camera (iOS)** — only app that matters for source quality.
+- 10-bit Apple LOG
+- ProRes or BRAW recording
+- Dynamic range that matches a $5,000 camera
+- More data in = more survives compression = crystal clear output even after Instagram's encoder
+
+Shoot in LOG → drop into pipeline → LUT grades it → output looks like a movie.
+
+---
+
+### Export Chain (Bypass iOS Recompression)
+
+```
+FFmpeg exports directly to cloud folder (iCloud / Dropbox)
+DO NOT save to Photos app — iOS recompresses on save
+       ↓
+Open Instagram Edits app (Meta's own app — bypasses standard IG compression)
+Select file from cloud folder
+       ↓
+Upload on WiFi only (cellular adds another compression pass)
+       ↓
+Instagram receives 4K H.265 source
+Compresses to 1080p — but from a 4K source, not a 1080p source
+Result: sharper than 99% of content on the platform
+```
 
 ---
 
