@@ -67,6 +67,11 @@ Fields:
                          Default: 'cinematic'
   skipUpscale   string   Optional. 'true' | 'false'. Default: 'false'
                          Set 'true' to skip Replicate upscaling (faster, lower quality)
+  sourceType    string   Optional. 'filmed' | 'ai-gen'. Default: 'filmed'
+                         Always send 'ai-gen' when clips came from Kling AI, Veo, Runway, or Luma.
+                         run.py automatically skips upscale for ai-gen — Real-ESRGAN is trained
+                         on compressed/degraded footage. Running it on clean AI-generated clips
+                         wastes Replicate credits and can introduce artifacts.
   scale         string   Optional. '2' | '4'. Default: '4'
   clipDuration  string   Optional. Seconds per clip slot. Default: '2.5'
 ```
@@ -98,11 +103,15 @@ def run_pipeline():
     try:
         cmd = [
             'python', '/path/to/ignis/video/run.py',
-            '--clips',  clips_dir,
-            '--type',   type_param,
-            '--output', f'{job_dir}/output.mp4',
-            '--skip-upscale',  # if skipUpscale == 'true'
+            '--clips',       clips_dir,
+            '--type',        type_param,
+            '--output',      f'{job_dir}/output.mp4',
+            '--source-type', source_type_param,  # 'filmed' or 'ai-gen' from form data
         ]
+        # Only add --skip-upscale if explicitly requested AND source isn't ai-gen
+        # (ai-gen already triggers skip inside run.py — no need to double-flag)
+        if skip_upscale_param == 'true':
+            cmd.append('--skip-upscale')
         if song_path:
             cmd += ['--song', song_path]
 

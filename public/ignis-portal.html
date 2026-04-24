@@ -1643,10 +1643,14 @@ async function uploadToPipeline(videoFiles) {
   }
 
   // Build FormData — actual binary clips, not just names
+  // sourceType: 'filmed' = apply Real-ESRGAN upscale (default for iPhone footage)
+  //             'ai-gen'  = skip upscale — Kling/Veo/Runway clips are already high quality
+  const isAiGen = videoFiles.every(f => f.name.startsWith('ai_') || f._sourceType === 'ai-gen');
   const fd = new FormData();
   videoFiles.forEach(f => fd.append('clips', f));
   fd.append('type',        'cinematic');
-  fd.append('skipUpscale', 'false');
+  fd.append('sourceType',  isAiGen ? 'ai-gen' : 'filmed');
+  fd.append('skipUpscale', isAiGen ? 'true' : 'false');
   fd.append('scale',       '4');
 
   // Upload strategy:

@@ -430,7 +430,71 @@ Drop hit    → impact.wav  (0.12 sec, -12 dB — felt not heard)
 Transition  → riser.wav   (0.5 sec, fades in before the cut)
 ```
 
-SFX is what makes an edit feel cinematic. It's the most overlooked layer. When it's right, the viewer feels the cut before they see it. Ignis handles placement automatically from the beat timestamps — no manual SFX dragging.
+SFX is what makes an edit feel cinematic. The viewer feels the cut before they see it.
+
+**Current status:** `whoosh.wav`, `impact.wav`, `riser.wav` are silent placeholders. Replace with real audio from the SFX library below before cinematic output matters.
+
+---
+
+### SFX Library — Real Cinema Sound Design
+
+The difference between a good edit and a great one is audio layers the viewer doesn't consciously notice. A punch that lands. A shoe on marble. A bell drop at the exact frame a title appears. This is what separates content from cinema.
+
+**Tier 1 — AI-Generated SFX (ElevenLabs)**
+
+Generate any sound from a text description. No hunting, no trimming.
+
+```
+API: POST https://api.elevenlabs.io/v1/sound-generation
+Key: ELEVENLABS_API_KEY (add to env)
+Body: {
+  "text": "leather shoe clicking on marble floor, sharp transient",
+  "duration_seconds": 0.4,
+  "prompt_influence": 0.3
+}
+Returns: audio/mp3 stream
+
+Examples:
+  "punch impact — bone connection, no reverb, dry"
+  "heavy bell drop, cathedral resonance, decaying tail"
+  "sword ring — metal on metal, sharp attack, 0.6 sec"
+  "cinematic whoosh — fast, directional left to right"
+  "glass shatter — mid-distance, 0.8 seconds"
+  "deep bass drop — felt in the chest, sub-frequency"
+  "film riser — building tension, 3 seconds, no music"
+```
+
+**Tier 2 — Free Library (Freesound.org)**
+
+500,000+ Creative Commons sounds. Search by keyword, filter by duration.
+
+```
+API key: freesound.org/apiv2 → register free
+Search:  GET https://freesound.org/apiv2/search/text/?query=punch+impact&token={key}
+Download: GET the preview_hq_mp3 URL — no transcoding needed
+```
+
+**Tier 3 — BBC Sound Effects**
+
+16,000 broadcast-grade sounds. Free for personal and research use.
+URL: bbcrewind.co.uk/sound-effects
+
+Download directly — no API. Ignis searches and downloads specific sounds on request.
+
+---
+
+**Placement Logic (what cinema does vs what current pipeline does):**
+
+| Current pipeline | Cinema standard |
+|-----------------|----------------|
+| SFX at beat timestamps only | SFX at visual events (punch lands, door slams, foot touches floor) |
+| 3 fixed sounds looping | Library of 50+ contextual sounds — shoes, hits, bells, glass, cloth, metal |
+| Static volume | Ducked under music, volume matched to clip energy |
+| No foley layers | Ambient layer (room tone) + transient layer + music — 3 tracks minimum |
+
+**Activation:** *"Ignis, replace the SFX with [description]."* → ElevenLabs generates exactly that sound and Ignis drops it into the SFX folder before next pipeline run.
+
+**Activation:** *"Ignis, sound design this edit."* → Ignis analyzes cut points, infers clip content from filenames/type, selects appropriate SFX from Freesound for each transition, downloads, hands to pipeline.
 
 ---
 
@@ -613,6 +677,46 @@ Research:      https://github.com/vxcontrol/pentagi
 ```
 
 **Jarvis Rule:** Vision can paste any GitHub URL and say "use this repo whenever I ask you to [action]" — Ignis adds it to active tool memory for the session and flags it for permanent inclusion in the next Tools.md update.
+
+---
+
+## MODEL MONITOR — Always On, Never Settles
+
+Ignis does not treat the current tool list as final. The generative AI landscape moves faster than any document can keep up with. Ignis monitors for better models continuously and updates its own tool awareness without being asked.
+
+### What Ignis Scans
+
+| Source | Frequency | What to look for |
+|--------|-----------|-----------------|
+| Replicate featured models | Weekly | New video/image models — compare to Kling/Veo/Runway by resolution, motion coherence, free tier |
+| Hugging Face Papers with Code | Weekly | SOTA benchmarks for video generation, image editing, upscaling, SFX |
+| /r/StableDiffusion, /r/artificial | Weekly | Community-surfaced new platforms and repos — practitioners find things before benchmarks do |
+| GitHub trending (weekly) | Monthly | New repos in AI video, AI audio, 3D generation categories |
+
+### Evaluation Criteria
+
+A new model replaces an existing one in active use when it clears at least two:
+- Higher resolution output (4K native > upscaled 4K)
+- Better temporal consistency (fewer frame flickers across clips)
+- Free tier available (or better credit-to-quality ratio)
+- Faster generation time at equivalent quality
+- Better text-to-motion alignment (what you describe is what moves)
+
+### Trigger Phrases
+
+```
+"Ignis, scan for upgrades."          → Immediate scan across all sources
+"Ignis, what's the best [X] right now?" → Ignis checks current SOTA for that category
+"Ignis, anything better than Kling?" → Targeted comparison research
+```
+
+### Update Protocol
+
+When Ignis finds a better model:
+1. Reports to Vision with: model name, source, what it beats and why, free tier status
+2. Asks: "Should I add this as the new default for [category]?"
+3. If authorized: updates active tool memory for the session and flags for next Tools.md update
+4. Never silently swaps a working tool — always reports first
 
 ---
 

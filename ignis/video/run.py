@@ -60,6 +60,9 @@ def main():
     # Pipeline control
     parser.add_argument('--skip-upscale',  action='store_true',
                         help='Skip AI upscale — use original clips (faster, for testing)')
+    parser.add_argument('--source-type', default='filmed',
+                        choices=['filmed', 'ai-gen'],
+                        help='ai-gen skips upscale automatically — AI-generated clips are already high quality')
     parser.add_argument('--upscale-output',default='upscaled',
                         help='Folder for upscaled clips')
     parser.add_argument('--scale',         type=int, default=4, choices=[2, 4],
@@ -79,7 +82,8 @@ def main():
 
     print(f"\nIgnis Video Pipeline")
     print(f"  Style:    {args.type}")
-    print(f"  Upscale:  {'skipped' if args.skip_upscale else f'{args.scale}x via Replicate'}")
+    print(f"  Source:   {args.source_type}")
+    print(f"  Upscale:  {'skipped' if (args.skip_upscale or args.source_type == 'ai-gen') else f'{args.scale}x via Replicate'}")
     print(f"  Output:   {args.output}")
 
     # ── Step 1: Beat Sync ────────────────────────────────
@@ -92,6 +96,9 @@ def main():
         run_step("Step 1 — Beat Sync", 'beat_sync.py', beat_args)
 
     # ── Step 2: AI Upscale ───────────────────────────────
+    if args.source_type == 'ai-gen':
+        args.skip_upscale = True  # AI-generated clips are already high quality — upscaling degrades them
+
     if args.skip_upscale:
         print(f"\n[Step 2] Skipping upscale — clips will be used as-is")
     else:

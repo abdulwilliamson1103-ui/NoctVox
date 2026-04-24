@@ -80,6 +80,8 @@ Add to MyClaw's `.env` or shell profile:
 REPLICATE_API_TOKEN=your_token_here    # get at replicate.com/account/api-tokens
 GATEWAY_URL=https://your-tunnel.trycloudflare.com
 GATEWAY_TOKEN=your_gateway_token_here
+ELEVENLABS_API_KEY=your_key_here       # get at elevenlabs.io/app/settings/api-keys — for SFX generation
+SEARCH1_API_KEY=your_key_here          # get at search1api.com — for deep web research
 ```
 
 `GATEWAY_TOKEN` is the same token used for `/v1/chat/completions`. The portal
@@ -358,6 +360,7 @@ MyClaw works through this list and confirms each item:
 - [ ] Skyvern installed
 - [ ] AgentGuard installed
 - [ ] Search1API key in environment (optional — needed for research commands)
+- [ ] ElevenLabs API key in environment (optional — needed for AI-generated SFX)
 - [ ] Fish Speech installed + Lelouch voice clone verified (Section 6)
 - [ ] Kdenlive installed (`sudo apt install kdenlive`)
 - [ ] `git clone https://github.com/Zeshanabdullah/Image-to-Video-AI` (generative pipeline)
