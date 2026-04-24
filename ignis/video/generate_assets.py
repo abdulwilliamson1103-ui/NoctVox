@@ -6,6 +6,7 @@ Run this once to generate:
   luts/cinematic.cube  — orange-teal split grade, lifted blacks, film look
   luts/gaming.cube     — high contrast, vibrant, cool/teal bias
   luts/product.cube    — clean, neutral, slight warmth
+  luts/zenith.cube     — gaming vibrance + cinematic weight overlay
 
   sfx/whoosh.wav       — placeholder (replace with real audio)
   sfx/impact.wav       — placeholder (replace with real audio)

@@ -349,7 +349,7 @@ Agent 3 — Stitch + Grade + Export (FFmpeg)
   Add cut SFX at beat timestamps (whoosh on transition, impact on drop)
   Stitch in sequence
   Mix song audio at -14 LUFS (Instagram loudness standard)
-  Export: H.265 · 3840×2160 · 60fps · 40 Mbps · directly to cloud folder
+  Export: H.265 · 3840×2160 · 60fps · CRF 22 · directly to cloud folder
        ↓
 Vision gets a link
 Opens Instagram Edits app
