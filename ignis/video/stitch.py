@@ -87,29 +87,37 @@ def trim_clip(clip_path, duration, output_path):
     return output_path
 
 
-def mix_sfx_at_cuts(clip_paths, sfx_dir, output_dir):
+def mix_sfx_at_cuts(clip_paths, sfx_dir, output_dir, content_type='cinematic'):
     """
-    Overlay a short whoosh/transition SFX at the start of each clip.
+    Overlay SFX at the start of each clip.
+    - Prefers type-specific subfolder: sfx/cinematic/ over sfx/
+    - Cycles through the full palette so each cut gets a different sound
+    - Handles clips with no audio track (AI-gen clips often have none)
     Falls back silently if no SFX files found.
-    Returns clip_paths unchanged if no SFX available.
     """
     if not sfx_dir or not os.path.isdir(sfx_dir):
         return clip_paths
 
+    # Prefer type-specific subfolder if it exists and has sounds
+    type_dir = os.path.join(sfx_dir, content_type)
+    search_dir = type_dir if os.path.isdir(type_dir) else sfx_dir
+
     sfx_candidates = sorted([
-        os.path.join(sfx_dir, f)
-        for f in os.listdir(sfx_dir)
+        os.path.join(search_dir, f)
+        for f in os.listdir(search_dir)
         if f.endswith(('.wav', '.mp3', '.aac', '.m4a'))
     ])
     if not sfx_candidates:
         return clip_paths
 
-    sfx_file = sfx_candidates[0]  # use first SFX found (e.g. whoosh.wav)
-    print(f"  SFX: {os.path.basename(sfx_file)}")
+    print(f"  SFX palette ({content_type}): {len(sfx_candidates)} sound(s)")
 
     mixed = []
     for i, clip in enumerate(clip_paths):
+        sfx_file = sfx_candidates[i % len(sfx_candidates)]  # cycle — no repeated sounds
         out = os.path.join(output_dir, f"sfx_{i:04d}_{os.path.basename(clip)}")
+
+        # Primary: mix SFX with existing clip audio
         cmd = [
             'ffmpeg', '-y',
             '-i', clip,
@@ -125,8 +133,22 @@ def mix_sfx_at_cuts(clip_paths, sfx_dir, output_dir):
         result = subprocess.run(cmd, capture_output=True)
         if result.returncode == 0:
             mixed.append(out)
-        else:
-            mixed.append(clip)  # fall back to original if mix fails
+            continue
+
+        # Fallback: clip has no audio track (common with AI-gen clips) — use SFX as sole audio
+        cmd_noaudio = [
+            'ffmpeg', '-y',
+            '-i', clip,
+            '-i', sfx_file,
+            '-filter_complex', '[1:a]apad=pad_dur=10[aout]',
+            '-map', '0:v',
+            '-map', '[aout]',
+            '-c:v', 'copy',
+            '-c:a', 'aac',
+            out,
+        ]
+        result2 = subprocess.run(cmd_noaudio, capture_output=True)
+        mixed.append(out if result2.returncode == 0 else clip)
 
     return mixed
 
@@ -246,7 +268,7 @@ def main():
     # Step 2 — Overlay SFX at cut points
     if args.sfx_dir:
         print("\nMixing SFX...")
-        trimmed = mix_sfx_at_cuts(trimmed, args.sfx_dir, tmpdir)
+        trimmed = mix_sfx_at_cuts(trimmed, args.sfx_dir, tmpdir, content_type=args.type)
 
     # Step 3 — Build colour filter
     color_filter = build_color_filter(args.type, args.lut)

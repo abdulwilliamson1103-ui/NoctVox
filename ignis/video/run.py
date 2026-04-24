@@ -18,7 +18,6 @@ Usage (existing timestamps, skip beat sync too):
 
 import os
 import sys
-import json
 import argparse
 import subprocess
 
@@ -118,8 +117,11 @@ def main():
     ]
     if args.lut:
         stitch_args += ['--lut', args.lut]
-    if args.sfx_dir:
-        stitch_args += ['--sfx-dir', args.sfx_dir]
+
+    # Auto-detect SFX folder — use explicit --sfx-dir or fall back to sfx/ next to run.py
+    sfx_dir = args.sfx_dir or os.path.join(SCRIPT_DIR, 'sfx')
+    if os.path.isdir(sfx_dir):
+        stitch_args += ['--sfx-dir', sfx_dir]
 
     run_step("Step 3 — Stitch + Grade + Export", 'stitch.py', stitch_args)
 
