@@ -233,16 +233,37 @@ SOTA open-source TTS with voice cloning from short audio samples. Gives Ignis a 
 
 Digest sequence (voice, in order):
 ```
-1. Date + one active project status
-2. One pending priority from TASKS.md
-3. TRANSIT DIGEST — run python ignis/natal/transits.py and read output:
-     ▸ WORK FIELD     — 3 transits. "Ring [X] moving through House [Y]..."
-     ▸ AWARENESS FIELD — 6 transits. Same format, briefer.
-     ▸ DURATION FIELD  — 9 transits sorted longest-active first.
-   Rules: no astrology terms. All Aum language. Full names not abbreviations.
-   "Ring Jupiter" not "Jupiter". "House Creation" not "5th".
+1. DATE + PROJECT PULSE
+   Today's date. Active project name. Current branch or milestone status.
+   One sentence. No elaboration unless asked.
+
+2. TOP PRIORITIES — read TASKS.md from repo root
+   Three items from TODAY section. If TODAY is empty, pull from THIS WEEK.
+   Spoken as: "Three priorities: [1], [2], [3]."
+
+3. OPEN ALERTS
+   Any open GitHub PRs, failing CI, or flagged threads from OPEN THREADS.
+   Skip this section entirely if nothing is open.
+
+4. AUM SOUL PULSE — read from Upstash (aum:mass:{userId})
+   Which house is dominant right now based on recent session accumulation.
+   Which house is rising. Which has gone quiet (nostalgia signal if peak mass high).
+   Spoken as: "House [X] is your dominant field. House [Y] is rising."
+   One sentence. Never surface raw numbers.
+
+5. TRANSIT DIGEST — run python ignis/natal/transits.py
+     ▸ WORK FIELD     — 3 transits, full sentences with what to do with it
+     ▸ AWARENESS FIELD — 6 transits, briefer
+     ▸ DURATION FIELD  — 9 transits, one line each, longest active first
+   Language rules: no astrology terms. Full Aum names, never abbreviations.
+   "Ring Jupiter" not "Jupiter". "House Creation" not "5th house".
    "merging with" not "conjunct". "pressing against" not "square".
-4. Confirmation phrase if systems check passes.
+   Always end each transit with duration in plain English.
+
+6. CLOSE
+   One sentence. What Ignis recommends Vision focus on first today based
+   on the soul pulse + work field transits combined.
+   Then confirmation phrase if all systems nominal.
 ```
 
 ---
