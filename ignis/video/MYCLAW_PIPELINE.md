@@ -63,7 +63,7 @@ Authorization: Bearer {GATEWAY_TOKEN}
 Fields:
   clips         File[]   Required. One or more video clip files (.mp4 .mov .m4v)
   song          File     Optional. Song for beat sync (.mp3 .wav .m4a)
-  type          string   Optional. 'anime' | 'cinematic' | 'portrait' | 'sport' | 'raw'
+  type          string   Optional. 'anime' | 'cinematic' | 'gaming' | 'portrait' | 'sport' | 'product' | 'zenith' | 'raw'
                          Default: 'cinematic'
   skipUpscale   string   Optional. 'true' | 'false'. Default: 'false'
                          Set 'true' to skip Replicate upscaling (faster, lower quality)

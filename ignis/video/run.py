@@ -52,7 +52,7 @@ def main():
 
     # Style
     parser.add_argument('--type',   default='cinematic',
-                        choices=['anime','cinematic','portrait','sport','raw'],
+                        choices=['anime','cinematic','gaming','portrait','sport','product','zenith','raw'],
                         help='Colour grade style')
     parser.add_argument('--lut',    default=None, help='Path to .cube LUT file')
     parser.add_argument('--sfx-dir',default=None, help='SFX folder for cut transitions')
