@@ -37,10 +37,10 @@ MyClaw does not need to touch any of this. It is built and committed.
 ```bash
 cd /path/to/NoctVox
 pip install -r ignis/video/requirements.txt
-pip install kerykeion
 ```
 
 Packages: `librosa`, `soundfile`, `numpy`, `replicate`, `requests`, `kerykeion`
+(kerykeion is included in requirements.txt — one command installs everything)
 
 **kerykeion** is the primary transit engine. It wraps Swiss Ephemeris to calculate current
 planet positions. Used by `ignis/natal/transits.py` every morning digest.
@@ -309,8 +309,7 @@ The portal currently uses Web Speech API. To upgrade:
 
 MyClaw works through this list and confirms each item:
 
-- [ ] `pip install -r ignis/video/requirements.txt` — pipeline packages installed
-- [ ] `pip install kerykeion` — transit engine installed
+- [ ] `pip install -r ignis/video/requirements.txt` — all packages including kerykeion
 - [ ] `python ignis/natal/transits.py` — outputs 3/6/9 digest in Aum language
 - [ ] `ffmpeg -version` — FFmpeg in PATH
 - [ ] `REPLICATE_API_TOKEN` in environment
