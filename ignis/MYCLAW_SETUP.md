@@ -227,6 +227,84 @@ python ignis/video/run.py \
 
 ---
 
+## SECTION 6 — IGNIS VOICE IDENTITY (Fish Speech)
+
+Ignis speaks with the English voice of **Lelouch vi Britannia** from *Code Geass*
+(voiced by **Johnny Yong Bosch**, English dub).
+
+That voice — commanding, measured, calm under pressure — is the correct energy for Ignis.
+
+### 6a. Install Fish Speech
+
+```bash
+pip install fish-speech
+# or run via Docker (recommended for production):
+docker pull fishaudio/fish-speech:latest
+```
+
+Repo: `fishaudio/fish-speech`
+Docs: https://speech.fish.audio
+
+### 6b. Collect reference audio
+
+You need **30–60 seconds** of clean Lelouch English dialogue — no background music, no SFX.
+
+Good sources:
+- YouTube: search "Code Geass Lelouch English voice lines" or "Lelouch vi Britannia English dub compilation"
+- Any scene where he speaks in a quiet room works. The throne room speeches are ideal.
+- Avoid battle scenes — music bleed ruins the clone.
+
+Save as: `ignis/voice/lelouch_reference.wav`
+Format: mono, 16kHz or 44.1kHz, clean. Convert with FFmpeg if needed:
+```bash
+ffmpeg -i source.mp4 -vn -ac 1 -ar 44100 ignis/voice/lelouch_reference.wav
+```
+
+### 6c. Generate the voice model
+
+```bash
+# Clone voice from reference audio
+python -m fish_speech.train.finetune \
+  --reference ignis/voice/lelouch_reference.wav \
+  --output    ignis/voice/ignis_voice_model/
+```
+
+Or using the simpler inference-time cloning (no training needed):
+```bash
+python -m fish_speech.inference \
+  --text     "Your message here" \
+  --reference ignis/voice/lelouch_reference.wav \
+  --output    ignis/voice/test_output.wav
+```
+
+Play the output. Adjust reference clip length if the clone sounds off.
+
+### 6d. Wire into MyClaw response pipeline
+
+Once voice generation is confirmed, MyClaw should expose a TTS endpoint:
+
+```
+POST /tts
+Body: { "text": "...", "voice": "ignis" }
+Returns: audio/wav stream
+```
+
+The portal currently uses Web Speech API. To upgrade:
+- Replace `speak(text)` in `public/ignis-portal.html` with a fetch to MyClaw's `/tts` endpoint
+- Stream the audio and play it via the Web Audio API
+- This upgrade is a portal patch — Vision will request it when MyClaw is live.
+
+### 6e. Checklist for this section
+
+- [ ] Fish Speech installed
+- [ ] `ignis/voice/` folder created
+- [ ] Reference audio collected (30–60 sec, clean, Lelouch English)
+- [ ] Inference test passes — `test_output.wav` sounds correct
+- [ ] MyClaw `/tts` endpoint live
+- [ ] Portal `speak()` patched to use MyClaw TTS (Vision requests this separately)
+
+---
+
 ## ACTIVATION CHECKLIST
 
 MyClaw works through this list and confirms each item:
@@ -246,6 +324,7 @@ MyClaw works through this list and confirms each item:
 - [ ] Skyvern installed
 - [ ] AgentGuard installed
 - [ ] Search1API key in environment (optional — needed for research commands)
+- [ ] Fish Speech installed + Lelouch voice clone verified (Section 6)
 
 ---
 

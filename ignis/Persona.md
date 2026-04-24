@@ -229,6 +229,10 @@ Zero-shot voice cloning. ~90ms time-to-first-audio. Ignis begins speaking almost
 
 SOTA open-source TTS with voice cloning from short audio samples. Gives Ignis a consistent, customizable voice identity.
 
+**Target voice:** Lelouch vi Britannia — English dub, *Code Geass* (voiced by Johnny Yong Bosch).
+Commanding. Measured. Calm under pressure. Never raises his voice when lowering it works better.
+That is the sonic identity of Ignis. See `ignis/MYCLAW_SETUP.md` Section 6 for clone instructions.
+
 **Morning Digest mode:** Available on session start. Activate with: `ignis morning digest`
 
 Digest sequence (voice, in order):
