@@ -13,18 +13,28 @@ function readIgnisFile(filename: string): string {
   }
 }
 
+function readRootFile(filename: string): string {
+  try {
+    return fs.readFileSync(path.join(process.cwd(), filename), 'utf8')
+  } catch {
+    return ''
+  }
+}
+
 function buildSystemPrompt(aum: any): string {
-  const persona = readIgnisFile('Persona.md')
-  const memory  = readIgnisFile('Memory.md')
-  const tools   = readIgnisFile('Tools.md')
-  const setup   = readIgnisFile('MYCLAW_SETUP.md')
+  const persona  = readIgnisFile('Persona.md')        // identity, behavior, digest format
+  const memory   = readIgnisFile('Memory.md')          // soul layer, natal chart, transit rules
+  const tools    = readIgnisFile('Tools.md')           // tool registry
+  const routing  = readIgnisFile('domain_routing.md')  // domain → house routing table
+  const tasks    = readRootFile('TASKS.md')            // Vision's live work queue
 
   const parts: string[] = []
 
-  if (persona) parts.push(persona)
-  if (memory)  parts.push(memory)
-  if (tools)   parts.push(tools)
-  if (setup)   parts.push(setup)
+  if (persona)  parts.push(persona)
+  if (memory)   parts.push(memory)
+  if (tools)    parts.push(tools)
+  if (routing)  parts.push(routing)
+  if (tasks)    parts.push(`## VISION'S CURRENT TASKS\n\n${tasks}`)
 
   if (aum?.systemPrompt && typeof aum.systemPrompt === 'string' && aum.systemPrompt.length > 0) {
     parts.push(aum.systemPrompt)
