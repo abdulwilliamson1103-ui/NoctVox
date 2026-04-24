@@ -64,6 +64,15 @@ integrations:
       role: lightweight 3D physics — button deformation, gravity on touch
     - repo: visgl/luma.gl
       role: data visualization as interactive 3D structures
+  transit:
+    - repo: catch-twenty2/AstroChart_Analysis
+      role: Python-based transit calculations via Swiss Ephemeris — accurate aspect engine for natal × current sky
+    - repo: astrologyapi/astro-api-client
+      role: REST API for geo-location and astrological data — birth time/place lookup, alternative to local calculation
+    natal_engine:
+      script: ignis/natal/transits.py
+      data:   ignis/natal/vision_natal.json
+      output: 3/6/9 morning digest in Aum language — Ring names, House names, Torch names, no astrology terms
   special:
     - repo: teammate-skill/teammate
       role: GitHub repo history → team persona and skill set builder

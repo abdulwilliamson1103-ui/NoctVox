@@ -42,9 +42,18 @@ pip install kerykeion
 
 Packages: `librosa`, `soundfile`, `numpy`, `replicate`, `requests`, `kerykeion`
 
-**kerykeion** is the transit engine. It wraps Swiss Ephemeris to calculate current
+**kerykeion** is the primary transit engine. It wraps Swiss Ephemeris to calculate current
 planet positions. Used by `ignis/natal/transits.py` every morning digest.
 Verify: `python ignis/natal/transits.py` — should print the 3/6/9 digest.
+
+Two reference repos for the transit system:
+
+| Repo | Role | When to use |
+|------|------|-------------|
+| `catch-twenty2/AstroChart_Analysis` | Python Swiss Ephemeris transit calculator | If kerykeion API changes or more precise aspect control is needed — clone and use as alternative engine in transits.py |
+| `astrologyapi/astro-api-client` | REST API — geo-location + birth time/place data | If Vision needs to look up a person's chart by birth location, or validate natal data against a live API |
+
+Neither requires installation right now — kerykeion handles current transit calculation. These are the upgrade path if the engine needs replacing.
 
 ### 1b. FFmpeg
 
