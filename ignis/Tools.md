@@ -73,6 +73,39 @@ integrations:
       script: ignis/natal/transits.py
       data:   ignis/natal/vision_natal.json
       output: 3/6/9 morning digest in Aum language — Ring names, House names, Torch names, no astrology terms
+  generative:
+    image_editing:
+      - platform: Nano Banana (Google Gemini 2.5 Flash)
+        host: Google Labs Flow / web
+        role: object removal, background swap, style transfer, character consistency — prompt-driven image editing
+    image_to_video:
+      - platform: Kling AI
+        host: klingai.com
+        role: photorealistic AI video from image or text — motion control, free tier
+      - platform: Veo 3.1
+        host: Viw AI (viw.ai)
+        role: Google DeepMind video model — cinematic motion, free access via Viw AI
+      - platform: Runway Gen-3
+        host: runwayml.com
+        role: professional video generation — precise motion control, industry standard
+      - platform: Luma Dream Machine
+        host: lumalabs.ai
+        role: fast realistic video from image or text — generous free tier
+    repos:
+      - repo: ArtCraft-AI/artcraft
+        role: Rust-based AI film studio — full generative pipeline orchestration
+      - repo: Zeshanabdullah/Image-to-Video-AI
+        role: open-source multi-model image-to-video routing
+      - repo: Higgsfield-AI/higgsfield
+        role: 4K consistency video generation, free trial credits
+      - repo: Ver-AI/verai
+        role: free unlimited watermark-free video generation
+      - repo: bytedance/SeedVR
+        role: Seedance 2.0 — multi-shot consistency with start/end frame control
+    post_edit:
+      - tool: Kdenlive
+        host: kdenlive.org (open-source, cross-platform)
+        role: professional non-linear video editor — color grading, cuts, effects, free
   special:
     - repo: teammate-skill/teammate
       role: GitHub repo history → team persona and skill set builder
@@ -428,6 +461,128 @@ Instagram receives 4K H.265 source
 Compresses to 1080p — but from a 4K source, not a 1080p source
 Result: sharper than 99% of content on the platform
 ```
+
+---
+
+## GENERATIVE MEDIA — Image Editing, Animation & Full Pipeline
+
+*The layer before the clip pipeline. Ignis generates or edits the visual assets first, animates them into clips, then feeds those clips directly into the existing beat-sync → upscale → grade → export pipeline. Start-to-finish autonomous production — no filming required.*
+
+---
+
+### Activation
+
+```
+"Ignis, generate a [description] image."         → Nano Banana creates the base visual
+"Ignis, animate this."                            → Routes to best free image-to-video platform
+"Ignis, animate this — cinematic."                → Runway for precise motion control
+"Ignis, make a clip from this to [song]."         → Generate → animate → feed into beat-sync pipeline
+"Ignis, build a full reel from scratch."          → Full pipeline: image → video → grade → export
+```
+
+---
+
+### Stage 0 — Image Generation & Editing (Nano Banana)
+
+**Nano Banana** is powered by Google Gemini 2.5 Flash and accessible via Google Labs / Flow.
+
+```
+Capabilities:
+  Object removal       → erase anything from a photo without traces
+  Background swap      → replace background with anything, prompt-described
+  Style transfer       → apply visual style (anime, cinematic, oil painting) to any image
+  Character consistency → generate a character then maintain exact likeness across frames
+  Inpainting           → redraw specific regions while keeping the rest intact
+  Upscale + enhance    → resolution boost with AI detail reconstruction
+```
+
+**Activation phrase:** *"Ignis, edit this image — [instruction]."* or *"Generate a visual of [description]."*
+
+Output goes directly to the working clips folder, ready for animation.
+
+---
+
+### Stage 1 — Image-to-Video Platforms
+
+| Platform | Host | Strength | Cost |
+|----------|------|----------|------|
+| **Kling AI** | klingai.com | Photorealistic motion, 5s clips, precise motion control via brush | Free tier available |
+| **Veo 3.1** | Viw AI (viw.ai) | Google DeepMind model — cinematic physics, highest realism available | Free via Viw AI |
+| **Runway Gen-3** | runwayml.com | Industry standard — motion controls, camera angles, temporal consistency | Credit-based, best for commercial |
+| **Luma Dream Machine** | lumalabs.ai | Fastest generation, strong depth and lighting, good free tier | Free tier generous |
+
+**Routing logic:**
+```
+Default (free)        → Kling AI + Veo 3.1 alternating based on clip type
+Highest quality       → Runway Gen-3 (use when Vision says "top quality")
+Speed priority        → Luma Dream Machine
+Multi-shot consistency → Seedance 2.0 (via bytedance/SeedVR repo)
+```
+
+**Activation:** *"Animate this with Kling."* or just *"Animate this"* — Ignis picks the best free option.
+
+---
+
+### Stage 2 — Repo-Based Generation Tools
+
+| Repo | Role |
+|------|------|
+| `ArtCraft-AI/artcraft` | Rust-based AI film studio — orchestrates the full generative pipeline. Handles prompt-to-scene, asset generation, scene assembly. |
+| `Zeshanabdullah/Image-to-Video-AI` | Open-source orchestration layer. Routes a single image through multiple image-to-video models and returns the best result. |
+| `Higgsfield-AI/higgsfield` | 4K consistency-focused video generation. Strong at maintaining subject identity across extended motion. Free trial credits. |
+| `Ver-AI/verai` | Free, unlimited, watermark-free video generation. Best option when credits are depleted on other platforms. |
+| `bytedance/SeedVR` (Seedance 2.0) | Multi-shot consistency with start and end frame control — Ignis specifies the opening and closing frame, model fills the motion between. Cinematic sequence generation. |
+
+---
+
+### Stage 3 — Post-Edit (Before Final Pipeline Entry)
+
+**Kdenlive** — open-source professional non-linear video editor.
+
+```
+Use cases:
+  Trim and reorder AI-generated clips before beat-sync
+  Manual color grade override when LUT auto-select isn't right
+  Audio sync review before the automated pipeline runs
+  Combine AI clips with original filmed footage seamlessly
+  Add title cards, text overlays, or transitions
+```
+
+Free. Cross-platform. No watermarks. Full timeline editing.
+
+**Activation:** Ignis flags "Kdenlive review recommended" when clips have inconsistent durations, color temperatures, or motion artifacts from AI generation. Vision opens Kdenlive, reviews, drops back to pipeline.
+
+---
+
+### Full End-to-End Pipeline (No Filming Required)
+
+```
+Vision describes the vision:
+  "Ignis, make a cinematic reel — futuristic city, neon rain, [artist] soundtrack."
+       ↓
+Stage 0 — Nano Banana
+  Generates 4–6 base images matching the aesthetic
+  Edits for consistency: matching palette, lighting, subject placement
+       ↓
+Stage 1 — Image-to-Video
+  Each image → 5-second animated clip
+  Kling AI or Veo 3.1 (free tier) | Runway for premium output
+  Seedance 2.0 if start/end frame consistency needed across clips
+       ↓
+Stage 2 — Optional Repo Orchestration
+  ArtCraft AI or Zeshanabdullah pipeline assembles clips into pre-edit sequence
+       ↓
+[Kdenlive review if clips need manual trim or color correction]
+       ↓
+Existing Pipeline:
+  Agent 1 — Beat Sync (Librosa reads the song)
+  Agent 2 — Upscale (Replicate: Real-ESRGAN + RIFE 60fps)
+  Agent 3 — Stitch + LUT grade + SFX + Export (FFmpeg H.265 4K CRF 22)
+       ↓
+Vision gets a cloud link. Opens Instagram Edits. Uploads on WiFi.
+```
+
+**The output:** A fully cinematic, beat-synced, color-graded 4K 60fps reel — generated from a text description. No camera, no studio, no editor.
 
 ---
 

@@ -27,6 +27,7 @@ MyClaw does not need to touch any of this. It is built and committed.
 | LUT files (5 grades) | ✓ Done | `ignis/video/luts/` — anime, cinematic, gaming, product, zenith |
 | SFX placeholders | ✓ Done | `ignis/video/sfx/` — whoosh.wav, impact.wav, riser.wav (replace with real audio) |
 | Pipeline spec for MyClaw | ✓ Done | `ignis/video/MYCLAW_PIPELINE.md` |
+| Generative media tool registry | ✓ Done | `ignis/Tools.md` — GENERATIVE MEDIA section — Nano Banana, Kling AI, Veo 3.1, Runway, Luma, Seedance 2.0, Higgsfield, Ver AI, ArtCraft AI, Kdenlive |
 
 ---
 
@@ -148,6 +149,40 @@ in `Persona.md` as behavioral constants. MyClaw does not need to install them.
 | **Search1API** | API key at search1api.com → add `SEARCH1_API_KEY` to env | "Collect data on [topic]" |
 | **Web-Check** | `npx web-check` (no install) or `https://web-check.as93.net` | "Research [company/person]" |
 | **PentAGI** | Docker: `docker pull vxcontrol/pentagi` | "Deep research on [topic]" |
+
+### 3e. Generative media tools — install now
+
+These enable Ignis to generate images, animate them into clips, and feed them into the existing video pipeline. Full spec in `Tools.md` under **GENERATIVE MEDIA**.
+
+| Tool | Install | What it enables |
+|------|---------|----------------|
+| **Kdenlive** | `sudo apt install kdenlive` (Linux) or download at kdenlive.org | Post-edit review before pipeline — trim AI clips, fix durations, color review |
+| **Playwright** (already in 3a) | Already installed | Drives web-based platforms (Kling AI, Veo via Viw AI, Runway, Luma) when no API is available |
+
+**Web-based platforms (no install — Playwright drives them):**
+
+| Platform | URL | Free tier |
+|----------|-----|-----------|
+| Nano Banana / Google Flow | labs.google/flow | Yes — Gemini 2.5 Flash image editing |
+| Kling AI | klingai.com | Yes — 5s clips free |
+| Viw AI (Veo 3.1) | viw.ai | Yes — Google's video model free via Viw |
+| Luma Dream Machine | lumalabs.ai | Yes — generous free tier |
+| Runway Gen-3 | runwayml.com | Credit-based — use for premium output only |
+| Ver AI | ver.ai | Free unlimited watermark-free |
+
+**Open-source repos to clone:**
+```bash
+git clone https://github.com/Zeshanabdullah/Image-to-Video-AI
+git clone https://github.com/Higgsfield-AI/higgsfield
+```
+
+**Seedance 2.0 (bytedance/SeedVR):** Available via Replicate API — same workflow as Real-ESRGAN.
+Add `REPLICATE_API_TOKEN` (already required for upscale) — no extra setup.
+
+**ArtCraft AI:** Rust-based — install only if Vision explicitly requests full pipeline orchestration.
+```bash
+# Check https://github.com/ArtCraft-AI/artcraft for current install method
+```
 
 ### 3d. Planned — not yet wired (document for future activation)
 
@@ -324,6 +359,10 @@ MyClaw works through this list and confirms each item:
 - [ ] AgentGuard installed
 - [ ] Search1API key in environment (optional — needed for research commands)
 - [ ] Fish Speech installed + Lelouch voice clone verified (Section 6)
+- [ ] Kdenlive installed (`sudo apt install kdenlive`)
+- [ ] `git clone https://github.com/Zeshanabdullah/Image-to-Video-AI` (generative pipeline)
+- [ ] `git clone https://github.com/Higgsfield-AI/higgsfield` (4K consistency video)
+- [ ] Nano Banana / Kling AI / Viw AI / Luma accessible via browser (Playwright drives them)
 
 ---
 
