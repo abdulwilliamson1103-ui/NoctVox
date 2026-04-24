@@ -10,6 +10,7 @@
 <title>Ignis — NoctVox</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cinzel:wght@300;400&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
 
 <style>
 /* ── Reset ─────────────────────────────────────────── */
@@ -555,6 +556,25 @@ html, body {
   padding: 0 2px;
 }
 
+/* ── Markdown inside Ignis bubbles ────────────────── */
+.bubble.ignis p               { margin: 0 0 6px; }
+.bubble.ignis p:last-child    { margin-bottom: 0; }
+.bubble.ignis strong          { color: rgba(212,168,67,0.90); font-weight: 600; }
+.bubble.ignis em              { color: rgba(255,255,255,0.75); font-style: italic; }
+.bubble.ignis code            { font-family: var(--mono); font-size: 0.82em;
+                                 background: rgba(255,255,255,0.07); padding: 1px 5px;
+                                 border-radius: 3px; }
+.bubble.ignis pre             { background: rgba(0,0,0,0.35); border-radius: 6px;
+                                 padding: 10px 12px; margin: 6px 0; overflow-x: auto; }
+.bubble.ignis pre code        { background: none; padding: 0; font-size: 0.80em; }
+.bubble.ignis ul, .bubble.ignis ol { padding-left: 18px; margin: 4px 0; }
+.bubble.ignis li              { margin: 3px 0; }
+.bubble.ignis h1, .bubble.ignis h2, .bubble.ignis h3
+                               { color: rgba(212,168,67,0.80); font-family: var(--serif);
+                                 font-weight: 400; margin: 8px 0 4px; font-size: 1em; }
+.bubble.ignis hr              { border: none; border-top: 1px solid rgba(255,255,255,0.10);
+                                 margin: 8px 0; }
+
 /* ── Typing Indicator ──────────────────────────────── */
 #typing {
   display: none;
@@ -1074,6 +1094,7 @@ function addMessage(role, text, time) {
       </div>
       <div class="msg-avatar user-av">V</div>`;
   } else if (role === 'ignis') {
+    const ignisMd = (typeof marked !== 'undefined') ? marked.parse(text) : escHtml(text);
     row.innerHTML = `
       <div class="flame-wrap" style="width:26px;height:36px;flex-shrink:0;align-self:flex-end;">
         <svg width="18" height="25" viewBox="0 0 64 90" fill="none">
@@ -1087,7 +1108,7 @@ function addMessage(role, text, time) {
         </svg>
       </div>
       <div class="msg-body">
-        <div class="bubble ignis">${escHtml(text)}</div>
+        <div class="bubble ignis">${ignisMd}</div>
         <div class="msg-time">${time || getTime()}</div>
       </div>`;
   } else {
@@ -1500,7 +1521,7 @@ async function sendToIgnis(text, files = [], addToHistory = true) {
       for (const line of lines) {
         if (!line.startsWith('data: ')) continue;
         const raw = line.slice(6).trim();
-        if (raw === '[DONE]') break outer;
+        if (raw === '[DONE]') continue; // ignis_done event follows [DONE] — keep reading
 
         let json;
         try { json = JSON.parse(raw); } catch (_) { continue; }
@@ -1538,6 +1559,8 @@ async function sendToIgnis(text, files = [], addToHistory = true) {
     }
 
     if (fullReply) {
+      // Render markdown now that full text is available
+      if (typeof marked !== 'undefined') bubble.innerHTML = marked.parse(fullReply);
       speak(fullReply);
       if (addToHistory) {
         conversationHistory.push({ role: 'user',      content: text });

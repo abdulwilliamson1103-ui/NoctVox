@@ -18,7 +18,7 @@ MyClaw does not need to touch any of this. It is built and committed.
 | Ignis memory architecture | ✓ Done | `ignis/Memory.md` |
 | Ignis tool registry | ✓ Done | `ignis/Tools.md` |
 | Aum soul routing pipeline | ✓ Done | `src/core/` (router, houses, torches, rings, echoes, alignment, memory, upstash) |
-| Ignis API endpoint | ✓ Done | `pages/api/ignis.ts` — reads all 3 markdowns, calls `/v1/chat/completions` |
+| Ignis API endpoint | ✓ Done | `pages/api/ignis.ts` — reads all markdowns, streams responses, maintains conversation history |
 | Pipeline proxy (upload + status + download) | ✓ Done | `pages/api/ignis-upload.ts` |
 | Gateway config endpoint | ✓ Done | `pages/api/ignis-config.ts` — exposes gatewayUrl + gatewayToken to portal |
 | Portal UI | ✓ Done | `public/ignis-portal.html` — messaging, voice, file upload, pipeline progress |
