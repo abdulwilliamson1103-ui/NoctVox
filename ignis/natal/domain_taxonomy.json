@@ -1,0 +1,164 @@
+{
+  "note": "Every domain of life mapped to its Aum house. Ignis uses this to route any query — no matter how specific — to the correct house for soul-routing and memory accumulation.",
+
+  "houses": {
+
+    "H1_IDENTITY": {
+      "name": "House Identity",
+      "torch": "Torch Root",
+      "domains": [
+        "Identity & Heritage — gender, sexual orientation, ethnicity, culture, personal story",
+        "Psychology & Behavior — how you think, make decisions, process the world",
+        "Spirituality & Meaning — personal values, belief system, existential purpose",
+        "Self-concept & Personal Narrative — how you define and present yourself"
+      ]
+    },
+
+    "H2_VALUES": {
+      "name": "House Values",
+      "torch": "Torch Sacral",
+      "domains": [
+        "Economics & Financial Systems — personal finance, budgeting, wealth management",
+        "Safety & Security — personal safety, legal rights, emergency preparedness",
+        "Physical Health & Wellness — nutrition, fitness, body maintenance, functional ability",
+        "Nutrition & Food Systems — effect of food on health, food sourcing",
+        "Material Resources — what you own, build, and sustain"
+      ]
+    },
+
+    "H3_VOICE": {
+      "name": "House Voice",
+      "torch": "Torch Solar",
+      "domains": [
+        "Linguistics & Language — communication structure, non-verbal communication",
+        "Education & Learning — knowledge acquisition, pedagogy, personal growth",
+        "Arts & Humanities (writing/literary) — literature, written expression",
+        "Media & Communication — how ideas travel between people",
+        "Information & Knowledge Systems — libraries, research, journalism"
+      ]
+    },
+
+    "H4_HOME": {
+      "name": "House Home",
+      "torch": "Torch Heart",
+      "domains": [
+        "Real Estate & Shelter — housing, architecture, urban planning, land use",
+        "Intimate & Family — partnerships, parenting, deep biological or chosen kinship",
+        "Environmental & Citizenship — local community, civic duty, neighborhood",
+        "Safety & Security (home) — domestic safety, household systems",
+        "Cultural Heritage — traditions, ancestry, roots"
+      ]
+    },
+
+    "H5_CREATION": {
+      "name": "House Creation",
+      "torch": "Torch Throat",
+      "domains": [
+        "Arts & Humanities — music, visual arts, performance, creative expression",
+        "Creative Expression — unique ways you output your internal world",
+        "Recreation & Leisure — hobbies, travel, personal enjoyment, adventure",
+        "Mathematics & Formal Sciences — abstract structures, formal systems, logic",
+        "Entertainment & Play — games, sport as play, joy-driven activity",
+        "Romance & Creative Partnership — early-stage connections, creative collaborations"
+      ]
+    },
+
+    "H6_SERVICE": {
+      "name": "House Service",
+      "torch": "Torch ThirdEye",
+      "domains": [
+        "Career & Employment — vocation, work environment, daily craft, productivity",
+        "Medical Science & Healthcare — prevention, diagnosis, treatment of disease",
+        "Physical Health (routine) — daily health practices, body maintenance",
+        "Service & Contribution — work done for others, craft, output",
+        "Animals & Zoology — animal care, working with animals",
+        "Systems & Processes — workflow, optimization, efficiency"
+      ]
+    },
+
+    "H7_PARTNERSHIP": {
+      "name": "House Partnership",
+      "torch": "Torch Heart",
+      "domains": [
+        "Relationships & Intimacy — marriage, committed partnerships, deep bonds",
+        "Social & Community (close) — close friendships, mentors, key collaborators",
+        "Contracts & Agreements — legal partnerships, binding commitments",
+        "Open Enemies — known opposition, competitive relationships",
+        "Negotiation & Diplomacy — finding balance with others"
+      ]
+    },
+
+    "H8_TRANSFORMATION": {
+      "name": "House Transformation",
+      "torch": "Torch Sacral",
+      "domains": [
+        "Emotional Well-being — managing emotions, coping mechanisms, resilience",
+        "Mental Health & Cognitive Function — stress management, brain health",
+        "Sexual & Reproductive Health — reproductive system, deep biological cycles",
+        "Microbiology & Genetics — inheritance, microscopic biological change",
+        "Shared Resources & Finance — investments, debt, other people's money",
+        "Death & Regeneration — endings, transitions, deep transformation",
+        "Hidden Systems — taxes, insurance, inherited wealth"
+      ]
+    },
+
+    "H9_PHILOSOPHY": {
+      "name": "House Philosophy",
+      "torch": "Torch Solar",
+      "domains": [
+        "Philosophy & Ethics — knowledge, reality, logic, ethics, love of wisdom",
+        "Spirituality & Meaning (universal) — religion, connecting to something larger",
+        "Astronomy & Space — celestial bodies, cosmos, outer space",
+        "History & Archeology — study of the past, human evolution, material remains",
+        "Anthropology & Human Diversity — past and present human societies, evolution",
+        "Higher Education — university, advanced learning, degrees",
+        "Long-distance Travel & Foreign Culture — exploring beyond the familiar",
+        "Law & Higher Principles — jurisprudence, moral law, justice systems"
+      ]
+    },
+
+    "H10_LEGACY": {
+      "name": "House Legacy",
+      "torch": "Torch Root",
+      "domains": [
+        "Politics & Governance — political systems, policies, power structures",
+        "Engineering & Technology — applying science to build tools and systems",
+        "Technology & Digital — hardware, software, internet, artificial intelligence",
+        "Career & Public Role — professional reputation, public identity, achievements",
+        "Sociology & Society (structural) — how power and systems shape societies",
+        "Vocation & Contribution — the legacy and impact you leave on the world"
+      ]
+    },
+
+    "H11_COMMUNITY": {
+      "name": "House Community",
+      "torch": "Torch Throat",
+      "domains": [
+        "Sociology & Society — social behavior, social interactions, community structures",
+        "Environmental & Sustainability — resource management, conservation, ecology",
+        "Technology & Digital (networks) — internet, social platforms, collective digital life",
+        "Social Movements & Collective Goals — activism, group missions, shared futures",
+        "Friendships & Networks — social circles, professional communities, belonging",
+        "Innovation & Collective Vision — emerging ideas, future-building"
+      ]
+    },
+
+    "H12_SUBCONSCIOUS": {
+      "name": "House Subconscious",
+      "torch": "Torch Crown",
+      "domains": [
+        "Physics & Matter — energy, force, light, heat, quantum mechanics, fundamental laws",
+        "Biology & Botany — plants, living organisms, ecosystems",
+        "Earth Science & Geology — planet's solid material, landforms, deep earth processes",
+        "Meteorology & Atmosphere — weather, climate, atmospheric systems",
+        "Oceanography & Hydrology — oceans, water movement, hydrological systems",
+        "Animals & Zoology (wild) — animal kingdom in its natural state",
+        "Microbiology & Mycology — bacteria, viruses, fungi, the hidden biological world",
+        "Ecology & Ecosystems — relationships between organisms and environments",
+        "The Unconscious Mind — dreams, hidden motivations, spiritual retreats",
+        "Institutions & Isolation — hospitals, prisons, monasteries, background systems",
+        "Hidden Enemies — unknown opposition, self-undoing patterns"
+      ]
+    }
+  }
+}

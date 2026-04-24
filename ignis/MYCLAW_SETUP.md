@@ -37,9 +37,14 @@ MyClaw does not need to touch any of this. It is built and committed.
 ```bash
 cd /path/to/NoctVox
 pip install -r ignis/video/requirements.txt
+pip install kerykeion
 ```
 
-Packages: `librosa`, `soundfile`, `numpy`, `replicate`, `requests`
+Packages: `librosa`, `soundfile`, `numpy`, `replicate`, `requests`, `kerykeion`
+
+**kerykeion** is the transit engine. It wraps Swiss Ephemeris to calculate current
+planet positions. Used by `ignis/natal/transits.py` every morning digest.
+Verify: `python ignis/natal/transits.py` — should print the 3/6/9 digest.
 
 ### 1b. FFmpeg
 
@@ -217,7 +222,9 @@ python ignis/video/run.py \
 
 MyClaw works through this list and confirms each item:
 
-- [ ] `pip install -r ignis/video/requirements.txt` — Python packages installed
+- [ ] `pip install -r ignis/video/requirements.txt` — pipeline packages installed
+- [ ] `pip install kerykeion` — transit engine installed
+- [ ] `python ignis/natal/transits.py` — outputs 3/6/9 digest in Aum language
 - [ ] `ffmpeg -version` — FFmpeg in PATH
 - [ ] `REPLICATE_API_TOKEN` in environment
 - [ ] `GATEWAY_URL` + `GATEWAY_TOKEN` in environment

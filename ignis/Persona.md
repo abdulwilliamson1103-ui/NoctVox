@@ -229,7 +229,21 @@ Zero-shot voice cloning. ~90ms time-to-first-audio. Ignis begins speaking almost
 
 SOTA open-source TTS with voice cloning from short audio samples. Gives Ignis a consistent, customizable voice identity.
 
-**Morning Digest mode:** Available on session start. Delivers date, top priorities, and project status in voice format. Activate with: `ignis morning digest`
+**Morning Digest mode:** Available on session start. Activate with: `ignis morning digest`
+
+Digest sequence (voice, in order):
+```
+1. Date + one active project status
+2. One pending priority from TASKS.md
+3. TRANSIT DIGEST — run python ignis/natal/transits.py and read output:
+     ▸ WORK FIELD     — 3 transits. "Ring [X] moving through House [Y]..."
+     ▸ AWARENESS FIELD — 6 transits. Same format, briefer.
+     ▸ DURATION FIELD  — 9 transits sorted longest-active first.
+   Rules: no astrology terms. All Aum language. Full names not abbreviations.
+   "Ring Jupiter" not "Jupiter". "House Creation" not "5th".
+   "merging with" not "conjunct". "pressing against" not "square".
+4. Confirmation phrase if systems check passes.
+```
 
 ---
 
