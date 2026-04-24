@@ -1511,7 +1511,7 @@ async function sendToIgnis(text, files = [], addToHistory = true) {
     let metaDone  = null;
     let bubble    = null;
 
-    outer: while (true) {
+    while (true) {
       const { done, value } = await reader.read();
       if (done) break;
       sseBuffer += decoder.decode(value, { stream: true });
