@@ -74,7 +74,7 @@ export const HOUSES: House[] = [
     triggerKeywords: [
       'work', 'service', 'routine', 'health', 'fitness', 'pharma',
       'wellness', 'exercise', 'diet', 'doctor', 'medicine', 'habit',
-      'workflow', 'organize', 'daily', 'optimize', 'body', 'mental',
+      'workflow', 'organize', 'daily', 'optimize', 'body',
     ],
   },
   {
@@ -98,7 +98,7 @@ export const HOUSES: House[] = [
     triggerKeywords: [
       'debt', 'power', 'secrets', 'insurance', 'tax', 'inheritance',
       'transform', 'deep', 'death', 'change', 'psychology', 'hidden',
-      'crisis', 'rebirth', 'shadow', 'merge', 'taboo', 'intense',
+      'crisis', 'rebirth', 'shadow', 'merge', 'taboo', 'intense', 'mental',
     ],
   },
   {

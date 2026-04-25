@@ -231,8 +231,10 @@ export function checkRadiantEvolution(rawInput: string): boolean {
   const empowermentHits = AUTONOMY_EMPOWERMENT_SIGNALS.filter((s) =>
     lower.includes(s)
   ).length;
-  // Positive signal: user is seeking to grow, not just to be served
-  return empowermentHits >= 0; // Always passes at input level — tracked longitudinally over sessions
+  const dependencyHits = DEPENDENCY_SIGNALS.filter((s) => lower.includes(s)).length;
+  // Dependency with no empowerment signals = flag for monitoring
+  if (dependencyHits > 0 && empowermentHits === 0) return false;
+  return true;
 }
 
 // ─── Internal Mirror ──────────────────────────────────────────────────────────

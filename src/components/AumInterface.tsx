@@ -198,13 +198,13 @@ export default function AumInterface() {
     const bar    = loaderBarRef.current
     const loader = loaderRef.current
     if (!bar || !loader) return
+    let t3: ReturnType<typeof setTimeout>
     const t1 = setTimeout(() => { bar.style.width = '100%' }, 100)
     const t2 = setTimeout(() => {
       loader.style.opacity = '0'
-      const t3 = setTimeout(() => { if (loader) loader.style.display = 'none' }, 1000)
-      return () => clearTimeout(t3)
+      t3 = setTimeout(() => { if (loader) loader.style.display = 'none' }, 1000)
     }, 1500)
-    return () => { clearTimeout(t1); clearTimeout(t2) }
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
   }, [])
 
   // Three.js scene
