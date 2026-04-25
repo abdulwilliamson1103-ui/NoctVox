@@ -168,7 +168,7 @@ export default function Home() {
       const aumRes = await fetch('/api/aum', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rawInput: text, userId: 'noctvox_user', surfaceType: 'api' }),
+        body: JSON.stringify({ rawInput: text, userId: 'noctvox_user', surfaceType: 'browser' }),
       })
       if (aumRes.ok) aumContext = await aumRes.json()
     } catch { /* Aum offline — Ignis continues unrouted */ }
