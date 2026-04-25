@@ -254,7 +254,7 @@ export async function getRecentSessions(
 
   const { data, error } = await supabase
     .from('aum_sessions')
-    .select('id, primary_house, dominant_torch, active_ring, expression_mode, alignment_status, created_at')
+    .select('id, primary_house, dominant_torch, active_ring, echo_blend, expression_mode, alignment_status, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(limit);
@@ -264,5 +264,8 @@ export async function getRecentSessions(
     return [];
   }
 
-  return data ?? [];
+  return (data ?? []).map((row: any) => ({
+    ...row,
+    lead_echo: row.echo_blend?.lead_echo ?? null,
+  }));
 }

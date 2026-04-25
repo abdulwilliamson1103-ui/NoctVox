@@ -68,13 +68,9 @@ export async function updateHouseMasses(
   if (!redis) return;
   try {
     const key = `aum:mass:${userId}`;
-    // Load existing, add contribution, write back
-    const existing = await loadHouseMasses(userId);
     const pipeline = redis.pipeline();
     for (const [houseIdStr, contribution] of Object.entries(massUpdate)) {
-      const houseId = Number(houseIdStr);
-      const current = existing[houseId] ?? 0;
-      pipeline.hset(key, { [houseId]: current + contribution });
+      pipeline.hincrby(key, houseIdStr, contribution);
     }
     await pipeline.exec();
   } catch (err) {
@@ -306,25 +302,11 @@ export async function updateHouseYinYang(
     const pipeline = redis.pipeline();
     const yinKey  = `aum:yin:${userId}`;
     const yangKey = `aum:yang:${userId}`;
-
-    // Load current values and increment
-    const [existingYin, existingYang] = await Promise.all([
-      redis.hgetall(yinKey),
-      redis.hgetall(yangKey),
-    ]);
-    const parseExisting = (raw: Record<string, unknown> | null): Record<number, number> =>
-      raw ? Object.fromEntries(Object.entries(raw).map(([k, v]) => [Number(k), Number(v)])) : {};
-
-    const curYin  = parseExisting(existingYin);
-    const curYang = parseExisting(existingYang);
-
     for (const [hIdStr, contribution] of Object.entries(yinUpdate)) {
-      const hId = Number(hIdStr);
-      pipeline.hset(yinKey, { [hId]: (curYin[hId] ?? 0) + contribution });
+      pipeline.hincrby(yinKey, hIdStr, contribution);
     }
     for (const [hIdStr, contribution] of Object.entries(yangUpdate)) {
-      const hId = Number(hIdStr);
-      pipeline.hset(yangKey, { [hId]: (curYang[hId] ?? 0) + contribution });
+      pipeline.hincrby(yangKey, hIdStr, contribution);
     }
     await pipeline.exec();
   } catch (err) {
