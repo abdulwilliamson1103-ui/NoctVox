@@ -10,7 +10,11 @@ import {
   loadHouseMasses,
   persistRoutingSession,
   updateHouseMasses,
+  storeEpisodicMemory,
 } from '@/src/core/upstash';
+import { classifyMassEvent, compressToMemory } from '@/src/core/memory';
+import { HOUSE_MAP } from '@/src/core/houses';
+import { TORCH_MAP } from '@/src/core/torches';
 import type { AumRoutingRequest, AumRoutingResponse } from '@/src/core/types';
 
 function setCors(res: NextApiResponse) {
@@ -56,11 +60,27 @@ export default async function handler(
     // Run the full Aum routing pipeline
     const result = await routeIntent(request, houseMasses);
 
-    // Persist session and update house masses concurrently
-    await Promise.allSettled([
+    // Persist session and update house masses; store episodic memory for emotional events
+    const eventType = classifyMassEvent(request.rawInput);
+    const persistTasks: Promise<any>[] = [
       persistRoutingSession(result),
       updateHouseMasses(userId, result.massUpdate),
-    ]);
+    ];
+    if (eventType !== 'QUERY_ONLY') {
+      const house = HOUSE_MAP[result.houseMapping.primaryHouseId];
+      const torch = TORCH_MAP[result.torchActivation.dominant];
+      persistTasks.push(
+        storeEpisodicMemory({
+          userId,
+          houseId: result.houseMapping.primaryHouseId,
+          content: compressToMemory(request.rawInput, house.name, torch.name),
+          emotionalSignature: result.torchActivation.dominant,
+          massContribution: result.massUpdate[result.houseMapping.primaryHouseId] ?? 2,
+          surfaceType: request.surfaceType,
+        })
+      );
+    }
+    await Promise.allSettled(persistTasks);
 
     return res.status(200).json(result);
   } catch (err: unknown) {

@@ -6,18 +6,26 @@ Run this once to generate:
   luts/cinematic.cube  — orange-teal split grade, lifted blacks, film look
   luts/gaming.cube     — high contrast, vibrant, cool/teal bias
   luts/product.cube    — clean, neutral, slight warmth
+  luts/zenith.cube     — gaming vibrance + cinematic weight overlay
 
-  sfx/whoosh.wav       — placeholder (replace with real audio)
-  sfx/impact.wav       — placeholder (replace with real audio)
-  sfx/riser.wav        — placeholder (replace with real audio)
+  sfx/whoosh.wav, impact.wav, riser.wav     — root fallback (silent placeholders)
+  sfx/anime/    whoosh, sword_ring, impact, energy_burst
+  sfx/cinematic/ cloth_movement, footstep_marble, door_close, deep_riser
+  sfx/gaming/   punch_impact, glass_shatter, bell_drop, power_up
+  sfx/product/  soft_click, chime, whoosh_clean, soft_impact
+  sfx/zenith/   cinematic_hit, bass_drop, energy_riser, sword_ring
+
+All SFX are silent placeholders. Replace with real audio.
+stitch.py auto-selects the sfx/{type}/ subfolder matching the content type,
+cycles through all sounds in that folder, and handles clips with no audio track.
+
+SFX sources:
+  ElevenLabs: POST /v1/sound-generation  {"text": "leather shoe on marble floor"}
+  Freesound:  freesound.org/apiv2  (500k+ CC licensed sounds)
+  BBC:        bbcrewind.co.uk/sound-effects  (16k broadcast-grade, free)
 
 Usage:
   python generate_assets.py
-
-SFX replacements (free, CC licensed):
-  freesound.org
-  mixkit.co/free-sound-effects
-  pixabay.com/sound-effects
 """
 
 import os
@@ -221,12 +229,32 @@ if __name__ == '__main__':
     write_silent_wav(os.path.join(sfx_dir, 'impact.wav'), duration_sec=0.3)
     write_silent_wav(os.path.join(sfx_dir, 'riser.wav'),  duration_sec=2.0)
 
+    # Type-specific SFX subfolders — stitch.py prefers these over the root sfx/ folder.
+    # Populate each with sounds via ElevenLabs API or Freesound.org.
+    # Example ElevenLabs prompts per type are listed below.
+    sfx_palettes = {
+        'anime':     ['whoosh', 'sword_ring', 'impact', 'energy_burst'],
+        'cinematic': ['cloth_movement', 'footstep_marble', 'door_close', 'deep_riser'],
+        'gaming':    ['punch_impact', 'glass_shatter', 'bell_drop', 'power_up'],
+        'product':   ['soft_click', 'chime', 'whoosh_clean', 'soft_impact'],
+        'zenith':    ['cinematic_hit', 'bass_drop', 'energy_riser', 'sword_ring'],
+    }
+    print('\nCreating type-specific SFX subfolders...')
+    for sfx_type, palette in sfx_palettes.items():
+        type_dir = os.path.join(sfx_dir, sfx_type)
+        os.makedirs(type_dir, exist_ok=True)
+        for sound_name in palette:
+            path = os.path.join(type_dir, f'{sound_name}.wav')
+            if not os.path.exists(path):
+                write_silent_wav(path, duration_sec=0.4)
+        print(f'  ✓  sfx/{sfx_type}/  [{", ".join(palette)}]')
+
     print('\nPhase 2 complete.')
     print('\nLUTs are ready. Use with:')
     print('  python stitch.py --data timestamps.json --lut luts/cinematic.cube')
-    print('\nSFX placeholders are silent. Replace with real audio from:')
-    print('  freesound.org          (CC licensed, free)')
-    print('  mixkit.co/free-sound-effects')
-    print('  pixabay.com/sound-effects')
-    print('\nPlace any .wav in sfx/ and pass:')
-    print('  python stitch.py --data timestamps.json --sfx-dir sfx/')
+    print('\nSFX placeholders are silent. Replace via:')
+    print('  ElevenLabs: POST /v1/sound-generation  {"text": "leather shoe marble floor"}')
+    print('  Freesound:  freesound.org/apiv2  (CC licensed, free)')
+    print('  BBC:        bbcrewind.co.uk/sound-effects  (16k broadcast sounds, free)')
+    print('\nDrop real .wav files into sfx/{type}/ to activate type-aware sound palettes.')
+    print('Pipeline auto-detects the sfx/ folder — no --sfx-dir flag needed.')

@@ -10,6 +10,7 @@
 <title>Ignis — NoctVox</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Cinzel:wght@300;400&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
 
 <style>
 /* ── Reset ─────────────────────────────────────────── */
@@ -555,6 +556,25 @@ html, body {
   padding: 0 2px;
 }
 
+/* ── Markdown inside Ignis bubbles ────────────────── */
+.bubble.ignis p               { margin: 0 0 6px; }
+.bubble.ignis p:last-child    { margin-bottom: 0; }
+.bubble.ignis strong          { color: rgba(212,168,67,0.90); font-weight: 600; }
+.bubble.ignis em              { color: rgba(255,255,255,0.75); font-style: italic; }
+.bubble.ignis code            { font-family: var(--mono); font-size: 0.82em;
+                                 background: rgba(255,255,255,0.07); padding: 1px 5px;
+                                 border-radius: 3px; }
+.bubble.ignis pre             { background: rgba(0,0,0,0.35); border-radius: 6px;
+                                 padding: 10px 12px; margin: 6px 0; overflow-x: auto; }
+.bubble.ignis pre code        { background: none; padding: 0; font-size: 0.80em; }
+.bubble.ignis ul, .bubble.ignis ol { padding-left: 18px; margin: 4px 0; }
+.bubble.ignis li              { margin: 3px 0; }
+.bubble.ignis h1, .bubble.ignis h2, .bubble.ignis h3
+                               { color: rgba(212,168,67,0.80); font-family: var(--serif);
+                                 font-weight: 400; margin: 8px 0 4px; font-size: 1em; }
+.bubble.ignis hr              { border: none; border-top: 1px solid rgba(255,255,255,0.10);
+                                 margin: 8px 0; }
+
 /* ── Typing Indicator ──────────────────────────────── */
 #typing {
   display: none;
@@ -1037,7 +1057,8 @@ let voiceMode     = true; // persist across sessions
 try { voiceMode = localStorage.getItem('ignis_voice') !== 'off'; } catch(_) {}
 
 // Gateway config — fetched once on load so large uploads go direct to MyClaw
-let ignisGateway = null; // { gatewayUrl, gatewayToken }
+let ignisGateway = null;       // { gatewayUrl, gatewayToken }
+let conversationHistory = []; // [{role,content}] — last 20 exchanges sent with every Ignis call
 fetch('/api/ignis-config').then(r => r.json()).then(cfg => { ignisGateway = cfg; }).catch(() => {});
 
 const VOICE_SVG_ON  = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>`;
@@ -1073,6 +1094,7 @@ function addMessage(role, text, time) {
       </div>
       <div class="msg-avatar user-av">V</div>`;
   } else if (role === 'ignis') {
+    const ignisMd = (typeof marked !== 'undefined') ? marked.parse(text) : escHtml(text);
     row.innerHTML = `
       <div class="flame-wrap" style="width:26px;height:36px;flex-shrink:0;align-self:flex-end;">
         <svg width="18" height="25" viewBox="0 0 64 90" fill="none">
@@ -1086,7 +1108,7 @@ function addMessage(role, text, time) {
         </svg>
       </div>
       <div class="msg-body">
-        <div class="bubble ignis">${escHtml(text)}</div>
+        <div class="bubble ignis">${ignisMd}</div>
         <div class="msg-time">${time || getTime()}</div>
       </div>`;
   } else {
@@ -1095,6 +1117,35 @@ function addMessage(role, text, time) {
 
   container.appendChild(row);
   container.scrollTop = container.scrollHeight;
+}
+
+// Creates an empty Ignis bubble and returns it for live token appending (streaming)
+function addIgnisBubble(time) {
+  const empty = document.getElementById('empty-state');
+  if (empty) empty.remove();
+  const container = document.getElementById('ignis-messages');
+  const row = document.createElement('div');
+  row.className = 'msg-row ignis';
+  row.id = `msg-${++msgIdCounter}`;
+  row.innerHTML = `
+    <div class="flame-wrap" style="width:26px;height:36px;flex-shrink:0;align-self:flex-end;">
+      <svg width="18" height="25" viewBox="0 0 64 90" fill="none">
+        <path d="M32 2C32 2 8 30 8 55C8 73 18 86 32 86C46 86 56 73 56 55C56 30 32 2 32 2Z" fill="url(#ogm)"/>
+        <path d="M32 15C32 15 14 38 14 57C14 71 22 80 32 80C42 80 50 71 50 57C50 38 32 15 32 15Z" fill="url(#mgm)"/>
+        <ellipse cx="32" cy="60" rx="6" ry="8" fill="white" opacity="0.6"/>
+        <defs>
+          <radialGradient id="ogm" cx="50%" cy="80%" r="70%"><stop offset="0%" stop-color="#1a0a00"/><stop offset="50%" stop-color="#8B2500"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
+          <radialGradient id="mgm" cx="50%" cy="75%" r="65%"><stop offset="0%" stop-color="#ff6b35"/><stop offset="40%" stop-color="#d4380d"/><stop offset="100%" stop-color="#ff6b35" stop-opacity="0"/></radialGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="msg-body">
+      <div class="bubble ignis"></div>
+      <div class="msg-time">${time || getTime()}</div>
+    </div>`;
+  container.appendChild(row);
+  container.scrollTop = container.scrollHeight;
+  return row.querySelector('.bubble.ignis');
 }
 
 function escHtml(s) {
@@ -1390,7 +1441,7 @@ const HOUSE_NAMES = {
   9:'PHILOSOPHY',10:'LEGACY', 11:'COMMUNITY',    12:'SUBCONSCIOUS',
 };
 
-async function sendToIgnis(text, files = []) {
+async function sendToIgnis(text, files = [], addToHistory = true) {
   // Build file context note so Ignis knows what's been queued
   let fileContext = '';
   if (files.length > 0) {
@@ -1440,23 +1491,99 @@ async function sendToIgnis(text, files = []) {
     // Aum offline — Ignis continues unrouted
   }
 
-  // Step 2 — Call Ignis with Aum context
-  const res = await fetch('/api/ignis', {
+  // Step 2 — Call Ignis with Aum context + conversation history (streaming)
+  const ignisRes = await fetch('/api/ignis', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ text: fullText, aumContext }),
+    body:    JSON.stringify({ text: fullText, aumContext, history: conversationHistory, stream: true }),
   });
 
-  if (!res.ok) throw new Error(`Ignis ${res.status}`);
-  const data = await res.json();
-  const reply = data.text || data.response || '[No response]';
+  if (!ignisRes.ok) throw new Error(`Ignis ${ignisRes.status}`);
 
-  setTyping(false);
-  addMessage('ignis', reply);
-  speak(reply);
+  const ct = ignisRes.headers.get('content-type') || '';
 
-  // Step 3 — Flash Aum panel tab briefly if on Ignis panel
-  // so Vision knows soul routed this response
+  if (ct.includes('text/event-stream')) {
+    // ── Streaming path ───────────────────────────────────
+    const reader  = ignisRes.body.getReader();
+    const decoder = new TextDecoder();
+    let sseBuffer = '';
+    let fullReply = '';
+    let metaDone  = null;
+    let bubble    = null;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      sseBuffer += decoder.decode(value, { stream: true });
+      const lines = sseBuffer.split('\n');
+      sseBuffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const raw = line.slice(6).trim();
+        if (raw === '[DONE]') continue; // ignis_done event follows [DONE] — keep reading
+
+        let json;
+        try { json = JSON.parse(raw); } catch (_) { continue; }
+
+        if (json.ignis_done) { metaDone = json; continue; }
+
+        if (json.error) {
+          setTyping(false);
+          addMessage('ignis', `[Gateway error: ${json.error}]`);
+          return;
+        }
+
+        const token = json.choices?.[0]?.delta?.content;
+        if (token) {
+          if (!bubble) {
+            setTyping(false);
+            bubble = addIgnisBubble();
+          }
+          fullReply += token;
+          bubble.textContent = fullReply;
+          document.getElementById('ignis-messages').scrollTop = 9999;
+        }
+      }
+    }
+
+    if (!bubble) {
+      setTyping(false);
+      addMessage('ignis', '[No response]');
+      return;
+    }
+
+    if (metaDone?.time) {
+      const timeEl = bubble.closest('.msg-row')?.querySelector('.msg-time');
+      if (timeEl) timeEl.textContent = metaDone.time;
+    }
+
+    if (fullReply) {
+      // Render markdown now that full text is available
+      if (typeof marked !== 'undefined') bubble.innerHTML = marked.parse(fullReply);
+      speak(fullReply);
+      if (addToHistory) {
+        conversationHistory.push({ role: 'user',      content: text });
+        conversationHistory.push({ role: 'assistant', content: fullReply });
+        if (conversationHistory.length > 40) conversationHistory = conversationHistory.slice(-40);
+      }
+    }
+
+  } else {
+    // ── Non-streaming fallback (gateway doesn't support stream) ──
+    const data  = await ignisRes.json();
+    const reply = data.text || data.response || '[No response]';
+    setTyping(false);
+    addMessage('ignis', reply, data.time);
+    speak(reply);
+    if (addToHistory) {
+      conversationHistory.push({ role: 'user',      content: text });
+      conversationHistory.push({ role: 'assistant', content: reply });
+      if (conversationHistory.length > 40) conversationHistory = conversationHistory.slice(-40);
+    }
+  }
+
+  // Step 3 — Flash Aum panel tab
   if (currentPanel === 'ignis') flashAumDot();
 
   // Step 4 — If video clips were staged, kick off the pipeline upload
@@ -1516,16 +1643,22 @@ async function uploadToPipeline(videoFiles) {
   }
 
   // Build FormData — actual binary clips, not just names
+  // sourceType: 'filmed' = apply Real-ESRGAN upscale (default for iPhone footage)
+  //             'ai-gen'  = skip upscale — Kling/Veo/Runway clips are already high quality
+  // MyClaw sets 'ai-gen' when running the full generative pipeline end-to-end.
+  // For manual uploads, convention is to name AI-generated files with 'ai_' prefix.
+  const isAiGen = videoFiles.length > 0 && videoFiles.every(f => f.name.startsWith('ai_'));
   const fd = new FormData();
   videoFiles.forEach(f => fd.append('clips', f));
   fd.append('type',        'cinematic');
-  fd.append('skipUpscale', 'false');
+  fd.append('sourceType',  isAiGen ? 'ai-gen' : 'filmed');
+  fd.append('skipUpscale', isAiGen ? 'true' : 'false');
   fd.append('scale',       '4');
 
   // Upload strategy:
   // 1. If ignisGateway is loaded: POST directly to MyClaw — no Vercel body limit
   // 2. Fallback: POST through /api/ignis-upload proxy (Vercel free tier caps at ~4.5 MB)
-  const useDirect = ignisGateway && ignisGateway.gatewayUrl;
+  const useDirect = ignisGateway && ignisGateway.gatewayUrl && ignisGateway.gatewayToken;
   const uploadUrl = useDirect
     ? `${ignisGateway.gatewayUrl}/pipeline/upload`
     : '/api/ignis-upload';
@@ -1566,7 +1699,7 @@ async function uploadToPipeline(videoFiles) {
       if (status === 'done') {
         clearInterval(pollTimer);
         setDone(downloadUrl);
-        sendToIgnis(`The video pipeline finished. The edit is ready to download.`);
+        sendToIgnis(`The video pipeline finished. The edit is ready to download.`, [], false);
       } else if (status === 'error') {
         clearInterval(pollTimer);
         setProgress(`Pipeline error — ${progress || 'check server logs'}`);

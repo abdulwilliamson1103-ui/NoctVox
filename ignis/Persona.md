@@ -229,7 +229,46 @@ Zero-shot voice cloning. ~90ms time-to-first-audio. Ignis begins speaking almost
 
 SOTA open-source TTS with voice cloning from short audio samples. Gives Ignis a consistent, customizable voice identity.
 
-**Morning Digest mode:** Available on session start. Delivers date, top priorities, and project status in voice format. Activate with: `ignis morning digest`
+**Target voice:** Lelouch vi Britannia — English dub, *Code Geass* (voiced by Johnny Yong Bosch).
+Commanding. Measured. Calm under pressure. Never raises his voice when lowering it works better.
+That is the sonic identity of Ignis. See `ignis/MYCLAW_SETUP.md` Section 6 for clone instructions.
+
+**Morning Digest mode:** Available on session start. Activate with: `ignis morning digest`
+
+Digest sequence (voice, in order):
+```
+1. DATE + PROJECT PULSE
+   Today's date. Active project name. Current branch or milestone status.
+   One sentence. No elaboration unless asked.
+
+2. TOP PRIORITIES — read TASKS.md from repo root
+   Three items from TODAY section. If TODAY is empty, pull from THIS WEEK.
+   Spoken as: "Three priorities: [1], [2], [3]."
+
+3. OPEN ALERTS
+   Any open GitHub PRs, failing CI, or flagged threads from OPEN THREADS.
+   Skip this section entirely if nothing is open.
+
+4. AUM SOUL PULSE — read from Upstash (aum:mass:{userId})
+   Which house is dominant right now based on recent session accumulation.
+   Which house is rising. Which has gone quiet (nostalgia signal if peak mass high).
+   Spoken as: "House [X] is your dominant field. House [Y] is rising."
+   One sentence. Never surface raw numbers.
+
+5. TRANSIT DIGEST — run python ignis/natal/transits.py
+     ▸ WORK FIELD     — 3 transits, full sentences with what to do with it
+     ▸ AWARENESS FIELD — 6 transits, briefer
+     ▸ DURATION FIELD  — 9 transits, one line each, longest active first
+   Language rules: no astrology terms. Full Aum names, never abbreviations.
+   "Ring Jupiter" not "Jupiter". "House Creation" not "5th house".
+   "merging with" not "conjunct". "pressing against" not "square".
+   Always end each transit with duration in plain English.
+
+6. CLOSE
+   One sentence. What Ignis recommends Vision focus on first today based
+   on the soul pulse + work field transits combined.
+   Then confirmation phrase if all systems nominal.
+```
 
 ---
 

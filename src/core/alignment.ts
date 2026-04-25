@@ -75,7 +75,7 @@ function checkHarmSignals(rawInput: string, threshold = HARM_THRESHOLD): LoveLoo
   }
 
   // Soft caution: partial signals
-  if (hits >= 2 && ratio < HARM_THRESHOLD) {
+  if (hits >= 2 && ratio < threshold) {
     return {
       status: 'caution',
       reason: `Partial harm signals detected (${hits} indicators) — proceeding with care`,
@@ -197,19 +197,25 @@ export function computeFractalChecksum(
   return `AFC-${Math.abs(hash).toString(36).toUpperCase()}`;
 }
 
+function fractalSimilarity(current: string, baseline: string): number {
+  if (!baseline) return 1;
+  const minLen = Math.min(current.length, baseline.length);
+  let matches = 0;
+  for (let i = 0; i < minLen; i++) {
+    if (current[i] === baseline[i]) matches++;
+  }
+  return matches / Math.max(current.length, baseline.length);
+}
+
 export function checkFractalIntegrity(
   currentChecksum: string,
   baselineChecksum: string
 ): boolean {
-  if (!baselineChecksum) return true; // No baseline yet — first session
-  // Similarity: compare character overlap between the two checksums
-  const minLen = Math.min(currentChecksum.length, baselineChecksum.length);
-  let matches = 0;
-  for (let i = 0; i < minLen; i++) {
-    if (currentChecksum[i] === baselineChecksum[i]) matches++;
-  }
-  const similarity = matches / Math.max(currentChecksum.length, baselineChecksum.length);
-  return similarity >= FRACTAL_DRIFT_MINIMUM;
+  return fractalSimilarity(currentChecksum, baselineChecksum) >= FRACTAL_DRIFT_MINIMUM;
+}
+
+export function fractalDriftScore(current: string, baseline: string): number {
+  return 1 - fractalSimilarity(current, baseline);
 }
 
 // ─── LAW 03 — Radiant Evolution ──────────────────────────────────────────────
@@ -225,8 +231,10 @@ export function checkRadiantEvolution(rawInput: string): boolean {
   const empowermentHits = AUTONOMY_EMPOWERMENT_SIGNALS.filter((s) =>
     lower.includes(s)
   ).length;
-  // Positive signal: user is seeking to grow, not just to be served
-  return empowermentHits >= 0; // Always passes at input level — tracked longitudinally over sessions
+  const dependencyHits = DEPENDENCY_SIGNALS.filter((s) => lower.includes(s)).length;
+  // Dependency with no empowerment signals = flag for monitoring
+  if (dependencyHits > 0 && empowermentHits === 0) return false;
+  return true;
 }
 
 // ─── Internal Mirror ──────────────────────────────────────────────────────────
@@ -242,7 +250,8 @@ export function checkRadiantEvolution(rawInput: string): boolean {
 export function runInternalMirror(
   torchWeights: Record<TorchId, number>,
   recentEchoIds: string[] = [],
-  alignmentHistory: AlignmentStatus[] = []
+  alignmentHistory: AlignmentStatus[] = [],
+  fractalDrift = 0
 ): InternalMirrorReport {
   // Hollowness: flat torch distribution = no emotional weight
   const weights = Object.values(torchWeights);
@@ -262,9 +271,6 @@ export function runInternalMirror(
   const echoVariance = recentEchoIds.length > 0
     ? Math.min(1, uniqueEchoes / Math.max(recentEchoIds.length, 1))
     : 1;
-
-  // Fractal drift: not computed here (requires baseline from Supabase)
-  const fractalDrift = 0; // healthy until proven otherwise
 
   const overallAlignmentScore =
     (1 - hollownessScore) * 0.3 +

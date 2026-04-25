@@ -8,3 +8,6 @@ build/
 .DS_Store
 *.log
 tsconfig.tsbuildinfo
+__pycache__/
+*.pyc
+*.pyo

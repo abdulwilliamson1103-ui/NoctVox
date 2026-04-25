@@ -89,7 +89,7 @@ def main():
     if args.input.endswith('.json'):
         with open(args.input) as f:
             data = json.load(f)
-        clips = data['clips']
+        clips = data.get('clips', [])
     else:
         SUPPORTED = ('.mp4', '.mov', '.MP4', '.MOV', '.m4v', '.M4V')
         clips = sorted([

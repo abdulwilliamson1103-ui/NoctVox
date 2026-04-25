@@ -74,7 +74,7 @@ export const HOUSES: House[] = [
     triggerKeywords: [
       'work', 'service', 'routine', 'health', 'fitness', 'pharma',
       'wellness', 'exercise', 'diet', 'doctor', 'medicine', 'habit',
-      'workflow', 'organize', 'daily', 'optimize', 'body', 'mental',
+      'workflow', 'organize', 'daily', 'optimize', 'body',
     ],
   },
   {
@@ -98,7 +98,7 @@ export const HOUSES: House[] = [
     triggerKeywords: [
       'debt', 'power', 'secrets', 'insurance', 'tax', 'inheritance',
       'transform', 'deep', 'death', 'change', 'psychology', 'hidden',
-      'crisis', 'rebirth', 'shadow', 'merge', 'taboo', 'intense',
+      'crisis', 'rebirth', 'shadow', 'merge', 'taboo', 'intense', 'mental',
     ],
   },
   {
@@ -201,11 +201,6 @@ export function classifyHouse(
 
   const primaryHouseId = Number(sorted[0][0]) as HouseId;
   const primaryScore = sorted[0][1];
-
-  // No keyword match at all — default to House 1 (Identity) with low confidence
-  if (primaryScore === 0) {
-    return { primaryHouseId: 1, modulators: [], confidence: 0.1, energyRatio: 0.5 };
-  }
 
   const modulators = sorted
     .slice(1)

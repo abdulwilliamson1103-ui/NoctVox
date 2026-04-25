@@ -106,7 +106,7 @@ export const COUNCIL_CHARACTERS = {
     name: 'Iron Man',
     role: 'Engineering',
     color: '#b91c1c',
-    activatesOn: ['build', 'code', 'app', 'system', 'scale', 'technical', 'architecture', 'deploy', 'infrastructure', 'technical'],
+    activatesOn: ['build', 'code', 'app', 'system', 'scale', 'technical', 'architecture', 'deploy', 'infrastructure', 'api'],
     process: (input: string) => {
       return {
         mind: 'Iron Man',

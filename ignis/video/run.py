@@ -18,7 +18,6 @@ Usage (existing timestamps, skip beat sync too):
 
 import os
 import sys
-import json
 import argparse
 import subprocess
 
@@ -52,7 +51,7 @@ def main():
 
     # Style
     parser.add_argument('--type',   default='cinematic',
-                        choices=['anime','cinematic','portrait','sport','raw'],
+                        choices=['anime','cinematic','gaming','portrait','sport','product','zenith','raw'],
                         help='Colour grade style')
     parser.add_argument('--lut',    default=None, help='Path to .cube LUT file')
     parser.add_argument('--sfx-dir',default=None, help='SFX folder for cut transitions')
@@ -60,6 +59,9 @@ def main():
     # Pipeline control
     parser.add_argument('--skip-upscale',  action='store_true',
                         help='Skip AI upscale — use original clips (faster, for testing)')
+    parser.add_argument('--source-type', default='filmed',
+                        choices=['filmed', 'ai-gen'],
+                        help='ai-gen skips upscale automatically — AI-generated clips are already high quality')
     parser.add_argument('--upscale-output',default='upscaled',
                         help='Folder for upscaled clips')
     parser.add_argument('--scale',         type=int, default=4, choices=[2, 4],
@@ -79,7 +81,8 @@ def main():
 
     print(f"\nIgnis Video Pipeline")
     print(f"  Style:    {args.type}")
-    print(f"  Upscale:  {'skipped' if args.skip_upscale else f'{args.scale}x via Replicate'}")
+    print(f"  Source:   {args.source_type}")
+    print(f"  Upscale:  {'skipped' if (args.skip_upscale or args.source_type == 'ai-gen') else f'{args.scale}x via Replicate'}")
     print(f"  Output:   {args.output}")
 
     # ── Step 1: Beat Sync ────────────────────────────────
@@ -92,6 +95,9 @@ def main():
         run_step("Step 1 — Beat Sync", 'beat_sync.py', beat_args)
 
     # ── Step 2: AI Upscale ───────────────────────────────
+    if args.source_type == 'ai-gen':
+        args.skip_upscale = True  # AI-generated clips are already high quality — upscaling degrades them
+
     if args.skip_upscale:
         print(f"\n[Step 2] Skipping upscale — clips will be used as-is")
     else:
@@ -111,8 +117,11 @@ def main():
     ]
     if args.lut:
         stitch_args += ['--lut', args.lut]
-    if args.sfx_dir:
-        stitch_args += ['--sfx-dir', args.sfx_dir]
+
+    # Auto-detect SFX folder — use explicit --sfx-dir or fall back to sfx/ next to run.py
+    sfx_dir = args.sfx_dir or os.path.join(SCRIPT_DIR, 'sfx')
+    if os.path.isdir(sfx_dir):
+        stitch_args += ['--sfx-dir', sfx_dir]
 
     run_step("Step 3 — Stitch + Grade + Export", 'stitch.py', stitch_args)
 

@@ -56,7 +56,7 @@ export const YANG_WEIGHTS: Record<MassEventType, number> = {
 const EMOTION_SIGNALS = [
   'feel', 'felt', 'feeling', 'scared', 'excited', 'worried', 'anxious',
   'happy', 'sad', 'angry', 'frustrated', 'love', 'hate', 'nervous',
-  'overwhelmed', 'grateful', 'afraid', 'hope', 'scared', 'proud',
+  'overwhelmed', 'grateful', 'afraid', 'hope', 'proud',
 ];
 
 const DECISION_SIGNALS = [
@@ -146,7 +146,7 @@ export function compressToMemory(
 
 // ─── Memory Block Builder ─────────────────────────────────────────────────────
 
-function generateId(): string {
+export function generateId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
   }
@@ -155,7 +155,7 @@ function generateId(): string {
 
 /**
  * Build a structured MemoryBlock from a routing interaction.
- * MemoryBlocks are the in-memory representation before Supabase persistence.
+ * MemoryBlocks are the in-memory representation of a routing interaction.
  */
 export function buildMemoryBlock(params: {
   houseId: HouseId;

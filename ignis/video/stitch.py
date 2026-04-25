@@ -19,6 +19,7 @@ import json
 import argparse
 import subprocess
 import tempfile
+import shutil
 
 
 STYLE_PRESETS = {
@@ -87,29 +88,37 @@ def trim_clip(clip_path, duration, output_path):
     return output_path
 
 
-def mix_sfx_at_cuts(clip_paths, sfx_dir, output_dir):
+def mix_sfx_at_cuts(clip_paths, sfx_dir, output_dir, content_type='cinematic'):
     """
-    Overlay a short whoosh/transition SFX at the start of each clip.
+    Overlay SFX at the start of each clip.
+    - Prefers type-specific subfolder: sfx/cinematic/ over sfx/
+    - Cycles through the full palette so each cut gets a different sound
+    - Handles clips with no audio track (AI-gen clips often have none)
     Falls back silently if no SFX files found.
-    Returns clip_paths unchanged if no SFX available.
     """
     if not sfx_dir or not os.path.isdir(sfx_dir):
         return clip_paths
 
+    # Prefer type-specific subfolder if it exists and has sounds
+    type_dir = os.path.join(sfx_dir, content_type)
+    search_dir = type_dir if os.path.isdir(type_dir) else sfx_dir
+
     sfx_candidates = sorted([
-        os.path.join(sfx_dir, f)
-        for f in os.listdir(sfx_dir)
+        os.path.join(search_dir, f)
+        for f in os.listdir(search_dir)
         if f.endswith(('.wav', '.mp3', '.aac', '.m4a'))
     ])
     if not sfx_candidates:
         return clip_paths
 
-    sfx_file = sfx_candidates[0]  # use first SFX found (e.g. whoosh.wav)
-    print(f"  SFX: {os.path.basename(sfx_file)}")
+    print(f"  SFX palette ({content_type}): {len(sfx_candidates)} sound(s)")
 
     mixed = []
     for i, clip in enumerate(clip_paths):
+        sfx_file = sfx_candidates[i % len(sfx_candidates)]  # cycle — no repeated sounds
         out = os.path.join(output_dir, f"sfx_{i:04d}_{os.path.basename(clip)}")
+
+        # Primary: mix SFX with existing clip audio
         cmd = [
             'ffmpeg', '-y',
             '-i', clip,
@@ -125,8 +134,22 @@ def mix_sfx_at_cuts(clip_paths, sfx_dir, output_dir):
         result = subprocess.run(cmd, capture_output=True)
         if result.returncode == 0:
             mixed.append(out)
-        else:
-            mixed.append(clip)  # fall back to original if mix fails
+            continue
+
+        # Fallback: clip has no audio track (common with AI-gen clips) — use SFX as sole audio
+        cmd_noaudio = [
+            'ffmpeg', '-y',
+            '-i', clip,
+            '-i', sfx_file,
+            '-filter_complex', '[1:a]apad=pad_dur=10[aout]',
+            '-map', '0:v',
+            '-map', '[aout]',
+            '-c:v', 'copy',
+            '-c:a', 'aac',
+            out,
+        ]
+        result2 = subprocess.run(cmd_noaudio, capture_output=True)
+        mixed.append(out if result2.returncode == 0 else clip)
 
     return mixed
 
@@ -223,38 +246,41 @@ def main():
     print(f"Stitching {len(clips)} clips — style: {args.type}")
 
     tmpdir = tempfile.mkdtemp(prefix='ignis_stitch_')
+    try:
+        # Step 1 — Trim each clip to the per-slot duration
+        print("\nTrimming clips...")
+        trimmed = []
+        for i, clip in enumerate(clips):
+            if not os.path.exists(clip):
+                print(f"  Missing: {clip} — skipping")
+                continue
+            out = os.path.join(tmpdir, f"trim_{i:04d}.mp4")
+            result = trim_clip(clip, args.clip_duration, out)
+            if result is None:
+                print(f"  [{i+1}/{len(clips)}] FAILED (bad codec?) — skipping: {os.path.basename(clip)}")
+            else:
+                trimmed.append(out)
+                print(f"  [{i+1}/{len(clips)}] {os.path.basename(clip)}")
 
-    # Step 1 — Trim each clip to the per-slot duration
-    print("\nTrimming clips...")
-    trimmed = []
-    for i, clip in enumerate(clips):
-        if not os.path.exists(clip):
-            print(f"  Missing: {clip} — skipping")
-            continue
-        out = os.path.join(tmpdir, f"trim_{i:04d}.mp4")
-        result = trim_clip(clip, args.clip_duration, out)
-        if result is None:
-            print(f"  [{i+1}/{len(clips)}] FAILED (bad codec?) — skipping: {os.path.basename(clip)}")
-        else:
-            trimmed.append(out)
-            print(f"  [{i+1}/{len(clips)}] {os.path.basename(clip)}")
+        if not trimmed:
+            print("No valid clips to stitch.")
+            sys.exit(1)
 
-    if not trimmed:
-        print("No valid clips to stitch.")
-        sys.exit(1)
+        # Step 2 — Overlay SFX at cut points
+        if args.sfx_dir:
+            print("\nMixing SFX...")
+            trimmed = mix_sfx_at_cuts(trimmed, args.sfx_dir, tmpdir, content_type=args.type)
 
-    # Step 2 — Overlay SFX at cut points
-    if args.sfx_dir:
-        print("\nMixing SFX...")
-        trimmed = mix_sfx_at_cuts(trimmed, args.sfx_dir, tmpdir)
+        # Step 3 — Build colour filter
+        color_filter = build_color_filter(args.type, args.lut)
+        print(f"\nColour grade: {color_filter[:60]}{'...' if len(color_filter)>60 else ''}")
 
-    # Step 3 — Build colour filter
-    color_filter = build_color_filter(args.type, args.lut)
-    print(f"\nColour grade: {color_filter[:60]}{'...' if len(color_filter)>60 else ''}")
+        # Step 4 — Stitch + grade + export
+        print(f"\nExporting: {args.output}")
+        stitch_clips(trimmed, color_filter, args.output, song_path=song)
 
-    # Step 4 — Stitch + grade + export
-    print(f"\nExporting: {args.output}")
-    stitch_clips(trimmed, color_filter, args.output, song_path=song)
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
     size_mb = os.path.getsize(args.output) / (1024 * 1024)
     print(f"\nDone. Output: {args.output} ({size_mb:.1f}MB)")

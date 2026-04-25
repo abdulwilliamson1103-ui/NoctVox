@@ -1,12 +1,8 @@
 // Aum Routing Engine — Upstash Redis Persistence Layer
 //
-// Drop-in replacement for supabase.ts — same function signatures,
-// same graceful fallback behavior when env vars are missing.
-//
-// Why Upstash instead of Supabase:
-//   Upstash Redis uses a plain HTTP REST API with a bearer token.
-//   No connection pooling, no host allowlists, works from any runtime
-//   including serverless Edge Functions and mobile-adjacent dev servers.
+// Upstash Redis uses a plain HTTP REST API with a bearer token.
+// No connection pooling, no host allowlists, works from any runtime
+// including serverless Edge Functions and mobile-adjacent dev servers.
 //
 // Setup (2 minutes):
 //   1. upstash.com → Create account → New Database → Redis
@@ -68,13 +64,9 @@ export async function updateHouseMasses(
   if (!redis) return;
   try {
     const key = `aum:mass:${userId}`;
-    // Load existing, add contribution, write back
-    const existing = await loadHouseMasses(userId);
     const pipeline = redis.pipeline();
     for (const [houseIdStr, contribution] of Object.entries(massUpdate)) {
-      const houseId = Number(houseIdStr);
-      const current = existing[houseId] ?? 0;
-      pipeline.hset(key, { [houseId]: current + contribution });
+      pipeline.hincrby(key, houseIdStr, contribution);
     }
     await pipeline.exec();
   } catch (err) {
@@ -251,6 +243,21 @@ export async function markHouseActiveCycle(
   }
 }
 
+export async function loadLastActiveCycles(userId: string): Promise<Record<number, number>> {
+  const redis = getClient();
+  if (!redis) return {};
+  try {
+    const raw = await redis.hgetall(`aum:last_cycle:${userId}`);
+    if (!raw) return {};
+    return Object.fromEntries(
+      Object.entries(raw).map(([k, v]) => [Number(k), Number(v)])
+    );
+  } catch (err) {
+    console.error('[Aum] loadLastActiveCycles error:', err);
+    return {};
+  }
+}
+
 export async function getSessionsSinceLastActive(
   userId: string,
   currentCycle: number
@@ -306,25 +313,11 @@ export async function updateHouseYinYang(
     const pipeline = redis.pipeline();
     const yinKey  = `aum:yin:${userId}`;
     const yangKey = `aum:yang:${userId}`;
-
-    // Load current values and increment
-    const [existingYin, existingYang] = await Promise.all([
-      redis.hgetall(yinKey),
-      redis.hgetall(yangKey),
-    ]);
-    const parseExisting = (raw: Record<string, unknown> | null): Record<number, number> =>
-      raw ? Object.fromEntries(Object.entries(raw).map(([k, v]) => [Number(k), Number(v)])) : {};
-
-    const curYin  = parseExisting(existingYin);
-    const curYang = parseExisting(existingYang);
-
     for (const [hIdStr, contribution] of Object.entries(yinUpdate)) {
-      const hId = Number(hIdStr);
-      pipeline.hset(yinKey, { [hId]: (curYin[hId] ?? 0) + contribution });
+      pipeline.hincrby(yinKey, hIdStr, contribution);
     }
     for (const [hIdStr, contribution] of Object.entries(yangUpdate)) {
-      const hId = Number(hIdStr);
-      pipeline.hset(yangKey, { [hId]: (curYang[hId] ?? 0) + contribution });
+      pipeline.hincrby(yangKey, hIdStr, contribution);
     }
     await pipeline.exec();
   } catch (err) {

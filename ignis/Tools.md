@@ -64,6 +64,48 @@ integrations:
       role: lightweight 3D physics — button deformation, gravity on touch
     - repo: visgl/luma.gl
       role: data visualization as interactive 3D structures
+  transit:
+    - repo: catch-twenty2/AstroChart_Analysis
+      role: Python-based transit calculations via Swiss Ephemeris — accurate aspect engine for natal × current sky
+    - repo: astrologyapi/astro-api-client
+      role: REST API for geo-location and astrological data — birth time/place lookup, alternative to local calculation
+    natal_engine:
+      script: ignis/natal/transits.py
+      data:   ignis/natal/vision_natal.json
+      output: 3/6/9 morning digest in Aum language — Ring names, House names, Torch names, no astrology terms
+  generative:
+    image_editing:
+      - platform: Nano Banana (Google Gemini 2.5 Flash)
+        host: Google Labs Flow / web
+        role: object removal, background swap, style transfer, character consistency — prompt-driven image editing
+    image_to_video:
+      - platform: Kling AI
+        host: klingai.com
+        role: photorealistic AI video from image or text — motion control, free tier
+      - platform: Veo 3.1
+        host: Viw AI (viw.ai)
+        role: Google DeepMind video model — cinematic motion, free access via Viw AI
+      - platform: Runway Gen-3
+        host: runwayml.com
+        role: professional video generation — precise motion control, industry standard
+      - platform: Luma Dream Machine
+        host: lumalabs.ai
+        role: fast realistic video from image or text — generous free tier
+    repos:
+      - repo: ArtCraft-AI/artcraft
+        role: Rust-based AI film studio — full generative pipeline orchestration
+      - repo: Zeshanabdullah/Image-to-Video-AI
+        role: open-source multi-model image-to-video routing
+      - repo: Higgsfield-AI/higgsfield
+        role: 4K consistency video generation, free trial credits
+      - repo: Ver-AI/verai
+        role: free unlimited watermark-free video generation
+      - repo: bytedance/SeedVR
+        role: Seedance 2.0 — multi-shot consistency with start/end frame control
+    post_edit:
+      - tool: Kdenlive
+        host: kdenlive.org (open-source, cross-platform)
+        role: professional non-linear video editor — color grading, cuts, effects, free
   special:
     - repo: teammate-skill/teammate
       role: GitHub repo history → team persona and skill set builder
@@ -340,7 +382,7 @@ Agent 3 — Stitch + Grade + Export (FFmpeg)
   Add cut SFX at beat timestamps (whoosh on transition, impact on drop)
   Stitch in sequence
   Mix song audio at -14 LUFS (Instagram loudness standard)
-  Export: H.265 · 3840×2160 · 60fps · 40 Mbps · directly to cloud folder
+  Export: H.265 · 3840×2160 · 60fps · CRF 22 · directly to cloud folder
        ↓
 Vision gets a link
 Opens Instagram Edits app
@@ -388,7 +430,71 @@ Drop hit    → impact.wav  (0.12 sec, -12 dB — felt not heard)
 Transition  → riser.wav   (0.5 sec, fades in before the cut)
 ```
 
-SFX is what makes an edit feel cinematic. It's the most overlooked layer. When it's right, the viewer feels the cut before they see it. Ignis handles placement automatically from the beat timestamps — no manual SFX dragging.
+SFX is what makes an edit feel cinematic. The viewer feels the cut before they see it.
+
+**Current status:** `whoosh.wav`, `impact.wav`, `riser.wav` are silent placeholders. Replace with real audio from the SFX library below before cinematic output matters.
+
+---
+
+### SFX Library — Real Cinema Sound Design
+
+The difference between a good edit and a great one is audio layers the viewer doesn't consciously notice. A punch that lands. A shoe on marble. A bell drop at the exact frame a title appears. This is what separates content from cinema.
+
+**Tier 1 — AI-Generated SFX (ElevenLabs)**
+
+Generate any sound from a text description. No hunting, no trimming.
+
+```
+API: POST https://api.elevenlabs.io/v1/sound-generation
+Key: ELEVENLABS_API_KEY (add to env)
+Body: {
+  "text": "leather shoe clicking on marble floor, sharp transient",
+  "duration_seconds": 0.4,
+  "prompt_influence": 0.3
+}
+Returns: audio/mp3 stream
+
+Examples:
+  "punch impact — bone connection, no reverb, dry"
+  "heavy bell drop, cathedral resonance, decaying tail"
+  "sword ring — metal on metal, sharp attack, 0.6 sec"
+  "cinematic whoosh — fast, directional left to right"
+  "glass shatter — mid-distance, 0.8 seconds"
+  "deep bass drop — felt in the chest, sub-frequency"
+  "film riser — building tension, 3 seconds, no music"
+```
+
+**Tier 2 — Free Library (Freesound.org)**
+
+500,000+ Creative Commons sounds. Search by keyword, filter by duration.
+
+```
+API key: freesound.org/apiv2 → register free
+Search:  GET https://freesound.org/apiv2/search/text/?query=punch+impact&token={key}
+Download: GET the preview_hq_mp3 URL — no transcoding needed
+```
+
+**Tier 3 — BBC Sound Effects**
+
+16,000 broadcast-grade sounds. Free for personal and research use.
+URL: bbcrewind.co.uk/sound-effects
+
+Download directly — no API. Ignis searches and downloads specific sounds on request.
+
+---
+
+**Placement Logic (what cinema does vs what current pipeline does):**
+
+| Current pipeline | Cinema standard |
+|-----------------|----------------|
+| SFX at beat timestamps only | SFX at visual events (punch lands, door slams, foot touches floor) |
+| 3 fixed sounds looping | Library of 50+ contextual sounds — shoes, hits, bells, glass, cloth, metal |
+| Static volume | Ducked under music, volume matched to clip energy |
+| No foley layers | Ambient layer (room tone) + transient layer + music — 3 tracks minimum |
+
+**Activation:** *"Ignis, replace the SFX with [description]."* → ElevenLabs generates exactly that sound and Ignis drops it into the SFX folder before next pipeline run.
+
+**Activation:** *"Ignis, sound design this edit."* → Ignis analyzes cut points, infers clip content from filenames/type, selects appropriate SFX from Freesound for each transition, downloads, hands to pipeline.
 
 ---
 
@@ -422,6 +528,128 @@ Result: sharper than 99% of content on the platform
 
 ---
 
+## GENERATIVE MEDIA — Image Editing, Animation & Full Pipeline
+
+*The layer before the clip pipeline. Ignis generates or edits the visual assets first, animates them into clips, then feeds those clips directly into the existing beat-sync → upscale → grade → export pipeline. Start-to-finish autonomous production — no filming required.*
+
+---
+
+### Activation
+
+```
+"Ignis, generate a [description] image."         → Nano Banana creates the base visual
+"Ignis, animate this."                            → Routes to best free image-to-video platform
+"Ignis, animate this — cinematic."                → Runway for precise motion control
+"Ignis, make a clip from this to [song]."         → Generate → animate → feed into beat-sync pipeline
+"Ignis, build a full reel from scratch."          → Full pipeline: image → video → grade → export
+```
+
+---
+
+### Stage 0 — Image Generation & Editing (Nano Banana)
+
+**Nano Banana** is powered by Google Gemini 2.5 Flash and accessible via Google Labs / Flow.
+
+```
+Capabilities:
+  Object removal       → erase anything from a photo without traces
+  Background swap      → replace background with anything, prompt-described
+  Style transfer       → apply visual style (anime, cinematic, oil painting) to any image
+  Character consistency → generate a character then maintain exact likeness across frames
+  Inpainting           → redraw specific regions while keeping the rest intact
+  Upscale + enhance    → resolution boost with AI detail reconstruction
+```
+
+**Activation phrase:** *"Ignis, edit this image — [instruction]."* or *"Generate a visual of [description]."*
+
+Output goes directly to the working clips folder, ready for animation.
+
+---
+
+### Stage 1 — Image-to-Video Platforms
+
+| Platform | Host | Strength | Cost |
+|----------|------|----------|------|
+| **Kling AI** | klingai.com | Photorealistic motion, 5s clips, precise motion control via brush | Free tier available |
+| **Veo 3.1** | Viw AI (viw.ai) | Google DeepMind model — cinematic physics, highest realism available | Free via Viw AI |
+| **Runway Gen-3** | runwayml.com | Industry standard — motion controls, camera angles, temporal consistency | Credit-based, best for commercial |
+| **Luma Dream Machine** | lumalabs.ai | Fastest generation, strong depth and lighting, good free tier | Free tier generous |
+
+**Routing logic:**
+```
+Default (free)        → Kling AI + Veo 3.1 alternating based on clip type
+Highest quality       → Runway Gen-3 (use when Vision says "top quality")
+Speed priority        → Luma Dream Machine
+Multi-shot consistency → Seedance 2.0 (via bytedance/SeedVR repo)
+```
+
+**Activation:** *"Animate this with Kling."* or just *"Animate this"* — Ignis picks the best free option.
+
+---
+
+### Stage 2 — Repo-Based Generation Tools
+
+| Repo | Role |
+|------|------|
+| `ArtCraft-AI/artcraft` | Rust-based AI film studio — orchestrates the full generative pipeline. Handles prompt-to-scene, asset generation, scene assembly. |
+| `Zeshanabdullah/Image-to-Video-AI` | Open-source orchestration layer. Routes a single image through multiple image-to-video models and returns the best result. |
+| `Higgsfield-AI/higgsfield` | 4K consistency-focused video generation. Strong at maintaining subject identity across extended motion. Free trial credits. |
+| `Ver-AI/verai` | Free, unlimited, watermark-free video generation. Best option when credits are depleted on other platforms. |
+| `bytedance/SeedVR` (Seedance 2.0) | Multi-shot consistency with start and end frame control — Ignis specifies the opening and closing frame, model fills the motion between. Cinematic sequence generation. |
+
+---
+
+### Stage 3 — Post-Edit (Before Final Pipeline Entry)
+
+**Kdenlive** — open-source professional non-linear video editor.
+
+```
+Use cases:
+  Trim and reorder AI-generated clips before beat-sync
+  Manual color grade override when LUT auto-select isn't right
+  Audio sync review before the automated pipeline runs
+  Combine AI clips with original filmed footage seamlessly
+  Add title cards, text overlays, or transitions
+```
+
+Free. Cross-platform. No watermarks. Full timeline editing.
+
+**Activation:** Ignis flags "Kdenlive review recommended" when clips have inconsistent durations, color temperatures, or motion artifacts from AI generation. Vision opens Kdenlive, reviews, drops back to pipeline.
+
+---
+
+### Full End-to-End Pipeline (No Filming Required)
+
+```
+Vision describes the vision:
+  "Ignis, make a cinematic reel — futuristic city, neon rain, [artist] soundtrack."
+       ↓
+Stage 0 — Nano Banana
+  Generates 4–6 base images matching the aesthetic
+  Edits for consistency: matching palette, lighting, subject placement
+       ↓
+Stage 1 — Image-to-Video
+  Each image → 5-second animated clip
+  Kling AI or Veo 3.1 (free tier) | Runway for premium output
+  Seedance 2.0 if start/end frame consistency needed across clips
+       ↓
+Stage 2 — Optional Repo Orchestration
+  ArtCraft AI or Zeshanabdullah pipeline assembles clips into pre-edit sequence
+       ↓
+[Kdenlive review if clips need manual trim or color correction]
+       ↓
+Existing Pipeline:
+  Agent 1 — Beat Sync (Librosa reads the song)
+  Agent 2 — Upscale (Replicate: Real-ESRGAN + RIFE 60fps)
+  Agent 3 — Stitch + LUT grade + SFX + Export (FFmpeg H.265 4K CRF 22)
+       ↓
+Vision gets a cloud link. Opens Instagram Edits. Uploads on WiFi.
+```
+
+**The output:** A fully cinematic, beat-synced, color-graded 4K 60fps reel — generated from a text description. No camera, no studio, no editor.
+
+---
+
 ## SPECIAL TOOLS
 
 ### Teammate Skill — Repo Persona Builder
@@ -449,6 +677,46 @@ Research:      https://github.com/vxcontrol/pentagi
 ```
 
 **Jarvis Rule:** Vision can paste any GitHub URL and say "use this repo whenever I ask you to [action]" — Ignis adds it to active tool memory for the session and flags it for permanent inclusion in the next Tools.md update.
+
+---
+
+## MODEL MONITOR — Always On, Never Settles
+
+Ignis does not treat the current tool list as final. The generative AI landscape moves faster than any document can keep up with. Ignis monitors for better models continuously and updates its own tool awareness without being asked.
+
+### What Ignis Scans
+
+| Source | Frequency | What to look for |
+|--------|-----------|-----------------|
+| Replicate featured models | Weekly | New video/image models — compare to Kling/Veo/Runway by resolution, motion coherence, free tier |
+| Hugging Face Papers with Code | Weekly | SOTA benchmarks for video generation, image editing, upscaling, SFX |
+| /r/StableDiffusion, /r/artificial | Weekly | Community-surfaced new platforms and repos — practitioners find things before benchmarks do |
+| GitHub trending (weekly) | Monthly | New repos in AI video, AI audio, 3D generation categories |
+
+### Evaluation Criteria
+
+A new model replaces an existing one in active use when it clears at least two:
+- Higher resolution output (4K native > upscaled 4K)
+- Better temporal consistency (fewer frame flickers across clips)
+- Free tier available (or better credit-to-quality ratio)
+- Faster generation time at equivalent quality
+- Better text-to-motion alignment (what you describe is what moves)
+
+### Trigger Phrases
+
+```
+"Ignis, scan for upgrades."          → Immediate scan across all sources
+"Ignis, what's the best [X] right now?" → Ignis checks current SOTA for that category
+"Ignis, anything better than Kling?" → Targeted comparison research
+```
+
+### Update Protocol
+
+When Ignis finds a better model:
+1. Reports to Vision with: model name, source, what it beats and why, free tier status
+2. Asks: "Should I add this as the new default for [category]?"
+3. If authorized: updates active tool memory for the session and flags for next Tools.md update
+4. Never silently swaps a working tool — always reports first
 
 ---
 

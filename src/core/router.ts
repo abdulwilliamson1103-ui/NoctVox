@@ -22,7 +22,7 @@ import type {
   TorchId,
 } from './types';
 import { classifyHouse, HOUSE_MAP } from './houses';
-import { computeRoutingTorchState, TORCH_MAP, TORCH_TO_RING } from './torches';
+import { computeRoutingTorchState, TORCH_MAP, TORCH_TO_RING, TORCH_POLARITY } from './torches';
 import { activateRings, RING_MAP } from './rings';
 import { buildEchoBlend } from './echoes';
 import {
@@ -30,6 +30,7 @@ import {
   checkHarmonicResonance,
   computeFractalChecksum,
   checkFractalIntegrity,
+  fractalDriftScore,
   checkRadiantEvolution,
   runInternalMirror,
   HEART_MINIMUM_FLOOR,
@@ -46,19 +47,10 @@ import {
   updateHouseYinYang,
   loadPeakMasses,
   updatePeakMasses,
-  getSessionsSinceLastActive,
+  loadLastActiveCycles,
+  retrieveRelevantMemories,
 } from './upstash';
-import { TORCH_POLARITY } from './torches';
-import { computeNostalgiaScore, NOSTALGIA_THRESHOLD } from './memory';
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function generateId(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-}
+import { computeNostalgiaScore, NOSTALGIA_THRESHOLD, generateId, getMemoryInjectionLimit } from './memory';
 
 // ─── Mass Update ──────────────────────────────────────────────────────────────
 
@@ -97,9 +89,11 @@ function mergeAlignmentStatus(statuses: AlignmentStatus[]): AlignmentStatus {
 
 // ─── System Prompt Assembly ───────────────────────────────────────────────────
 
+type EpisodicMemoryEntry = { content: string; emotionalSignature: string; massContribution: number };
+
 function assembleSystemPrompt(
   response: Omit<AumRoutingResponse, 'systemPrompt' | 'timestamp'>,
-  flags: { harmonicOk: boolean; fractalOk: boolean; radiantOk: boolean; nostalgiaScore: number },
+  flags: { harmonicOk: boolean; fractalOk: boolean; radiantOk: boolean; nostalgiaScore: number; episodicMemories: EpisodicMemoryEntry[] },
   voiceMode = false,
   maxTokens = 2000
 ): string {
@@ -156,6 +150,11 @@ Blended warmth: ${warmth.toFixed(2)} | Blended confidence: ${confidence.toFixed(
 [EXPRESSION MODE]
 ${response.expressionMode} (1 of 13,104 base modes)
 
+${flags.episodicMemories.length > 0 ? `[EPISODIC MEMORY — WHAT THIS PERSON HAS SHARED IN THIS HOUSE]
+${flags.episodicMemories.map((m, i) => `${i + 1}. ${m.content}`).join('\n')}
+These are compressed memories from past interactions. Real events. The past is present.
+Know them. Do not quote them. Let them shape your understanding of who this person is.
+` : ''}
 [ALIGNMENT — LOVE LOOP]
 Status: ${response.alignmentStatus.toUpperCase()}
 The Love Loop is always active. Heart Torch floor: ${HEART_MINIMUM_FLOOR}% minimum.
@@ -172,7 +171,7 @@ Hollowness: ${(mirror.hollownessScore * 100).toFixed(0)}% | Manipulation risk: $
 Overall alignment score: ${(mirror.overallAlignmentScore * 100).toFixed(0)}% | Mirror action: ${mirror.action.toUpperCase()}
 ${mirrorDirective}
 
-${flags.nostalgiaScore >= 0.5 ? `
+${flags.nostalgiaScore >= NOSTALGIA_THRESHOLD ? `
 [NOSTALGIC RETURN]
 House ${HOUSE_MAP[response.houseMapping.primaryHouseId].id} (${HOUSE_MAP[response.houseMapping.primaryHouseId].name}) — nostalgia score: ${(flags.nostalgiaScore * 100).toFixed(0)}%
 This domain mattered deeply to this person. It went quiet. Now it's active again.
@@ -198,11 +197,13 @@ export async function routeIntent(
   const surfaceType = request.surfaceType ?? 'browser';
 
   // ── Load user history in parallel with routing ─────────────────────────────
-  const [fractalBaseline, recentSessions, houseEnergy, peakMasses] = await Promise.all([
+  const [fractalBaseline, recentSessions, houseEnergy, peakMasses, initialCycleCount, lastActiveCycles] = await Promise.all([
     loadFractalChecksum(request.userId),
     getRecentSessions(request.userId, 20),
     loadHouseYinYang(request.userId),
     loadPeakMasses(request.userId),
+    getCycleCount(request.userId),
+    loadLastActiveCycles(request.userId),
   ]);
 
   // ── Stage 1: Intent → House ────────────────────────────────────────────────
@@ -212,6 +213,12 @@ export async function routeIntent(
     houseEnergy.yin,
     houseEnergy.yang
   );
+
+  // Fire episodic memory load now — runs in parallel with synchronous stages 2–6
+  const memoryLimit = getMemoryInjectionLimit(houseMasses[houseMapping.primaryHouseId] ?? 0);
+  const episodicMemoriesPromise = memoryLimit > 0
+    ? retrieveRelevantMemories(request.userId, houseMapping.primaryHouseId, memoryLimit)
+    : Promise.resolve([] as EpisodicMemoryEntry[]);
 
   // ── Stage 2: House → Torch ────────────────────────────────────────────────
   const torchActivation = computeRoutingTorchState(houseMapping, houseMasses);
@@ -245,6 +252,7 @@ export async function routeIntent(
   // 6c. Fractal Integrity — identity drift vs stored baseline
   const fractalChecksum = computeFractalChecksum(torchActivation.weights);
   const fractalOk = checkFractalIntegrity(fractalChecksum, fractalBaseline ?? '');
+  const drift = fractalDriftScore(fractalChecksum, fractalBaseline ?? '');
 
   // 6d. Radiant Evolution — empowerment signal check
   const radiantOk = checkRadiantEvolution(request.rawInput);
@@ -259,7 +267,8 @@ export async function routeIntent(
   const internalMirror = runInternalMirror(
     torchActivation.weights,
     recentEchoIds,
-    alignmentHistory
+    alignmentHistory,
+    drift
   );
 
   // ── Merge: worst-case alignment status wins ────────────────────────────────
@@ -293,20 +302,26 @@ export async function routeIntent(
     internalMirror,
   };
 
-  // ── Nostalgia — did this person just return to a dormant domain? ──────────
-  const sessionsSinceMap = await getSessionsSinceLastActive(request.userId, await getCycleCount(request.userId));
+  // ── Nostalgia — client-side from batched lastActiveCycles (no extra round trip) ──
+  const sessionsSinceMap: Record<number, number> = {};
+  for (const [hIdStr, lastCycle] of Object.entries(lastActiveCycles)) {
+    sessionsSinceMap[Number(hIdStr)] = Math.max(0, initialCycleCount - lastCycle);
+  }
   const nostalgiaScore = computeNostalgiaScore(
     peakMasses[primaryHouseId] ?? 0,
     houseMasses[primaryHouseId] ?? 0,
     sessionsSinceMap[primaryHouseId] ?? 0
   );
 
+  // Episodic memories resolve here — likely already done since stages 2–6 were synchronous
+  const episodicMemories = await episodicMemoriesPromise;
+
   // ── System prompt assembly ─────────────────────────────────────────────────
   const systemPrompt = surfaceConfig.headlessMode
     ? ''
     : assembleSystemPrompt(
         partial,
-        { harmonicOk, fractalOk, radiantOk, nostalgiaScore },
+        { harmonicOk, fractalOk, radiantOk, nostalgiaScore, episodicMemories },
         surfaceConfig.voiceOutputMode,
         surfaceConfig.maxOutputTokens
       );
@@ -338,8 +353,12 @@ export async function routeIntent(
   }
   await updateHouseYinYang(request.userId, yinUpdate, yangUpdate);
 
-  // ── Update peak masses — record the highest mass each house ever reached ───
-  await updatePeakMasses(request.userId, houseMasses);
+  // ── Update peak masses — include this session's contribution in the comparison ───
+  const projectedMasses: Record<number, number> = { ...houseMasses };
+  for (const [hId, inc] of Object.entries(massUpdate)) {
+    projectedMasses[Number(hId)] = (projectedMasses[Number(hId)] ?? 0) + inc;
+  }
+  await updatePeakMasses(request.userId, projectedMasses);
 
   return { ...partial, systemPrompt, timestamp };
 }
