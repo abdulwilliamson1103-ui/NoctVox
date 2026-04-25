@@ -184,13 +184,13 @@ export default function AumInterface() {
     const el = modeTokenRef.current
     if (!el) return
     let idx = 0
+    let innerT: ReturnType<typeof setTimeout>
     const interval = setInterval(() => {
       idx = (idx + 1) % MODES.length
       el.style.opacity = '0'
-      const t = setTimeout(() => { el.textContent = MODES[idx]; el.style.opacity = '1' }, 400)
-      return () => clearTimeout(t)
+      innerT = setTimeout(() => { el.textContent = MODES[idx]; el.style.opacity = '1' }, 400)
     }, 3500)
-    return () => clearInterval(interval)
+    return () => { clearInterval(interval); clearTimeout(innerT) }
   }, [])
 
   // Loader bar + fade-out
