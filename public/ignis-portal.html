@@ -1658,7 +1658,7 @@ async function uploadToPipeline(videoFiles) {
   // Upload strategy:
   // 1. If ignisGateway is loaded: POST directly to MyClaw — no Vercel body limit
   // 2. Fallback: POST through /api/ignis-upload proxy (Vercel free tier caps at ~4.5 MB)
-  const useDirect = ignisGateway && ignisGateway.gatewayUrl;
+  const useDirect = ignisGateway && ignisGateway.gatewayUrl && ignisGateway.gatewayToken;
   const uploadUrl = useDirect
     ? `${ignisGateway.gatewayUrl}/pipeline/upload`
     : '/api/ignis-upload';
