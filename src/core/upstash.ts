@@ -243,6 +243,21 @@ export async function markHouseActiveCycle(
   }
 }
 
+export async function loadLastActiveCycles(userId: string): Promise<Record<number, number>> {
+  const redis = getClient();
+  if (!redis) return {};
+  try {
+    const raw = await redis.hgetall(`aum:last_cycle:${userId}`);
+    if (!raw) return {};
+    return Object.fromEntries(
+      Object.entries(raw).map(([k, v]) => [Number(k), Number(v)])
+    );
+  } catch (err) {
+    console.error('[Aum] loadLastActiveCycles error:', err);
+    return {};
+  }
+}
+
 export async function getSessionsSinceLastActive(
   userId: string,
   currentCycle: number
