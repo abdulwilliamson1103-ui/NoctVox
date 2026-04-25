@@ -3,15 +3,15 @@
   "note": "Natal chart data. Used by transits.py to calculate aspects to current sky.",
 
   "planets": {
-    "Sun":        {"sign": "Scorpio",     "house": 6,  "degree": 22.1, "ring": "Ring Sun",     "house_name": "House Service",        "torch": "Torch ThirdEye"},
+    "Sun":        {"sign": "Scorpio",     "house": 6,  "degree": 22.1, "ring": "Ring Sun",     "house_name": "House Service",        "torch": "Torch Solar"},
     "Moon":       {"sign": "Cancer",      "house": 3,  "degree": 26.4, "ring": "Ring Moon",    "house_name": "House Voice",          "torch": "Torch Solar"},
     "Mercury":    {"sign": "Sagittarius", "house": 7,  "degree": 4.0,  "ring": "Ring Mercury", "house_name": "House Partnership",    "torch": "Torch Heart"},
     "Venus":      {"sign": "Sagittarius", "house": 7,  "degree": 15.0, "ring": "Ring Venus",   "house_name": "House Partnership",    "torch": "Torch Heart"},
-    "Mars":       {"sign": "Pisces",      "house": 11, "degree": 13.2, "ring": "Ring Mars",    "house_name": "House Community",      "torch": "Torch Throat"},
-    "Jupiter":    {"sign": "Virgo",       "house": 5,  "degree": 15.2, "ring": "Ring Jupiter", "house_name": "House Creation",       "torch": "Torch Throat"},
-    "Saturn":     {"sign": "Cancer",      "house": 2,  "degree": 12.9, "ring": "Ring Saturn",  "house_name": "House Values",         "torch": "Torch Sacral"},
-    "Uranus":     {"sign": "Aquarius",    "house": 10, "degree": 28.9, "ring": "Ring Uranus",  "house_name": "House Legacy",         "torch": "Torch Root"},
-    "Neptune":    {"sign": "Aquarius",    "house": 9,  "degree": 10.5, "ring": "Ring Neptune", "house_name": "House Philosophy",     "torch": "Torch Solar"},
+    "Mars":       {"sign": "Pisces",      "house": 11, "degree": 13.2, "ring": "Ring Mars",    "house_name": "House Community",      "torch": "Torch ThirdEye"},
+    "Jupiter":    {"sign": "Virgo",       "house": 5,  "degree": 15.2, "ring": "Ring Jupiter", "house_name": "House Creation",       "torch": "Torch Sacral"},
+    "Saturn":     {"sign": "Cancer",      "house": 2,  "degree": 12.9, "ring": "Ring Saturn",  "house_name": "House Values",         "torch": "Torch Root"},
+    "Uranus":     {"sign": "Aquarius",    "house": 10, "degree": 28.9, "ring": "Ring Uranus",  "house_name": "House Legacy",         "torch": "Torch Throat"},
+    "Neptune":    {"sign": "Aquarius",    "house": 9,  "degree": 10.5, "ring": "Ring Neptune", "house_name": "House Philosophy",     "torch": "Torch Throat"},
     "Pluto":      {"sign": "Sagittarius", "house": 7,  "degree": 18.7, "ring": "Ring Pluto",   "house_name": "House Partnership",    "torch": "Torch Heart"},
     "North Node": {"sign": "Taurus",      "house": 12, "degree": 20.4,                          "house_name": "House Subconscious",   "torch": "Torch Crown"},
     "Lilith":     {"sign": "Gemini",      "house": 12, "degree": 0.8,                           "house_name": "House Subconscious",   "torch": "Torch Crown"}
@@ -19,16 +19,16 @@
 
   "houses": {
     "1":  {"sign": "Gemini",       "degree": 0.8,  "name": "House Identity",       "torch": "Torch Root"},
-    "2":  {"sign": "Gemini",       "degree": 25.9, "name": "House Values",         "torch": "Torch Sacral"},
+    "2":  {"sign": "Gemini",       "degree": 25.9, "name": "House Values",         "torch": "Torch Root"},
     "3":  {"sign": "Cancer",       "degree": 18.2, "name": "House Voice",          "torch": "Torch Solar"},
     "4":  {"sign": "Leo",          "degree": 12.1, "name": "House Home",           "torch": "Torch Heart"},
-    "5":  {"sign": "Virgo",        "degree": 11.5, "name": "House Creation",       "torch": "Torch Throat"},
-    "6":  {"sign": "Libra",        "degree": 19.4, "name": "House Service",        "torch": "Torch ThirdEye"},
+    "5":  {"sign": "Virgo",        "degree": 11.5, "name": "House Creation",       "torch": "Torch Sacral"},
+    "6":  {"sign": "Libra",        "degree": 19.4, "name": "House Service",        "torch": "Torch Solar"},
     "7":  {"sign": "Sagittarius",  "degree": 0.8,  "name": "House Partnership",    "torch": "Torch Heart"},
     "8":  {"sign": "Sagittarius",  "degree": 25.9, "name": "House Transformation", "torch": "Torch Sacral"},
-    "9":  {"sign": "Capricorn",    "degree": 18.2, "name": "House Philosophy",     "torch": "Torch Solar"},
-    "10": {"sign": "Aquarius",     "degree": 12.1, "name": "House Legacy",         "torch": "Torch Root"},
-    "11": {"sign": "Pisces",       "degree": 11.5, "name": "House Community",      "torch": "Torch Throat"},
+    "9":  {"sign": "Capricorn",    "degree": 18.2, "name": "House Philosophy",     "torch": "Torch Throat"},
+    "10": {"sign": "Aquarius",     "degree": 12.1, "name": "House Legacy",         "torch": "Torch Throat"},
+    "11": {"sign": "Pisces",       "degree": 11.5, "name": "House Community",      "torch": "Torch ThirdEye"},
     "12": {"sign": "Aries",        "degree": 19.4, "name": "House Subconscious",   "torch": "Torch Crown"}
   },
 

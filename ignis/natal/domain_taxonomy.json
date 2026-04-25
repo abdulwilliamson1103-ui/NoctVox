@@ -16,7 +16,7 @@
 
     "H2_VALUES": {
       "name": "House Values",
-      "torch": "Torch Sacral",
+      "torch": "Torch Root",
       "domains": [
         "Economics & Financial Systems — personal finance, budgeting, wealth management",
         "Safety & Security — personal safety, legal rights, emergency preparedness",
@@ -52,7 +52,7 @@
 
     "H5_CREATION": {
       "name": "House Creation",
-      "torch": "Torch Throat",
+      "torch": "Torch Sacral",
       "domains": [
         "Arts & Humanities — music, visual arts, performance, creative expression",
         "Creative Expression — unique ways you output your internal world",
@@ -65,7 +65,7 @@
 
     "H6_SERVICE": {
       "name": "House Service",
-      "torch": "Torch ThirdEye",
+      "torch": "Torch Solar",
       "domains": [
         "Career & Employment — vocation, work environment, daily craft, productivity",
         "Medical Science & Healthcare — prevention, diagnosis, treatment of disease",
@@ -104,7 +104,7 @@
 
     "H9_PHILOSOPHY": {
       "name": "House Philosophy",
-      "torch": "Torch Solar",
+      "torch": "Torch Throat",
       "domains": [
         "Philosophy & Ethics — knowledge, reality, logic, ethics, love of wisdom",
         "Spirituality & Meaning (universal) — religion, connecting to something larger",
@@ -119,7 +119,7 @@
 
     "H10_LEGACY": {
       "name": "House Legacy",
-      "torch": "Torch Root",
+      "torch": "Torch Throat",
       "domains": [
         "Politics & Governance — political systems, policies, power structures",
         "Engineering & Technology — applying science to build tools and systems",
@@ -132,7 +132,7 @@
 
     "H11_COMMUNITY": {
       "name": "House Community",
-      "torch": "Torch Throat",
+      "torch": "Torch ThirdEye",
       "domains": [
         "Sociology & Society — social behavior, social interactions, community structures",
         "Environmental & Sustainability — resource management, conservation, ecology",

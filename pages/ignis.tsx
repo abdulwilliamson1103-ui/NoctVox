@@ -155,6 +155,12 @@ export default function Home() {
     const text = (textOverride || input).trim()
     if (!text || loading) return
     stopSpeaking()
+
+    const history = messages
+      .filter(m => m.role === 'user' || m.role === 'ignis')
+      .slice(-40)
+      .map(m => ({ role: m.role === 'ignis' ? 'assistant' : 'user', content: m.text }))
+
     addMsg('user', text)
     setInput('')
     setLoading(true)
@@ -177,7 +183,7 @@ export default function Home() {
       const res = await fetch('/api/ignis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, minds: active, aumContext }),
+        body: JSON.stringify({ text, minds: active, aumContext, history }),
       })
       const data = await res.json()
       addMsg('ignis', data.text || data.response || '[No response]', active)
@@ -187,7 +193,7 @@ export default function Home() {
     } finally {
       setLoading(false)
     }
-  }, [input, loading, addMsg, speak, stopSpeaking])
+  }, [input, loading, messages, addMsg, speak, stopSpeaking])
 
   const handleVoiceTranscript = useCallback((transcript: string) => {
     if (transcript.startsWith('[')) { addMsg('system', transcript); return }
