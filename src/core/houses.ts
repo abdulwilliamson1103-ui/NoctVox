@@ -202,11 +202,6 @@ export function classifyHouse(
   const primaryHouseId = Number(sorted[0][0]) as HouseId;
   const primaryScore = sorted[0][1];
 
-  // No keyword match at all — default to House 1 (Identity) with low confidence
-  if (primaryScore === 0) {
-    return { primaryHouseId: 1, modulators: [], confidence: 0.1, energyRatio: 0.5 };
-  }
-
   const modulators = sorted
     .slice(1)
     .filter(([, s]) => s >= MODULATOR_THRESHOLD)

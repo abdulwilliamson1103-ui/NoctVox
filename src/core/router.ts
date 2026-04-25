@@ -22,7 +22,7 @@ import type {
   TorchId,
 } from './types';
 import { classifyHouse, HOUSE_MAP } from './houses';
-import { computeRoutingTorchState, TORCH_MAP, TORCH_TO_RING } from './torches';
+import { computeRoutingTorchState, TORCH_MAP, TORCH_TO_RING, TORCH_POLARITY } from './torches';
 import { activateRings, RING_MAP } from './rings';
 import { buildEchoBlend } from './echoes';
 import {
@@ -30,6 +30,7 @@ import {
   checkHarmonicResonance,
   computeFractalChecksum,
   checkFractalIntegrity,
+  fractalDriftScore,
   checkRadiantEvolution,
   runInternalMirror,
   HEART_MINIMUM_FLOOR,
@@ -48,17 +49,7 @@ import {
   updatePeakMasses,
   getSessionsSinceLastActive,
 } from './upstash';
-import { TORCH_POLARITY } from './torches';
-import { computeNostalgiaScore, NOSTALGIA_THRESHOLD } from './memory';
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function generateId(): string {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-}
+import { computeNostalgiaScore, NOSTALGIA_THRESHOLD, generateId } from './memory';
 
 // ─── Mass Update ──────────────────────────────────────────────────────────────
 
@@ -198,11 +189,12 @@ export async function routeIntent(
   const surfaceType = request.surfaceType ?? 'browser';
 
   // ── Load user history in parallel with routing ─────────────────────────────
-  const [fractalBaseline, recentSessions, houseEnergy, peakMasses] = await Promise.all([
+  const [fractalBaseline, recentSessions, houseEnergy, peakMasses, initialCycleCount] = await Promise.all([
     loadFractalChecksum(request.userId),
     getRecentSessions(request.userId, 20),
     loadHouseYinYang(request.userId),
     loadPeakMasses(request.userId),
+    getCycleCount(request.userId),
   ]);
 
   // ── Stage 1: Intent → House ────────────────────────────────────────────────
@@ -245,6 +237,7 @@ export async function routeIntent(
   // 6c. Fractal Integrity — identity drift vs stored baseline
   const fractalChecksum = computeFractalChecksum(torchActivation.weights);
   const fractalOk = checkFractalIntegrity(fractalChecksum, fractalBaseline ?? '');
+  const drift = fractalDriftScore(fractalChecksum, fractalBaseline ?? '');
 
   // 6d. Radiant Evolution — empowerment signal check
   const radiantOk = checkRadiantEvolution(request.rawInput);
@@ -259,7 +252,8 @@ export async function routeIntent(
   const internalMirror = runInternalMirror(
     torchActivation.weights,
     recentEchoIds,
-    alignmentHistory
+    alignmentHistory,
+    drift
   );
 
   // ── Merge: worst-case alignment status wins ────────────────────────────────
@@ -294,7 +288,7 @@ export async function routeIntent(
   };
 
   // ── Nostalgia — did this person just return to a dormant domain? ──────────
-  const sessionsSinceMap = await getSessionsSinceLastActive(request.userId, await getCycleCount(request.userId));
+  const sessionsSinceMap = await getSessionsSinceLastActive(request.userId, initialCycleCount);
   const nostalgiaScore = computeNostalgiaScore(
     peakMasses[primaryHouseId] ?? 0,
     houseMasses[primaryHouseId] ?? 0,
