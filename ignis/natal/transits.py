@@ -53,16 +53,16 @@ HOUSE_NAMES = {
 
 TORCH_NAMES = {
     1:  'Torch Root',
-    2:  'Torch Sacral',
+    2:  'Torch Root',
     3:  'Torch Solar',
     4:  'Torch Heart',
-    5:  'Torch Throat',
-    6:  'Torch ThirdEye',
+    5:  'Torch Sacral',
+    6:  'Torch Solar',
     7:  'Torch Heart',
     8:  'Torch Sacral',
-    9:  'Torch Solar',
-    10: 'Torch Root',
-    11: 'Torch Throat',
+    9:  'Torch Throat',
+    10: 'Torch Throat',
+    11: 'Torch ThirdEye',
     12: 'Torch Crown',
 }
 
