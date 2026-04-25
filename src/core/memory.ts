@@ -155,7 +155,7 @@ export function generateId(): string {
 
 /**
  * Build a structured MemoryBlock from a routing interaction.
- * MemoryBlocks are the in-memory representation before Supabase persistence.
+ * MemoryBlocks are the in-memory representation of a routing interaction.
  */
 export function buildMemoryBlock(params: {
   houseId: HouseId;

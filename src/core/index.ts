@@ -2,7 +2,6 @@
 // Import everything you need from '@/src/core'
 //
 // Persistence: Upstash Redis (HTTP REST — no host restrictions, works anywhere)
-// Supabase is retained in supabase.ts for future use if needed.
 
 export * from './types';
 export * from './houses';

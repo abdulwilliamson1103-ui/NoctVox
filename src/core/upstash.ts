@@ -1,12 +1,8 @@
 // Aum Routing Engine — Upstash Redis Persistence Layer
 //
-// Drop-in replacement for supabase.ts — same function signatures,
-// same graceful fallback behavior when env vars are missing.
-//
-// Why Upstash instead of Supabase:
-//   Upstash Redis uses a plain HTTP REST API with a bearer token.
-//   No connection pooling, no host allowlists, works from any runtime
-//   including serverless Edge Functions and mobile-adjacent dev servers.
+// Upstash Redis uses a plain HTTP REST API with a bearer token.
+// No connection pooling, no host allowlists, works from any runtime
+// including serverless Edge Functions and mobile-adjacent dev servers.
 //
 // Setup (2 minutes):
 //   1. upstash.com → Create account → New Database → Redis

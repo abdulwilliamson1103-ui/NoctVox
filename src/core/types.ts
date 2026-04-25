@@ -95,40 +95,6 @@ export interface Echo {
   sample: string;
 }
 
-// ─── Runtime State Interfaces ─────────────────────────────────────────────────
-
-export interface HouseState {
-  id: HouseId;
-  name: string;
-  primaryDomain: string;
-  torchRoot: TorchId;
-  mass: number;                 // accumulated interaction weight (0–∞)
-  massDecayRate: number;        // per-cycle decay coefficient (default: 0.005) — silence is not time
-  lastActiveCycle: number;      // session count when this house was last primary
-  triggerKeywords: string[];
-}
-
-export interface TorchState {
-  id: TorchId;
-  name: string;
-  expression: string;
-  associatedHouses: HouseId[];
-  weight: number;               // 0–100
-  dominanceScore: number;       // normalized rank among 7 Torches
-  activatedRing: ClassicalRingId;
-  baseline: number;             // minimum floor weight (default: 5)
-}
-
-export interface RingState {
-  id: RingId;
-  name: string;
-  reasoningMode: string;
-  sourceTorch: TorchId | null;
-  activeWeight: number;         // base 10% + variable up to 40%
-  primaryEchoes: EchoId[];
-  isExtended: boolean;
-}
-
 export interface EchoBlend {
   leadEcho: Echo;
   flavorEcho: Echo;
@@ -136,27 +102,6 @@ export interface EchoBlend {
   flavorWeight: number;         // 0.3 (30%)
   warmth: number;               // blended warmth score
   confidence: number;           // blended confidence score
-}
-
-export interface AumCoreState {
-  instanceId: string;
-  userId: string;
-  surfaceType: SurfaceType;
-  houses: Record<HouseId, HouseState>;
-  torches: Record<TorchId, TorchState>;
-  rings: Record<RingId, RingState>;
-  activePrimaryHouse: HouseId;
-  dominantTorch: TorchId;
-  secondaryTorch: TorchId;
-  activeRing: RingId;
-  activeEchoBlend: EchoBlend;
-  alignmentScore: number;       // 0–1, Love Loop health
-  fractalChecksum: string;      // identity drift detector
-  houseMassTotal: number;
-  torchWeightDistribution: Record<TorchId, number>;
-  ringActiveWeights: Record<RingId, number>;
-  created: string;
-  lastUpdated: string;
 }
 
 // ─── Routing Pipeline Types ───────────────────────────────────────────────────
