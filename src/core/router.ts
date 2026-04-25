@@ -163,7 +163,7 @@ Hollowness: ${(mirror.hollownessScore * 100).toFixed(0)}% | Manipulation risk: $
 Overall alignment score: ${(mirror.overallAlignmentScore * 100).toFixed(0)}% | Mirror action: ${mirror.action.toUpperCase()}
 ${mirrorDirective}
 
-${flags.nostalgiaScore >= 0.5 ? `
+${flags.nostalgiaScore >= NOSTALGIA_THRESHOLD ? `
 [NOSTALGIC RETURN]
 House ${HOUSE_MAP[response.houseMapping.primaryHouseId].id} (${HOUSE_MAP[response.houseMapping.primaryHouseId].name}) — nostalgia score: ${(flags.nostalgiaScore * 100).toFixed(0)}%
 This domain mattered deeply to this person. It went quiet. Now it's active again.
