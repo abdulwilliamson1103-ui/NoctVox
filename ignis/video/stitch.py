@@ -181,15 +181,15 @@ def stitch_clips(clip_paths, color_filter, output_path, song_path=None):
     if song_path and os.path.exists(song_path):
         cmd += ['-i', song_path]
         cmd += [
-            # Apply video grade via filter_complex, map song audio directly
-            '-filter_complex', f"[0:v]{vf}[vout]",
+            '-filter_complex', f"[0:v]{vf}[vout];[1:a]loudnorm=I=-14:TP=-1.5:LM=-11[aout]",
             '-map', '[vout]',
-            '-map', '1:a',      # song audio — no intermediate filter needed
+            '-map', '[aout]',
             '-shortest',        # trim to shorter of video vs song
         ]
     else:
         cmd += [
             '-vf', vf,
+            '-af', 'loudnorm=I=-14:TP=-1.5:LM=-11',
             '-map', '0:v',
             '-map', '0:a?',     # include clip audio if present, skip if not
         ]

@@ -113,12 +113,13 @@ integrations:
       role: scan fictional character wiki → adopt their logic, not just voice
   video:
     upscale:
-      - model: nightmareai/real-esrgan
+      - model: cjwbw/real-esrgan
         host: replicate.com
         role: AI texture reconstruction — crystal clear 4K from any source quality
       - model: rife-interpolation
         host: replicate.com
         role: frame interpolation — 24fps to 60fps with no jitter or ghosting
+        status: planned — not yet wired in upscale.py
     beat_sync:
       - tool: librosa
         role: onset detection — reads beat drops, not just BPM, returns exact timestamps
@@ -137,7 +138,7 @@ integrations:
       quality: CRF 22 (variable bitrate — content-adaptive, ~15–40 Mbps depending on clip)
       preset: slow (maximum compression efficiency)
       resolution: 3840×2160 (source must be upscaled first via Replicate)
-      fps: 60 (after RIFE interpolation)
+      fps: source fps (60 after RIFE interpolation — planned, not yet wired)
       apple_compat: -tag:v hvc1 -movflags +faststart
       lut_flag: -vf lut3d={content_type}.cube (full path required)
       destination: cloud folder → Instagram Edits app → WiFi upload
@@ -372,8 +373,8 @@ Agent 1 — Beat Sync (Librosa)
   If no song:       analyze clip energy peaks → generate cut timing from clip rhythm
        ↓
 Agent 2 — Upscale (Replicate)
-  nightmareai/real-esrgan   → AI texture reconstruction → crystal clear 4K
-  RIFE interpolation        → 24fps → 60fps, no jitter, no ghosting
+  cjwbw/real-esrgan         → AI texture reconstruction → crystal clear 4K
+  RIFE interpolation        → 24fps → 60fps, no jitter, no ghosting [PLANNED — not yet wired]
   Runs on all clips in parallel — not sequential
        ↓
 Agent 3 — Stitch + Grade + Export (FFmpeg)
@@ -414,8 +415,8 @@ ffmpeg -i stitched.mp4 -vf lut3d=/path/to/anime.cube \
 
 | Model | Role |
 |-------|------|
-| `nightmareai/real-esrgan` | AI texture reconstruction. Rebuilds fine detail lost to compression. Crystal clear. |
-| RIFE interpolation | Frame doubling. 24fps source → 60fps output. Smooth as liquid. No ghost frames. |
+| `cjwbw/real-esrgan` | AI texture reconstruction. Rebuilds fine detail lost to compression. Crystal clear. |
+| RIFE interpolation | Frame doubling. 24fps source → 60fps output. Smooth as liquid. No ghost frames. **[PLANNED — not yet wired]** |
 
 iPhone calls Replicate API → GPU cluster processes → 4K file returned to cloud folder. Vision never sees the compute. Just the result.
 
