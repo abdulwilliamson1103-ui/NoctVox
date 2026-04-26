@@ -380,6 +380,180 @@ Report any item that failed with what's missing.
 
 ---
 
+## SECTION 7 — ARCHITECTURE NOTES (READ BEFORE IMPLEMENTING)
+
+These are non-obvious design decisions baked into the codebase. MyClaw needs to
+know them to avoid implementing against the grain or being confused by behavior
+that looks like a bug but isn't.
+
+---
+
+### 7a. Conversation history stores raw text — not the full message sent to Ignis
+
+When the portal sends a message with video clips attached, it appends a file context
+note to the text before calling `/api/ignis`:
+
+```
+"process these clips in zenith style\n\n[Attached: clip1.mp4 (video clip, 5.2MB)]"
+```
+
+But `conversationHistory` stores only the raw typed text (`"process these clips in zenith style"`),
+not the appended note. **This is intentional.** The attachment note is transient context
+for that message only. Storing it in history would contaminate every subsequent prompt
+with stale file references. MyClaw should be aware that if it sees a history turn
+that mentions files, there may be more file context in the original message than
+what history shows.
+
+---
+
+### 7b. Portal always sends `stream: true` — MyClaw MUST support SSE streaming
+
+The portal always sends `{ stream: true }` to `/api/ignis`, which passes `stream: true`
+to MyClaw's `/v1/chat/completions`. If MyClaw returns plain JSON instead of SSE,
+the portal falls back gracefully (non-streaming path), but streaming is the production
+path. MyClaw must support OpenAI-compatible SSE format:
+
+```
+data: {"choices":[{"delta":{"content":"token here"}}]}\n\n
+...
+data: [DONE]\n\n
+```
+
+The portal parses `choices[0].delta.content` for live token appending.
+
+---
+
+### 7c. `ignis_done` is added by `ignis.ts` — do NOT send it from MyClaw
+
+After MyClaw closes its SSE stream with `data: [DONE]\n\n`, `ignis.ts` appends
+its own event:
+
+```
+data: {"ignis_done":true,"role":"ignis","time":"14:32","minds":[]}\n\n
+```
+
+The portal does **not** stop reading at `[DONE]` — it explicitly skips it and
+waits for `ignis_done` to close the bubble and stamp the timestamp. If MyClaw
+sends `ignis_done` directly, it will be treated as a duplicate and ignored — but
+the bubble will never close. Let `ignis.ts` handle this signal.
+
+---
+
+### 7d. `downloadUrl` in `/pipeline/status` response is always overwritten
+
+When `ignis-upload.ts` detects `status === 'done'` in MyClaw's status response,
+it replaces `downloadUrl` with its own proxied path:
+
+```
+/api/ignis-upload?jobId=abc123&download=1
+```
+
+MyClaw can return any string as `downloadUrl` — it will never reach the browser
+as-is. Just include the field so the proxy can detect `status === 'done'` and
+perform the rewrite. The only value that matters is `status`.
+
+---
+
+### 7e. `ai-gen` source type auto-skips upscale inside `run.py`
+
+Passing `--source-type ai-gen` to `run.py` is sufficient to skip upscaling.
+`run.py` sets `skip_upscale = True` internally when it sees `ai-gen`. No need to
+also pass `--skip-upscale`. Double-flagging is harmless but redundant.
+
+Always send `sourceType=ai-gen` in the pipeline upload form when clips came from
+Kling AI, Veo, Runway, Luma, or any AI video generator. Running Real-ESRGAN on
+clean AI-generated clips wastes Replicate credits and can introduce artifacts.
+
+---
+
+### 7f. System prompt is rebuilt from disk on every request — no restart needed
+
+`ignis.ts` reads these five files on every POST to `/api/ignis`:
+- `ignis/Persona.md`
+- `ignis/Memory.md`
+- `ignis/Tools.md`
+- `ignis/domain_routing.md`
+- `TASKS.md` (repo root)
+
+Edit any of them and the next message Ignis receives will use the updated content.
+No Vercel redeploy needed. TASKS.md in particular is designed to be updated live —
+Ignis reads it on every call.
+
+---
+
+### 7g. `userId: 'noctvox_vision'` is hardcoded in the portal
+
+All Aum routing calls use a single hardcoded userId (`noctvox_vision`). House mass,
+fractal baseline, Yin/Yang ratios, episodic memories, and cycle count all accumulate
+under this key in Upstash. The portal is single-user by design — there is no auth
+layer and no user switching. All of Vision's soul data lives under one key.
+
+---
+
+### 7h. Cloudflare tunnel URL rotates on every MyClaw restart
+
+Every time MyClaw restarts, the Cloudflare tunnel generates a new URL. The portal
+fetches this URL on page load from `/api/ignis-config`. After a MyClaw restart:
+
+1. Update `GATEWAY_URL` in Vercel's environment variables (or `.env.local` if
+   testing locally)
+2. Vision refreshes the portal page — it re-fetches config and gets the new URL
+
+If Vision sends a message while MyClaw is restarting (old URL still in browser),
+Ignis will return `[Gateway error: fetch failed]`. Refresh fixes it. No code change
+needed — this is an operational procedure.
+
+---
+
+### 7i. Non-streaming gateway errors always return HTTP 200
+
+`ignis.ts` never returns a 5xx status when the gateway fails. Both success and
+gateway errors return `200 OK` with the error wrapped as text:
+
+```json
+{ "ok": true, "role": "ignis", "text": "[Gateway error: fetch failed]", ... }
+```
+
+This means the portal will always render a response bubble, never throw a JS error.
+If Vision sees `[Gateway error: ...]` in the chat, MyClaw is unreachable — check
+the tunnel URL and token.
+
+---
+
+### 7j. Gateway config is fetched once on page load
+
+The portal fetches `/api/ignis-config` once when the page loads and stores the result
+in `ignisGateway`. If MyClaw restarts mid-session, the portal's stored gateway URL
+becomes stale. Direct clip uploads will fail (the URL is dead). Status polling and
+Ignis chat go through the Vercel proxy and are unaffected. Vision must refresh
+the page to get the new tunnel URL after a restart.
+
+---
+
+### 7k. SFX files are silent placeholders
+
+`ignis/video/sfx/` contains three silent WAV files: `whoosh.wav`, `impact.wav`,
+`riser.wav`. The pipeline runs correctly with them — silent cut transitions are valid.
+Real audio needs to be sourced and dropped in place. Good free sources:
+- freesound.org (Creative Commons)
+- mixkit.co (free license)
+
+Type-specific subfolders (`sfx/cinematic/`, `sfx/anime/`, etc.) are also supported
+by `stitch.py` — drop type-matched SFX there and the pipeline will use them
+automatically when `--type` matches.
+
+---
+
+### 7l. RIFE frame interpolation is planned but not wired
+
+`upscale.py` does not do frame interpolation. Output video stays at source fps
+(whatever the original clips were). Tools.md documents RIFE as `[PLANNED — not
+yet wired]`. Do not expect 60fps output from the pipeline in its current state.
+When RIFE is activated it will be wired into `upscale.py` as a post-upscale step
+using the Replicate API.
+
+---
+
 ## WHAT MYCLAW DOES NOT NEED TO DO
 
 - Touch any file in `src/core/` — Aum is fully wired
