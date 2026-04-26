@@ -1703,6 +1703,8 @@ async function uploadToPipeline(videoFiles) {
       } else if (status === 'error') {
         clearInterval(pollTimer);
         setProgress(`Pipeline error — ${progress || 'check server logs'}`);
+      } else if (status === 'queued') {
+        setProgress(`⟳ queued — waiting for pipeline slot…`);
       } else if (progress) {
         setProgress(`⟳ ${progress}`);
       }
@@ -1803,19 +1805,19 @@ const modeMini = document.getElementById('aum-mode-mini');
 let modeIdx   = 3; // start at H4 HOME
 
 function cycleAumMode() {
+  if (!modeEl) return;
   modeIdx = (modeIdx + 1) % AUM_MODES.length;
   const token = AUM_MODES[modeIdx];
-  // Main token
   modeEl.style.opacity = '0';
   setTimeout(() => { modeEl.textContent = token; modeEl.style.opacity = '1'; }, 400);
-  // Mini token on Ignis header
   if (modeMini) modeMini.textContent = token.split(' · ').slice(0,3).join(' · ');
 }
-modeEl.style.transition = 'opacity 0.4s ease';
+if (modeEl) modeEl.style.transition = 'opacity 0.4s ease';
 setInterval(cycleAumMode, 3500);
 
 // expose so Part 4 can update it from live Aum routing data
 window.setAumMode = function(houseId, torch, ring) {
+  if (!modeEl) return;
   const token = `H${houseId} · ${AUM_MODES.find(m=>m.startsWith('H'+houseId))?.split(' · ')[1] || '?'} · ${torch} · ${ring}`;
   modeEl.style.opacity = '0';
   setTimeout(() => { modeEl.textContent = token; modeEl.style.opacity = '1'; }, 400);
