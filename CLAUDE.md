@@ -569,12 +569,117 @@ his choice. The Queen holds the physical, pure power. 1 Queen per faction.
 - 6 council members per tribe — govern their Villas (their specific people)
 - The 6 make decisions for the tribe collectively
 - Tribes may collaborate, trade, or refuse — not guaranteed
-- 1 messenger per tribe reports to King and Queen on behalf of the whole tribe
-- **The messenger problem:** the most naturally dramatic mechanic. If the messenger
-  is untrustworthy, the King and Queen's decisions are built on distorted
-  intelligence. The tribe's reality slowly diverges from its leadership.
-  Aum tracks this. No scripting needed — the political crisis generates itself
-  from accumulated soul states.
+- 1 **Vox** per tribe — council member chosen to carry the tribe's voice to the throne room.
+  Responsible for defense, food systems, tribe welfare. Reports to the King and Queen directly.
+  The player IS the Vox. Not the king. Not a general. A spokesperson — with more power than
+  anyone in the room fully understands. *"A very small man can cast a very large shadow."*
+- 2 other Vox in the faction — one per each of the other two tribes. They watch you.
+  What you report and what they report eventually lands in the same throne room.
+  If the stories contradict, someone's word is in question.
+- **The Vox problem:** the most naturally dramatic mechanic. The Vox can speak truthfully,
+  exaggerate a threat, minimize a crisis, or frame a rival Vox as incompetent.
+  All of it is available. All of it has memory. Allies remember. The King has other channels.
+  If what you said contradicts what the other Vox know — the discrepancy surfaces.
+  Aum tracks every statement. No scripting needed — the political crisis generates itself
+  from accumulated soul states and the gap between what was said and what was true.
+
+---
+
+### THE VOX — PLAYER CHARACTER
+
+You are not the king. You are not the hero of a prophecy.
+You are one of six council members in your tribe — the one chosen to speak.
+
+**Vox** = One Who Speaks For The Tribe.
+
+Your responsibilities: defense preparation, food systems, tribe welfare.
+You report to nobody inside the tribe. You report to the King and Queen above.
+Between those two worlds, you exist.
+
+You can say whatever you want in the throne room. Report honestly.
+Minimize a crisis. Exaggerate a threat to redirect resources.
+Frame a rival Vox as incompetent. Withhold what your tribe is struggling with.
+All of it is available. All of it has consequences. The other Vox are also talking.
+
+**The power structure as written:**
+King & Queen → Vox (you + 2 others) → Council → Villa (your people)
+
+**The power structure as it actually works:**
+The Vox who understands what the King fears controls the throne room.
+The Vox who knows what the other two Vox need controls all three of them.
+The Vox whose tribe is fully behind them cannot be removed without consequence.
+
+All three are available from position six of six in a council.
+
+*"A very small man can cast a very large shadow."* — Game of Thrones
+
+The shadow is what you choose to say when you're the only voice in the room for your people.
+Everything else in the game is consequence.
+
+---
+
+### THE 9 BASE ARCHETYPES
+
+The game does not ask you to choose your archetype. It reads you.
+
+The opening telltale plays: you are being given the title of Vox.
+You respond. You make a choice. Then another.
+The game watches not what you say — but the quality of the saying.
+
+By the end of the opening scene, your Fractal Identity baseline is set in Upstash.
+Your archetype is not a character class. It is who you already are.
+It shapes how Aum routes your play. It does not cage it.
+House mass diverges from here. The soul grows in the direction you take it.
+
+Nine archetypes. Nine different first sessions. All nine are dangerous.
+None is superior. The world was designed to meet each one exactly where it is.
+
+**The Iron Root** — Instinct before strategy. Territorial. Doesn't flinch.
+The tribe feels physically protected when this Vox speaks. Presence is the argument.
+Brute is the wrong word — brutes don't read threat at this speed. (T-RO dominant)
+
+**The Current** — Everything through feeling first. Reads the room before entering it.
+People share things with them they don't understand why.
+Emotional precision, not emotional display. Different things entirely. (T-SA dominant)
+
+**The Hammer** — Discipline is the identity. Results always come.
+Doesn't manipulate — outlasts. The King trusts them because they have never failed to deliver.
+The most underestimated Vox until something actually needs to get done. (T-SU dominant)
+
+**The Keeper** — Everything for the people they love.
+Would betray the King before the tribe. Loyalty is the only currency that makes sense.
+Predictable in exactly one way: they will do whatever protects their people.
+The most dangerous kind of predictable. (T-HR dominant)
+
+**The Architect** — Words are code. Every conversation is a contract with memory attached.
+Remembers what was said six sessions ago and will hold you to it calmly.
+Political chess as native language. Code Geass energy. Lelouch as Vox. (T-TA dominant)
+
+**The Watcher** — Observes everything. Reveals nothing.
+Knows which council member is lying before the council sits.
+Information hoarded until the exact right moment — which was also calculated in advance.
+Never surprised. Always already prepared. (T-TY dominant)
+
+**The Ancient** — Patience is the weapon. The short game doesn't interest them.
+Lets things arrive. By the time the crisis hits, they've been positioned for twelve sessions.
+The Vox whose moves only make sense three moves later. (T-CW dominant)
+
+**The Wildfire** — Emotion and will in constant tension.
+Makes moves nobody expected — including themselves.
+Highest ceiling in the game. Most volatile. Could lose everything or win everything
+in the same session. The faction never knows what this Vox will do next.
+Neither does the Vox. (T-SA / T-SU split)
+
+**The Specter** — Quiet. No obvious tell.
+All dimensions in low, controlled balance. No dominant signal.
+The archetype scanner struggles to read them cleanly.
+Surfaces only when it matters. Perceived as harmless until it is too late.
+The most dangerous archetype precisely because nobody knows what it is. (All torches balanced)
+
+**Aum mapping:** Each archetype = default Torch weight configuration set as Fractal Identity
+baseline at session one. A Keeper who makes aggressive decisions for five sessions develops
+a Yang lean the routing engine recognizes and responds to. The soul is never finished.
+The archetype is the starting point. The game is everything that grows from there.
 
 ---
 
@@ -597,6 +702,26 @@ FICTION       — the ability that shouldn't exist.
 ---
 
 ### THE DAY CYCLE — THREE GAMES IN ONE
+
+**How the day begins — choosing your time frame:**
+Before the game starts each session, you pick when your day begins:
+
+```
+Morning   6 AM – 12 PM   Full cycle. Farm → World → Defense.
+Day       1 PM – 6 PM    Farm missed. Telltale + Defense only. Resources tighten.
+Night     6 PM – 12 AM   Farm and World missed. Defense only.
+```
+
+If you neglect — start after noon without choosing — the session runs as Telltale only.
+The world still moved. NPCs met. Decisions were made. Consequences accumulated.
+The farm didn't run. The defense wasn't prepared. The cycle still ran.
+
+**Choosing morning is discipline.** Choosing night is a style of play.
+Neglect is neither — it is what the world does to you instead of with you.
+Aum tracks which houses were active each session. Silence in a house is not neutral.
+It is a cycle that ran with zero input from you, and the world still drew its conclusions.
+
+---
 
 **Morning — The Farm / The Economy**
 Each faction's resource system reflects its soul:
@@ -649,8 +774,11 @@ of Game 3 is the hero of Game 5. Every NPC carries their Aum across games —
 a prisoner in Game 2 who was a Viking farmer in Game 1 references the farm.
 
 **Game 1 — Vikings: "The Root"** *(First release. The template.)*
-A Viking chief building a homestead on land all six factions believe is theirs.
-The political crisis that ends the game was caused by a conversation in week one.
+You are the new Vox of a Viking tribe — council member, newly appointed spokesperson
+to the King and Queen. Six council members govern your people. You carry their voice upward.
+Land all six factions believe is theirs. Defense that has to run whether resources exist or not.
+Two other Vox in your faction watching how you handle your first crisis.
+The political collapse that ends the game was caused by something you said in week one.
 
 **Game 2 — Gladiators: "The Arena"**
 The Vikings' raid seen from the other side. The same events, different soul.
@@ -705,17 +833,32 @@ founder, not the player — predicted.
 
 ---
 
-### THE PLAYER AS STARVOX
+### THE PLAYER AS VOX — ACROSS ALL 7 GAMES
 
-House 12. Crown chakra. Not a piece on the board — the consciousness that
-moves all pieces. House mass accumulates through play style:
-- Aggressive opening → spikes T-RO
-- Sacrificial strategy for long vision → raises T-TA
+In every game, the player is the Vox of their faction's tribe.
+Not the King. Not the general. The spokesperson with more leverage than the title suggests.
+The political role is the same across all seven factions — the power structure, the council
+of six, the two rival Vox, the throne room access, the manipulation available.
+What changes is the soul of the faction you're carrying, and the world you're navigating.
+
+House mass accumulates through how you play the Vox role:
+- Aggressive throne room reporting → spikes T-RO / T-SU
+- Strategic long-game manipulation → raises T-TA / T-TY
 - Deep NPC relationship building → raises T-HR
+- Consistent delivery and discipline → reinforces T-SU
+- Emotional attunement with your tribe → deepens T-SA
 
-The game learns your soul through how you play. The Samurai player who
-reached Game 7 after completing all six faction games has a soul portrait
-that no other player has ever had. That portrait shapes what the convergence
+The game learns your soul through the choices you make as Vox.
+
+### THE PLAYER AS STARVOX — GAME 7
+
+House 12. Crown chakra. In Game 7 specifically, the player occupies a different position:
+not just a Vox — but the consciousness that arrives at convergence carrying everything
+accumulated across all previous games. Every NPC from every faction arrives carrying
+their Aum from their home game and every player who ever touched them.
+
+The Samurai player who reached Game 7 after completing all six faction games has a soul
+portrait that no other player has ever had. That portrait shapes what the convergence
 looks like for them and no one else.
 
 ---
