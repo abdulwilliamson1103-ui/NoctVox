@@ -939,6 +939,129 @@ Sub-500ms. Feels instant. The soul updates. The world remembers.
 
 ---
 
+### THE ARCHETYPE REVEAL PAGE — `public/zenith.html`
+
+The viral beachhead before the game ships. One page. One character. Nine possible outcomes.
+Buildable now. Costs nothing until someone uses it. Shareable without asking.
+
+**The concept:**
+Tiny adorable 3D butterfly. Mouth moves. Talks shit. Reads you in 3 questions.
+Delivers your Vox archetype with full attitude and genuine love underneath.
+People post TikToks of this. That's not engineered virality — it's just actually funny and accurate.
+
+**Why the butterfly:**
+Samurai faction. Crown chakra. Their literal power in the lore: pattern reading —
+see the Aum energy field beneath every interaction. That is exactly what this page does.
+The mascot is the lore. Tiny, beautiful, delicate — and it just completely clocked you.
+
+**The personality — locked:**
+Crude. Funny. Loving but brutal. No pretension. No filter.
+Talks shit → reads you accurately → hits you with something real → ends with love and one more insult.
+The contrast IS the product. Sweet voice saying things with zero apology.
+"Shithead. Fuckface. I love you. This is your archetype though."
+
+**The UX flow:**
+```
+Page loads
+  ↓
+Butterfly appears — speaks immediately, no form visible
+"Oh. Someone new. Okay. I'm going to figure you out.
+ This won't take long. Three things. Don't think too hard —
+ that's already a tell."
+  ↓
+Q1 — through the butterfly's voice:
+"Someone you trust is walking into a mistake.
+ You can see it. They can't. What do you do?"
+  ↓
+User types. Butterfly reacts: "Mmhm."
+  ↓
+Q2:
+"Everything's collapsing. Right now. First move."
+  ↓
+User types. Butterfly reacts: "Yeah okay."
+  ↓
+Q3:
+"What would you actually burn everything down for.
+ And don't give me the impressive answer."
+  ↓
+User types. Butterfly: "...okay I got you." [processing]
+  ↓
+Aum API call — routes all three inputs, returns archetype
+  ↓
+Full archetype reveal monologue — voice + mouth animation
+  ↓
+Shareable card: archetype name + one-line description
+"Zenith Games — coming soon" + email signup
+```
+
+**The 9 reveal monologues — voice locked:**
+
+*Iron Root:*
+"Yeah. Iron Root. You don't think first, you move first. Drives everyone around you
+absolutely insane. But your tribe would die for you and you know it.
+That's not nothing. That's everything actually. You menace."
+
+*The Current:*
+"You walked in here already feeling this out didn't you. Yeah. You're a Current.
+You read the room before you entered it. People tell you things they don't even
+tell themselves. That's a power. Also a burden. You carry more than people know.
+I see it. You're okay."
+
+*The Hammer:*
+"Okay. Hammer. You're going to deliver no matter what and everyone in your life
+already knows it. That's why they keep giving you things to carry. You let them.
+That's the problem and the gift simultaneously. Stop being underestimated though.
+That's your own fault honestly."
+
+*The Keeper:*
+"Everything for your people. You'd burn the whole kingdom down before you let
+your tribe suffer. The King thinks he controls you. He doesn't. Your tribe does.
+Always has. You absolute menace. I love you for it."
+
+*The Architect:*
+"Mhm. Already thought about how this conversation ends three different ways
+didn't you. You're doing it right now. Stop it. You're exhausting and you're
+the smartest person in every room you walk into.
+Don't tell anyone I said that, fuckface."
+
+*The Watcher:*
+"You've been observing this whole time. You already knew some of this before
+I said it. You see everything. You say nothing. And then at exactly the right
+moment — you move. Genuinely terrifying. Also genuinely lonely sometimes.
+Both true. Both you."
+
+*The Ancient:*
+"The short game doesn't interest you does it. Never has. You're already
+thinking about how this ends from three moves ahead. Patience is the weapon.
+By the time the crisis hits you've been ready for twelve sessions.
+Nobody respects it until it's too late. Then they're asking how you knew."
+
+*The Wildfire:*
+"Oh no. Oh no no no. You're a Wildfire. You don't even know what you're going
+to do next do you. Nobody does. That's the problem. Highest ceiling in the game.
+Also most likely to blow up something perfect for absolutely no reason.
+I love you. Stay away from me."
+
+*The Specter:*
+"...I almost didn't see you. Almost. You let people think you're harmless.
+You're not harmless. You know you're not harmless. That's your whole thing.
+You've been watching this entire time haven't you.
+Respect honestly. Terrifying, but respect."
+
+**Technical build — same pattern as lumora.html:**
+- Three.js butterfly (Meshy glTF model)
+- Simple jaw bone animation driven by audio playback
+- ElevenLabs free tier for voice — soft but has edge
+- One POST to `/api/aum` with all three responses — returns archetype
+- Shareable result card (Canvas or HTML-to-image)
+- Email capture → Zenith waitlist
+
+**The butterfly needs a name.** Options: Ren (Japanese — rebirth, fits metamorphosis),
+Miru (Japanese — to see, fits pattern reading), Zeph (threshold energy).
+Vision chooses.
+
+---
+
 ### BUILD ORDER
 
 1. Prototype the soul — not the graphics. One Viking farm, three Aum-configured NPCs, one telltale conversation that changes how those three treat each other. No polished assets. Prove the NPC-to-NPC dynamic works before a single hour goes into art.
