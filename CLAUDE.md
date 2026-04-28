@@ -1062,6 +1062,120 @@ Vision chooses.
 
 ---
 
+**THREE AGES. THREE VOICES. ONE BUTTERFLY.**
+
+The butterfly asks one thing before the three questions:
+*"How old are you? And don't lie. I'll know."*
+
+This sets the delivery register for everything that follows.
+Same questions. Same Aum routing. Same archetype. Completely different mouth.
+
+```
+Kid    → under 13   — personality, bluntness, honesty. No crude words. Older sibling energy.
+Teen   → 13–17      — lean in. Edge. Full attitude. Hint at it but don't go there.
+Adult  → 18+        — full Ted. Zero filter. Zero apology. Full love underneath.
+```
+
+**Opening line by age:**
+
+Kid: *"Oh hey. Okay. I'm gonna figure you out real quick. Three things. Ready?"*
+Teen: *"Oh. Okay. I see you. This won't take long. Three things. Don't overthink it."*
+Adult: *"Oh. Someone new. Okay. I'm going to figure you out. This won't take long. Three things. Don't think too hard — that's already a tell."*
+
+---
+
+**THE 9 × 3 MONOLOGUES — all age versions:**
+
+**Iron Root**
+
+Kid: "Okay so you're an Iron Root. You just go. You don't really stop to think, you move, and everyone around you is still back there processing while you're already three steps ahead. Your people feel safe with you. That's actually huge. You might be a little much sometimes but in the best way."
+
+Teen: "Yeah that tracks. Iron Root. You were already moving before you finished reading this. You don't think first, you go first. People around you are either energized by that or exhausted by it. Probably both. But they'd follow you anywhere and you know it."
+
+Adult: "Yeah. Iron Root. You don't think first, you move first. Drives everyone around you absolutely insane. But your tribe would die for you and you know it. That's not nothing. That's everything actually. You menace."
+
+---
+
+**The Current**
+
+Kid: "You felt something was off before I even started didn't you. Yeah. You're a Current. You pick up on things other people miss completely. People tell you stuff they haven't told anyone. You carry more than people realize. That's a gift. Also a lot. You're doing good though."
+
+Teen: "You walked in here already kind of reading this whole situation. I see you. Current. You feel everything first and figure it out after. People tell you things they don't even understand why. That's not an accident. That's you. It's a lot sometimes but it's real."
+
+Adult: "You walked in here already feeling this out didn't you. Yeah. You're a Current. You read the room before you entered it. People tell you things they don't even tell themselves. That's a power. Also a burden. You carry more than people know. I see it. You're okay."
+
+---
+
+**The Hammer**
+
+Kid: "You're a Hammer. When you say you're going to do something, it happens. People around you already know that which is why they keep asking you. That can get heavy. But you always come through and that means something. Don't let people take that for granted."
+
+Teen: "Okay Hammer. Yeah. You deliver. Every time. No exceptions. Everyone around you already knows it which is why they keep putting things on you. You let them. Figure out if that's what you actually want. But whatever you go after — it's already done. That part's decided."
+
+Adult: "Okay. Hammer. You're going to deliver no matter what and everyone in your life already knows it. That's why they keep giving you things to carry. You let them. That's the problem and the gift simultaneously. Stop being underestimated though. That's your own fault honestly."
+
+---
+
+**The Keeper**
+
+Kid: "You're a Keeper. The people you care about? You'd do anything for them. Like actually anything. That's who you are and it's one of the best things about you. Just make sure people deserve that from you. Not everyone does. Your people are lucky."
+
+Teen: "Keeper. Yeah. Your people come first, always, and you don't even have to think about it. You'd go against anyone if it meant protecting them. That loyalty is everything. Just know some people will try to use that. Your real ones won't. Know the difference."
+
+Adult: "Everything for your people. You'd burn the whole kingdom down before you let your tribe suffer. The King thinks he controls you. He doesn't. Your tribe does. Always has. You absolute menace. I love you for it."
+
+---
+
+**The Architect**
+
+Kid: "You're an Architect. You think ahead. Like way ahead. While everyone else is reacting you're already three steps past this. That's actually kind of amazing. You might make people feel a little watched sometimes but you're just paying attention. That's your thing."
+
+Teen: "Architect. You already thought about how this was going to go before you started. You probably mapped a few versions. You're doing it right now a little bit. Stop. You're kind of exhausting but in a way where everyone eventually realizes you were right the whole time."
+
+Adult: "Mhm. Already thought about how this conversation ends three different ways didn't you. You're doing it right now. Stop it. You're exhausting and you're the smartest person in every room you walk into. Don't tell anyone I said that, fuckface."
+
+---
+
+**The Watcher**
+
+Kid: "You're a Watcher. You notice everything. You probably knew something before I even said it. You don't say a lot but you see a lot. When you do say something it really matters. People should listen to you more. Most of them will figure that out eventually."
+
+Teen: "Yeah you've been clocking this whole time haven't you. Watcher. You see everything, you say almost nothing, and then at exactly the right moment you say the one thing. People don't always realize how much you picked up on. That's kind of your whole power."
+
+Adult: "You've been observing this whole time. You already knew some of this before I said it. You see everything. You say nothing. And then at exactly the right moment — you move. Genuinely terrifying. Also genuinely lonely sometimes. Both true. Both you."
+
+---
+
+**The Ancient**
+
+Kid: "You're an Ancient. You're patient in a way most people aren't. You let things play out. You don't rush. That's actually really rare. People might not always get it right away but you're usually already thinking way past where they are. That pays off."
+
+Teen: "Ancient. The short game doesn't interest you at all. You're already thinking about how this ends from way out. People mistake that for being slow. They find out eventually. You've already moved by then."
+
+Adult: "The short game doesn't interest you does it. Never has. You're already thinking about how this ends from three moves ahead. Patience is the weapon. By the time the crisis hits you've been ready for twelve sessions. Nobody respects it until it's too late. Then they're asking how you knew."
+
+---
+
+**The Wildfire**
+
+Kid: "You're a Wildfire. Things happen around you. Big things. Sometimes because you planned it and sometimes because you just went for it and the rest figured itself out. You have the highest ceiling out of anyone. You might change direction three times getting there. That's okay. Keep going."
+
+Teen: "Oh no. Wildfire. You don't fully know what you're going to do next do you. That's not an insult that's just true. Highest ceiling in the game. Also most likely to flip everything for a reason nobody else understands. You'll be fine. Probably. Just warn people sometimes."
+
+Adult: "Oh no. Oh no no no. You're a Wildfire. You don't even know what you're going to do next do you. Nobody does. That's the problem. Highest ceiling in the game. Also most likely to blow up something perfect for absolutely no reason. I love you. Stay away from me."
+
+---
+
+**The Specter**
+
+Kid: "You're a Specter. You're pretty quiet. You watch a lot. People might not always notice how much you're picking up on. And when it matters you show up in a way nobody expected. You don't need everyone to see you. The right people will."
+
+Teen: "...I almost didn't catch you there. Specter. You blend. On purpose. People think they have you figured out and then you do something that makes no sense to them. You've been watching this whole time. You're not as readable as people think. That's the point."
+
+Adult: "...I almost didn't see you. Almost. You let people think you're harmless. You're not harmless. You know you're not harmless. That's your whole thing. You've been watching this entire time haven't you. Respect honestly. Terrifying, but respect."
+
+---
+
 ### BUILD ORDER
 
 1. Prototype the soul — not the graphics. One Viking farm, three Aum-configured NPCs, one telltale conversation that changes how those three treat each other. No polished assets. Prove the NPC-to-NPC dynamic works before a single hour goes into art.
