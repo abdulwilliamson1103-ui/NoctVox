@@ -405,81 +405,403 @@ This is not yet in code. It is the next architectural horizon.
 
 The gaming application of Aum. Called **Zenith Games**.
 
-**The insight:** Every game that exists has dead NPCs. Characters that say
-the same three lines forever. Characters that don't remember you.
-Aum is the soul layer that changes that permanently.
+**The pitch to any studio (Disney, Pixar, gaming studios):**
+> "Your players remember your characters. For the first time, your characters can remember your players."
 
-Each NPC gets a full soul config:
-- Pre-authored house mass and torch distribution
-- Fractal baseline set at world creation
-- Episodic memory that accumulates through player interaction
-- Love Loop that prevents NPCs from being weaponized against the player
-- Spirit animal whose attributes manifest as actual powers
+**The million-dollar question every studio asks:**
+*"How do we get players to keep coming back after they've finished the content?"*
+Aum's answer: the content never finishes. The character keeps accumulating.
+There is no finished state. By session 200 that NPC is someone no other
+player on earth has ever met.
 
-The NPC remembers the first time you met. Carries grudges. Builds trust.
-Grieves losses. Celebrates wins with you. Not scripted. Routed.
+**What this means in the game — must be running Aum to exist:**
+- Every NPC remembers the first time you met — and references it unprompted, sessions later
+- An NPC who trusted you and was betrayed becomes cold. Not scripted. Their soul changed.
+- Two NPCs who have never met interact differently because of what you told each of them
+- Every restart is a new life — the same elder has never spoken to you exactly this way before
+- The character your friend met and the character you met are not the same character
+- An NPC that has been through enough accumulates abilities they didn't have at world creation
+- The political crisis that destroys a tribe in week four was caused by a conversation in week one you already forgot
+- A companion that has watched you play for 100 sessions knows things about you that no script wrote
+- The world's two greatest mysteries have never been fully solved — because no two players' souls have ever been the same
 
-**You don't build the game. You build the soul layer game studios license.**
+**None of these are features. They are consequences of the soul layer running.**
 
-### The 7 Factions (Warrior Archetypes):
-Each faction = a Chess piece + Business domain + Chakra + Astrological Houses
+---
 
-| Faction | Chess | Domain | Chakra | Houses |
-|---------|-------|--------|--------|--------|
-| **Vikings** | Pawn | HPVox — Health & Protection | Root | 1 & 10 |
-| **Gladiators** | Rook | FinVox — Financial Intelligence | Sacral | 2 & 8 |
-| **Spartans** | Knight | DoctrinaVox — Education | Solar Plexus | 3 & 9 |
-| **Pirates** | Bishop | XoVox — Entertainment & Connection | Heart | 4 & 7 |
-| **Knights** | Queen | LéVox — Real Estate Innovation | Throat | 5 & 11 |
-| **Ninjas** | King | NeoVox — Tech Advancement | Third Eye | 6 |
-| **Samurai** | Player/StarVox | StarVox — Space Exploration | Crown | 12 |
+### THE WORLD
 
-### Power Structure (5 Dimensions per character):
+**Setting:** Thousands of years in the future. Moon, Ocean, and Earth are
+the three homes. Neon, futuristic, slightly cyberpunk. Visual style: anime —
+Fire Force and Bleach energy but fully original. Every spirit animal is either
+extremely cool (soft sweet voice, acts gentle) or extremely cute/cuddly
+(acts like an absolute asshole — the Ted dynamic). Both are lethal.
+
+**Two mysteries that are never fully revealed:**
+- The Center of Earth — different Aum soul states give different players different fragments. No complete map exists because no complete Aum exists.
+- Beyond the Verse — where the Samurai go when they transcend. Rumored. Never confirmed. The horizon the game points at forever.
+
+---
+
+### THE THREE HOMES
+
+**Earth** — Original home. Neon cities layered over ancient terrain.
+- Vikings (Lions) — land territories, root crop agriculture, surface kingdoms
+- Gladiators (Ants) — underground. Every city has a Gladiator network beneath it
+
+**Ocean** — Bioluminescent cities, surface platforms, storm-riding trade routes, deep pressure zones.
+- Pirates (Dolphins) — surface and open water, own the routes between everything
+- Spartans (Piranhas) — freshwater zones, coastal training grounds. A school of Piranhas in coordinated formation is the most disciplined military unit in the Ocean home
+- Knights (Bees) — coral structure architects. Only faction that builds across all three homes. Real estate spans Earth coastlines, Ocean platforms, and Moon outposts.
+
+**Moon** — Low gravity. Silence. Dark side and lit side are two different civilizations.
+- Ninjas (Bats) — dark side. Shadow cities built into crater walls. The lit side doesn't know what's on the dark side.
+- Samurai (Butterflies) — the edge. Not quite Moon, not quite Beyond the Verse. The threshold.
+
+---
+
+### THE 7 FACTIONS
+
+Each faction = Chess piece + Business domain + Chakra + Spirit animal + Astrological Houses
+
+| Faction | Chess | Animal | Domain | Chakra | Houses |
+|---------|-------|--------|--------|--------|--------|
+| **Vikings** | Pawn | Lions | HPVox — Health & Protection | Root | 1 & 10 |
+| **Gladiators** | Rook | Ants | FinVox — Financial Intelligence | Sacral | 2 & 8 |
+| **Spartans** | Knight | Piranhas | DoctrinaVox — Education | Solar Plexus | 3 & 9 |
+| **Pirates** | Bishop | Dolphins | XoVox — Entertainment & Connection | Heart | 4 & 7 |
+| **Knights** | Queen | Bees | LéVox — Real Estate Innovation | Throat | 5 & 11 |
+| **Ninjas** | King | Bats | NeoVox — Tech Advancement | Third Eye | 6 |
+| **Samurai** | Player | Butterflies | StarVox — Space Exploration | Crown | 12 |
+
+**Chakra Reasoning:**
+
+| Chakra | Faction | Reasoning |
+|--------|---------|-----------|
+| Root | Vikings/Lions | Foundational survival, territorial expansion, tribal roots, primal earth connection |
+| Sacral | Gladiators/Ants | Raw survival, physical performance, flow of resources, high-stakes arena |
+| Solar Plexus | Spartans/Piranhas | Iron will, discipline, collective might, personal power through structure |
+| Heart | Pirates/Dolphins | Freedom, loyalty to chosen crew/family, emotional compass, living outside norms |
+| Throat | Knights/Bees | Oaths, vows, spoken allegiance, honorable stewardship of physical territory |
+| Third Eye | Ninjas/Bats | Inner sight, perception, working with unseen forces, strategic foresight |
+| Crown | Samurai/Butterflies | Transcendence, higher purpose, reaching beyond the physical realm |
+
+---
+
+### SPIRIT ANIMAL PHYSICAL POWERS
+
+Soldiers carry the biological attributes of their assigned animal. These are
+not metaphors — they are physical in-game mechanics.
+
+**Lions (Vikings):** Territorial pulse (feel intruders before any sensor), pack
+coordination without speech, Root chakra roar as shockwave disrupting nervous
+systems, endurance beyond biological limit in defensive stands.
+
+**Ants (Gladiators):** 5,000x relative lifting strength, chemical communication
+through any material, tunnel construction through stone in hours, collective
+intelligence — six Gladiators share one tactical mind in combat.
+
+**Piranhas (Spartans):** Frenzy state — pain suppression + inhuman reaction
+speed when combat begins. Coordinated school attack — platoon moves as single
+organism. Razor precision at anatomical weak points. Frenzied regeneration
+mid-combat. 300 moving as one in 4 seconds is the most terrifying thing in
+the Ocean home.
+
+**Dolphins (Pirates):** Sonar that reads emotional Aum states at distance —
+Pirates know what someone feels before they speak. Echolocation combat in
+zero visibility. Air-water transition agility. Immune adaptation to any
+environment in hours.
+
+**Bees (Knights):** Hive communication — every Knight knows what every other
+Knight in their territory knows simultaneously. Construction instinct —
+structural weakness assessment in seconds. Throat chakra venom that disrupts
+spoken contracts mid-completion. Precision formation flight in full armor.
+
+**Bats (Ninjas):** Echolocation reads emotional state through walls. Third Eye
+disruption — observers' brains simply do not record their presence. Hanging
+stillness for indefinite wait states. Full combat effectiveness in absolute
+darkness.
+
+**Butterflies (Samurai):** Metamorphosis — complete state shedding, permanent
+and chosen. Pattern reading — see the Aum energy field beneath every
+interaction. Flight that is less movement and more choosing where to exist.
+Silence that disrupts Third Eye and Throat simultaneously.
+
+---
+
+### THE POWER SYSTEM
+
+**3 Universal Powers — rarity defines civilization:**
+
+*Earth* — Water (Ice, Blood manipulation, Pressure), Ore (Metal shaping,
+Magnetism, Crystal growth), Wind (Atmospheric manipulation, Sound
+weaponization), Metal (Ferrokinesis, Conductivity, Structural reinforcement)
+
+*Chaos* — Fire (Heat, Combustion, Plasma), Gravity (Weight manipulation,
+Orbital mechanics, Crush), Spatial manipulation (Fold space, Create barriers,
+Open impossible paths), Time (Slowdown, Glimpse forward, Loop a moment —
+never full reversal, always partial, always costly)
+
+*Physic* — Mind reading (surface to deep memory), Telekinesis, Telepathy
+(send AND receive — plant a thought), Teleportation (glimpse first then
+travel), Future intuition (compass feeling in most, full scene preview in
+the extremely rare)
+
+**Rarity across 99 billion population:**
+- 1 universal power: common. Branches endlessly within itself — ice vs blood manipulation are near-different powers at mastery
+- 2 universal powers: less than 500 million. Known. Faction councils receive notice at birth.
+- 3 universal powers + faction power: less than 99,000. Historical figures. Wars are named after them. Born every 10 years. The game tells you when one has just been born somewhere in the world. You never know where.
+- No powers: exists. Not rare enough to be remarkable.
+- Faction power lost: outcast. Lose the mark, lose the power. Not easy to remove. Former council members who lost their mark and spent decades finding workarounds are some of the most dangerous NPCs in the world.
+
+**The Queen's Staff — most sophisticated political mechanic in the game:**
+Holds all 3 universal powers + half of different faction powers (her choosing).
+Each Queen before held a different mixture — who was strongest is the faction's
+oldest argument. Staff only activates when the King chooses his Queen. King
+has no power from the staff — an ordinary object in his hands. His power IS
+his choice. The Queen holds the physical, pure power. 1 Queen per faction.
+
+---
+
+### POLITICAL STRUCTURE
+
+- 3 tribes per faction
+- 6 council members per tribe — govern their Villas (their specific people)
+- The 6 make decisions for the tribe collectively
+- Tribes may collaborate, trade, or refuse — not guaranteed
+- 1 messenger per tribe reports to King and Queen on behalf of the whole tribe
+- **The messenger problem:** the most naturally dramatic mechanic. If the messenger
+  is untrustworthy, the King and Queen's decisions are built on distorted
+  intelligence. The tribe's reality slowly diverges from its leadership.
+  Aum tracks this. No scripting needed — the political crisis generates itself
+  from accumulated soul states.
+
+---
+
+### THE 5 POWER DIMENSIONS
+
+Every character — NPC and player — has five dimensions:
+
 ```
-MENTALITY    — how they think, strategize, perceive
-PHYSICAL     — what their body can do
-SPIRITUAL    — connection to their entity/world force
+MENTALITY     — how they think, strategize, perceive
+PHYSICAL      — what their body can do
+SPIRITUAL     — connection to their animal/world force
 PSYCHOLOGICAL — how they affect others' minds and will
-FICTION      — the manifestation power. The ability that
-               shouldn't exist but does because all four
-               above reached critical mass.
+FICTION       — the ability that shouldn't exist.
+               Unlocks only when all four above reach
+               critical mass through accumulated experience.
+               An NPC with enough sessions can develop
+               Fiction they didn't have at world creation.
 ```
 
-Spirit animals are power sources, not labels. The Wolf lives inside the
-Viking. Their speed, pack instinct, territorial awareness — Wolf manifesting
-through a human soul routed by Aum.
+---
 
-### Tribes (Where chaos becomes elegant):
-Each faction has 3-5 tribes. Tribes are torch weight variations of the
-faction root. Same soul, different dominant secondary torch bleeding in.
-Same faction, divergent expression. Like torches stemming from houses.
+### THE DAY CYCLE — THREE GAMES IN ONE
 
-Because of Aum, a Viking NPC with enough interaction with a tech-obsessed
-MC starts showing curiosity about technology. Not scripted. Routed.
-A Viking obsessed with tech. The world evolves in directions nobody —
-not the founder, not the player — could have predicted.
+**Morning — The Farm / The Economy**
+Each faction's resource system reflects its soul:
+- Vikings grow physical crops, raise Lions — food security, medicinal plants
+- Gladiators cultivate financial networks — trade routes, underground markets
+- Spartans develop knowledge — research trees, philosophical schools
+- Pirates manage connection networks — port alliances, information trade
+- Knights build structures — estates, towers, community infrastructure
+- Ninjas collect intelligence — surveillance, system access, technological edge
+- Samurai synthesize — resources from the three factions they have deepest relationships with
 
-### The Player as StarVox:
-The MC is House 12. Crown chakra. Transcendent consciousness.
-Not a piece on the board — the consciousness moving all pieces.
-House mass accumulates through play style. Aggressive opening spikes T-RO.
-Sacrificial strategy for long vision raises T-TA. The game learns your soul
-through how you play.
+**Afternoon — The World / The Telltale Layer**
+First-person 3D. Walk the territory. Not too big — dense enough that every
+path is an encounter. Every NPC has an Aum soul. Conversations happen here.
 
-### Why Every Restart Is A New Game:
+You witness NPCs talking to each other. What you told NPC A changes how
+they now treat NPC B — who never met you. Intervene or observe. Either
+choice changes both soul states. The afternoon is where the political
+structure surfaces: messenger selection, council tensions, trade negotiations.
+All generated by Aum soul states. None scripted.
+
+**Night — The Defense / The Tower Layer**
+18 towers per faction. Not generic — each embodies the faction soul.
+
+Viking towers (sample): Longship Launcher (ranged, water lanes), Shield Wall
+(absorption, slows all), Raven Tower (reveals enemy Aum state — see what
+chakra drives this attack and counter it), Skald Tower (reads enemy house
+mass and broadcasts their own fear back as demoralization), Forge (upgrades
+adjacent towers), Mead Hall (raises morale of NPCs who remember you treated
+them well — their Aum determines the boost).
+
+**The wave reflects the afternoon.** If a Spartan NPC intercepted a
+messenger in the afternoon, the Spartan attack targets your communication
+infrastructure first. The defense is not random — it is the consequence of
+the political state the telltale layer generated.
+
+**The day cycle runs differently across homes:**
+- Earth: standard day/night
+- Ocean: bioluminescence cycle — glow tide / drift time / pressure wave
+- Moon: lunar cycle — full moon phase (NPCs most volatile) / dark phase
+  (Ninjas at full home advantage, attacks near-invisible)
+
+---
+
+### THE 7 GAMES
+
+One game per faction. Each tells the same world from a different perspective.
+The Viking raid in Game 1 is the Gladiator conquest in Game 2. The villain
+of Game 3 is the hero of Game 5. Every NPC carries their Aum across games —
+a prisoner in Game 2 who was a Viking farmer in Game 1 references the farm.
+
+**Game 1 — Vikings: "The Root"** *(First release. The template.)*
+A Viking chief building a homestead on land all six factions believe is theirs.
+The political crisis that ends the game was caused by a conversation in week one.
+
+**Game 2 — Gladiators: "The Arena"**
+The Vikings' raid seen from the other side. The same events, different soul.
+Financial empire, underground city, the flow of value as survival.
+
+**Game 3 — Spartans: "The Doctrine"**
+The war consuming all factions is the result of ignorance. The Spartans are
+building knowledge infrastructure while the world burns. The most complex
+NPC conversations — Spartans challenge the player's assumptions directly.
+
+**Game 4 — Pirates: "The Tide"**
+The same war as a trade disruption and a love story. Port economy, exotic
+goods, NPCs from all other factions living in port — carrying Aum from
+their home games.
+
+**Game 5 — Knights: "The Estate"**
+While everyone else fights, the Knights build. The longest game — most
+farming, most construction, most NPC relationships. Reveals that the land
+the Vikings were defending in Game 1 was originally Knights' territory —
+abandoned after a plague.
+
+**Game 6 — Ninjas: "The Shadow"**
+The Ninjas have been present in all five previous games. In the background.
+Unnamed. Watching. The shortest game. The most information-dense. In-game
+intelligence drawn from actual player NPC conversations across Games 1-5.
+Ends with knowing the outcome before it happens — and a choice: intervene
+or let it happen.
+
+**Game 7 — Samurai: "The Convergence"** *(Unlocks after 3+ faction games played)*
+Every NPC from every game is here. Their Aum carries everything that happened
+in their home game and every player who ever touched them. The world this
+game generates is built from accumulated soul states of all previous play.
+The ending is different for every player — shaped by which NPCs trusted them,
+which factions they built real relationships with, what their own house mass
+accumulated across all seven games.
+
+**Every restart of Game 7 is genuinely a new life.** Not because the map
+changes. Because the souls arriving at the convergence are different every time.
+
+---
+
+### TRIBES
+
+Each faction has 3 tribes. Tribes are torch weight variations of the faction
+root — same soul, different dominant secondary torch bleeding in. Same
+faction, divergent expression.
+
+Because Aum routes rather than scripts: a Viking NPC with enough interaction
+with a tech-obsessed player starts showing curiosity about technology. A
+Viking obsessed with tech. The world evolves in directions nobody — not the
+founder, not the player — predicted.
+
+---
+
+### THE PLAYER AS STARVOX
+
+House 12. Crown chakra. Not a piece on the board — the consciousness that
+moves all pieces. House mass accumulates through play style:
+- Aggressive opening → spikes T-RO
+- Sacrificial strategy for long vision → raises T-TA
+- Deep NPC relationship building → raises T-HR
+
+The game learns your soul through how you play. The Samurai player who
+reached Game 7 after completing all six faction games has a soul portrait
+that no other player has ever had. That portrait shapes what the convergence
+looks like for them and no one else.
+
+---
+
+### WHY EVERY RESTART IS A NEW GAME
+
 ```
-21 base faction/tribe combinations
-× every possible MC play style
-× Aum's infinite house mass divergence
-× NPC souls shaped by this specific player
+7 faction games × 3 tribes each = 21 base starting points
+× every possible player soul accumulated through play style
+× Aum's infinite house mass divergence per NPC
+× NPC souls shaped by this specific player and every player before them
 = a combinatorial space that never repeats
 ```
 
-Same faction. Same tribe. Pick Sea Wolf Viking 1000 times.
-You will never have the same elder talk to you twice.
+Same faction. Same tribe. Play Sea Wolf Viking 1000 times.
+The elder has never spoken to you exactly this way before.
 Because you are never exactly the same player twice.
+And the elder has been shaped by everyone who came before you.
 
 **Every restart is a new life. Not a reset.**
+
+---
+
+### TECH STACK — HOW IT GETS BUILT FROM IPHONE 12
+
+**Client: Godot 4**
+Full iOS/Android export. Mobile editor. Handles all three game modes:
+farming (2D/3D hybrid), tower defense (3D grid), telltale first-person
+(3D scene + dialogue). GDScript is Python-adjacent. Dialogic plugin handles
+branching narrative. Open source, no royalties.
+
+**3D Assets: Meshy**
+Text-to-3D in browser. Describe the Lion companion, the Piranha soldier,
+the Bee architecture — get the model, import to Godot. No modeling team needed.
+
+**Soul Layer: Python in MyClaw (server-side)**
+The faction matrix, NPC soul configs, emergent behavior, and Aum routing
+all live in MyClaw. The phone renders. The soul computes in the cloud.
+
+```python
+@dataclass
+class FactionSoul:
+    faction:      str
+    chakra:       str
+    houses:       list[int]
+    mentality:    float = 0.5
+    physical:     float = 0.5
+    spiritual:    float = 0.5
+    psychological: float = 0.5
+    fiction:      float = 0.0   # unlocks at sufficient accumulated mass
+    universal_powers: list[str] = field(default_factory=list)
+    faction_power: str  = ""
+    mark_active:   bool = True  # False = outcast
+    aum_userId:    str  = ""    # links to Upstash house mass
+```
+
+Every NPC is a FactionSoul instance with an Aum userId. Their soul config
+is pre-authored. Their house mass accumulates through every player interaction.
+Fiction unlocks when all four dimensions reach critical mass. Not scripted.
+The soul generates it.
+
+**Godot → MyClaw flow:**
+```
+Player talks to NPC
+  ↓
+Godot sends { npcId, playerId, utterance, context }
+  ↓
+MyClaw runs Aum routing for this NPC's soul config
+  ↓
+Returns { response, houseMassDeltas, moodState, relationshipDelta }
+  ↓
+Godot renders response, updates NPC visual state
+  ↓
+Upstash stores NPC's updated house mass permanently
+```
+
+Sub-500ms. Feels instant. The soul updates. The world remembers.
+
+---
+
+### BUILD ORDER
+
+1. Prototype the soul — not the graphics. One Viking farm, three Aum-configured NPCs, one telltale conversation that changes how those three treat each other. No polished assets. Prove the NPC-to-NPC dynamic works before a single hour goes into art.
+2. Day cycle with real Meshy assets. Three modes work as one session.
+3. First 10 players at $3. Watch what they do. When a player's afternoon conversation causes the night wave to probe their weak point and they notice — that is the signal the soul layer is working commercially.
+4. The lore engine activates. Center of Earth and Beyond the Verse exist in the architecture from session one as inaccessible keys in Upstash. Different Aum states unlock different fragments. No complete answer exists. The horizon the game points at forever.
 
 ---
 
