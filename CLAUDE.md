@@ -1056,9 +1056,8 @@ Respect honestly. Terrifying, but respect."
 - Shareable result card (Canvas or HTML-to-image)
 - Email capture → Zenith waitlist
 
-**The butterfly needs a name.** Options: Ren (Japanese — rebirth, fits metamorphosis),
-Miru (Japanese — to see, fits pattern reading), Zeph (threshold energy).
-Vision chooses.
+**The butterfly's name is Miru.** Japanese — "to see." Pattern reading is their power.
+Tiny, adorable, Crown chakra, and it sees straight through you. The name is the lore.
 
 ---
 
