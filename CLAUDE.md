@@ -1056,8 +1056,10 @@ Respect honestly. Terrifying, but respect."
 - Shareable result card (Canvas or HTML-to-image)
 - Email capture → Zenith waitlist
 
-**The butterfly's name is Miru.** Japanese — "to see." Pattern reading is their power.
-Tiny, adorable, Crown chakra, and it sees straight through you. The name is the lore.
+**The butterfly's name is Ren.** Japanese — rebirth, metamorphosis. One syllable.
+Sounds like a character before you've even met them. When someone posts "Ren just
+called me a fuckface and described my entire personality in 90 seconds" — it lands.
+Tiny, adorable, Crown chakra, sees straight through you. That's Ren.
 
 ---
 
