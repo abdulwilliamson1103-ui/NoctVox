@@ -945,14 +945,14 @@ The viral beachhead before the game ships. One page. One character. Nine possibl
 Buildable now. Costs nothing until someone uses it. Shareable without asking.
 
 **The concept:**
-Tiny adorable 3D butterfly. Mouth moves. Talks shit. Reads you in 3 questions.
+Tiny adorable 3D butterfly named **Ren**. Mouth moves. Talks shit. Reads you in 3 questions.
 Delivers your Vox archetype with full attitude and genuine love underneath.
 People post TikToks of this. That's not engineered virality — it's just actually funny and accurate.
 
-**Why the butterfly:**
+**Why Ren:**
 Samurai faction. Crown chakra. Their literal power in the lore: pattern reading —
 see the Aum energy field beneath every interaction. That is exactly what this page does.
-The mascot is the lore. Tiny, beautiful, delicate — and it just completely clocked you.
+The mascot is the lore. Tiny, beautiful, delicate — and Ren just completely clocked you.
 
 **The personality — locked:**
 Crude. Funny. Loving but brutal. No pretension. No filter.
@@ -969,7 +969,7 @@ Butterfly appears — speaks immediately, no form visible
  This won't take long. Three things. Don't think too hard —
  that's already a tell."
   ↓
-Q1 — through the butterfly's voice:
+Q1 — through Ren's voice:
 "Someone you trust is walking into a mistake.
  You can see it. They can't. What do you do?"
   ↓
@@ -1049,7 +1049,7 @@ You've been watching this entire time haven't you.
 Respect honestly. Terrifying, but respect."
 
 **Technical build — same pattern as lumora.html:**
-- Three.js butterfly (Meshy glTF model)
+- Three.js Ren model (Meshy glTF — tiny butterfly, expressive, Crown chakra design)
 - Simple jaw bone animation driven by audio playback
 - ElevenLabs free tier for voice — soft but has edge
 - One POST to `/api/aum` with all three responses — returns archetype
@@ -1065,7 +1065,7 @@ Tiny, adorable, Crown chakra, sees straight through you. That's Ren.
 
 **THREE AGES. THREE VOICES. ONE BUTTERFLY.**
 
-The butterfly asks one thing before the three questions:
+Ren asks one thing before the three questions:
 *"How old are you? And don't lie. I'll know."*
 
 This sets the delivery register for everything that follows.
